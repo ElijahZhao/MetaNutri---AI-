@@ -1,16 +1,53 @@
 'use client';
 import Link from 'next/link';
-import { Activity, Dna, Microscope, Brain, ArrowRight, Sparkles, Shield, Zap, Globe } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Activity, Dna, Microscope, Brain, ArrowRight, Sparkles, Shield, Zap, Globe, Maximize2 } from 'lucide-react';
 import TypeWriter from '../components/TypeWriter';
 import ScrollReveal from '../components/ScrollReveal';
 import SpotlightTitle from '../components/SpotlightTitle';
+import BioCanvas from '../components/BioCanvas';
 import { useLanguage } from '../lib/i18n';
 
 export default function Home() {
   const { t, language, toggleLanguage } = useLanguage();
+  const [isCanvasMode, setIsCanvasMode] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isCanvasMode) {
+        setIsCanvasMode(false);
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+      }
+      if (e.key === 'c' && !e.ctrlKey && !e.metaKey && !isCanvasMode) {
+        setIsCanvasMode(true);
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isCanvasMode]);
+
+  const enterCanvasMode = async () => {
+    setIsCanvasMode(true);
+    try {
+      await document.documentElement.requestFullscreen();
+    } catch (e) {
+      console.log('Fullscreen not supported');
+    }
+  };
+
+  const exitCanvasMode = () => {
+    setIsCanvasMode(false);
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  };
 
   return (
-    <div className="min-h-screen">
+    <div className={`min-h-screen transition-opacity duration-500 ${isCanvasMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-emerald-600 font-bold text-xl">
@@ -18,6 +55,14 @@ export default function Home() {
             MetaNutri
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={enterCanvasMode}
+              className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
+              title={language === 'en' ? 'Canvas Mode (C)' : '画布模式 (C)'}
+            >
+              <Maximize2 className="w-4 h-4" />
+              {language === 'en' ? 'Canvas' : '画布'}
+            </button>
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
@@ -245,6 +290,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      <BioCanvas isCanvasMode={isCanvasMode} onExitCanvas={exitCanvasMode} />
     </div>
   );
 }
