@@ -1,28 +1,39 @@
 'use client';
 import Link from 'next/link';
-import { Activity, Dna, Microscope, Brain, ArrowRight, Sparkles, Shield, Zap } from 'lucide-react';
+import { Activity, Dna, Microscope, Brain, ArrowRight, Sparkles, Shield, Zap, Globe } from 'lucide-react';
 import TypeWriter from '../components/TypeWriter';
 import ScrollReveal from '../components/ScrollReveal';
-import FloatingElements from '../components/FloatingElements';
 import SpotlightTitle from '../components/SpotlightTitle';
+import { useLanguage } from '../lib/i18n';
 
 export default function Home() {
+  const { t, language, toggleLanguage } = useLanguage();
+
   return (
     <div className="min-h-screen">
-      <FloatingElements />
       <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-emerald-600 font-bold text-xl">
             <Activity className="w-6 h-6" />
             MetaNutri
           </div>
-          <Link
-            href="/login"
-            className="group px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-all hover:shadow-lg hover:shadow-emerald-500/30 relative overflow-hidden"
-          >
-            <span className="relative z-10">Get Started</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
+              title={`${language === 'en' ? 'Switch to Chinese' : '切换到英文'} (Ctrl+Shift+L)`}
+            >
+              <Globe className="w-4 h-4" />
+              {language === 'en' ? 'EN' : '中文'}
+            </button>
+            <Link
+              href="/login"
+              className="group px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-all hover:shadow-lg hover:shadow-emerald-500/30 relative overflow-hidden"
+            >
+              <span className="relative z-10">{t.getStarted}</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -36,7 +47,7 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium mb-8 shadow-sm">
                 <Sparkles className="w-4 h-4" />
                 <TypeWriter 
-                  texts={['AI Precision Nutrition', 'Metabolic Digital Twin', 'Multi-Omics Integration']}
+                  texts={[t.tagline, t.tagline2, t.tagline3]}
                   speed={80}
                   delay={2500}
                 />
@@ -45,7 +56,7 @@ export default function Home() {
             
             <ScrollReveal className="mt-8">
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">
-                Build Your
+                {language === 'en' ? 'Build Your' : '构建您的'}
                 <SpotlightTitle 
                   className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500"
                   color="rgba(34, 211, 238, 0.7)"
@@ -53,15 +64,14 @@ export default function Home() {
                   speed={4}
                   delay={1500}
                 >
-                  Metabolic Digital Twin
+                  {language === 'en' ? 'Metabolic Digital Twin' : '代谢数字孪生'}
                 </SpotlightTitle>
               </h1>
             </ScrollReveal>
 
             <ScrollReveal className="mt-8">
               <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Integrate genomic, microbiome, and metabolomic data to unlock personalized nutrition insights.
-                Powered by deep learning for accurate metabolic response predictions.
+                {t.subtitle}
               </p>
             </ScrollReveal>
 
@@ -71,7 +81,7 @@ export default function Home() {
                   href="/login"
                   className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 overflow-hidden"
                 >
-                  <span className="relative z-10">Start Your Journey</span>
+                  <span className="relative z-10">{t.cta1}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/0 via-emerald-400/30 to-emerald-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -80,7 +90,7 @@ export default function Home() {
                   href="/dashboard"
                   className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-emerald-300 transition-all hover:shadow-lg relative overflow-hidden"
                 >
-                  <span className="relative z-10">View Dashboard</span>
+                  <span className="relative z-10">{t.cta2}</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-emerald-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Link>
               </div>
@@ -93,10 +103,10 @@ export default function Home() {
             <ScrollReveal>
               <div className="text-center mb-16">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-                  Why MetaNutri
+                  {t.whyTitle}
                 </h2>
                 <p className="text-slate-600 max-w-2xl mx-auto">
-                  Cutting-edge technology meets personalized nutrition for optimal health outcomes
+                  {t.whySubtitle}
                 </p>
               </div>
             </ScrollReveal>
@@ -110,9 +120,9 @@ export default function Home() {
                     <div className="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                       <Dna className="w-7 h-7 text-emerald-600 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-shadow duration-300" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-emerald-700 transition-colors">Multi-Omics Integration</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-emerald-700 transition-colors">{t.feature1Title}</h3>
                     <p className="text-slate-600 leading-relaxed group-hover:text-slate-700 transition-colors">
-                      Combine genomic, microbiome, and metabolic data for a holistic view of your nutrition needs.
+                      {t.feature1Desc}
                     </p>
                   </div>
                 </div>
@@ -126,9 +136,9 @@ export default function Home() {
                     <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                       <Brain className="w-7 h-7 text-blue-600 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] transition-shadow duration-300" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">Deep Learning Models</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">{t.feature2Title}</h3>
                     <p className="text-slate-600 leading-relaxed group-hover:text-slate-700 transition-colors">
-                      Predict metabolic responses to foods using state-of-the-art neural networks and attention mechanisms.
+                      {t.feature2Desc}
                     </p>
                   </div>
                 </div>
@@ -142,9 +152,9 @@ export default function Home() {
                     <div className="w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                       <Microscope className="w-7 h-7 text-amber-600 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.5)] transition-shadow duration-300" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-amber-700 transition-colors">Precision Recommendations</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-amber-700 transition-colors">{t.feature3Title}</h3>
                     <p className="text-slate-600 leading-relaxed group-hover:text-slate-700 transition-colors">
-                      Receive tailored dietary suggestions backed by scientific evidence and your unique biology.
+                      {t.feature3Desc}
                     </p>
                   </div>
                 </div>
@@ -158,9 +168,9 @@ export default function Home() {
                     <div className="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                       <Shield className="w-7 h-7 text-purple-600 group-hover:drop-shadow-[0_0_8px_rgba(147,51,234,0.5)] transition-shadow duration-300" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-purple-700 transition-colors">Privacy & Security</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-purple-700 transition-colors">{t.feature4Title}</h3>
                     <p className="text-slate-600 leading-relaxed group-hover:text-slate-700 transition-colors">
-                      Your health data is encrypted and stored securely. Complete control over your personal information.
+                      {t.feature4Desc}
                     </p>
                   </div>
                 </div>
@@ -174,9 +184,9 @@ export default function Home() {
                     <div className="w-14 h-14 bg-gradient-to-br from-cyan-100 to-cyan-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                       <Zap className="w-7 h-7 text-cyan-600 group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.5)] transition-shadow duration-300" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-cyan-700 transition-colors">Real-Time Analysis</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-cyan-700 transition-colors">{t.feature5Title}</h3>
                     <p className="text-slate-600 leading-relaxed group-hover:text-slate-700 transition-colors">
-                      Get instant insights from your data with optimized AI models and cached results.
+                      {t.feature5Desc}
                     </p>
                   </div>
                 </div>
@@ -190,9 +200,9 @@ export default function Home() {
                     <div className="w-14 h-14 bg-gradient-to-br from-pink-100 to-pink-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                       <Activity className="w-7 h-7 text-pink-600 group-hover:drop-shadow-[0_0_8px_rgba(236,72,153,0.5)] transition-shadow duration-300" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-pink-700 transition-colors">Continuous Learning</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-pink-700 transition-colors">{t.feature6Title}</h3>
                     <p className="text-slate-600 leading-relaxed group-hover:text-slate-700 transition-colors">
-                      The AI models continuously improve with new data, adapting to your evolving health needs.
+                      {t.feature6Desc}
                     </p>
                   </div>
                 </div>
@@ -209,17 +219,17 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center relative z-10">
             <ScrollReveal>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                Ready to Transform Your Nutrition?
+                {t.ctaSectionTitle}
               </h2>
               <p className="text-emerald-100 text-lg mb-10">
-                Join thousands of users who are using AI to optimize their health through personalized nutrition
+                {t.ctaSectionSubtitle}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/login"
                   className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-emerald-600 bg-white rounded-xl hover:bg-emerald-50 transition-all hover:shadow-xl overflow-hidden"
                 >
-                  <span className="relative z-10">Get Started Free</span>
+                  <span className="relative z-10">{t.ctaFree}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-200/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Link>
@@ -227,7 +237,7 @@ export default function Home() {
                   href="/datasets"
                   className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white bg-white/10 border border-white/30 rounded-xl hover:bg-white/20 transition-all backdrop-blur-sm overflow-hidden"
                 >
-                  <span className="relative z-10">Explore Datasets</span>
+                  <span className="relative z-10">{t.ctaExplore}</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Link>
               </div>
