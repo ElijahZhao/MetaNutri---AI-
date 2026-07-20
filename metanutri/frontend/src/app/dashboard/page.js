@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import MetabolicPathway from '@/components/MetabolicPathway';
+import NutritionAlerts from '@/components/NutritionAlerts';
 import { userAPI, predictAPI, recommendationAPI, genomicAPI } from '@/lib/api';
 import { Activity, TrendingUp, ShieldAlert, Utensils, Loader2, Dna, Microscope, Apple } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -211,26 +212,7 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <ShieldAlert className="w-5 h-5 text-amber-600" />
-              <h2 className="text-lg font-semibold text-slate-900">Health Suggestions</h2>
-            </div>
-            {risk && risk.suggestions.length > 0 ? (
-              <ul className="space-y-3">
-                {risk.suggestions.map((s, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-slate-700">
-                    <span className="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-xs font-bold">
-                      {i + 1}
-                    </span>
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-slate-500">Run a risk assessment to see personalized suggestions.</p>
-            )}
-          </div>
+          <NutritionAlerts />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">

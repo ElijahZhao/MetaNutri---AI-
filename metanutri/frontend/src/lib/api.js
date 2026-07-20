@@ -79,3 +79,20 @@ export const datasetAPI = {
   tianchiSearch: (keyword, category) => api.get('/api/datasets/tianchi/search', { params: { keyword, category } }),
   tianchiDetail: (datasetId) => api.get(`/api/datasets/tianchi/${datasetId}`),
 };
+
+export const nutritionAlertAPI = {
+  getDeficiencies: () => api.get('/api/nutrition-alerts/deficiencies'),
+  getSummary: () => api.get('/api/nutrition-alerts/summary'),
+};
+
+export const importExportAPI = {
+  importData: (dataType, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post(`/api/import-export/import/${dataType}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  exportData: (dataType, format = 'json') => api.get(`/api/import-export/export/${dataType}?format=${format}`),
+  getTemplate: (dataType) => api.get(`/api/import-export/templates/${dataType}`),
+};
