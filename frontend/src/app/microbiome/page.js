@@ -2,14 +2,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { microbiomeAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { toast } from 'react-hot-toast';
 import { Microscope, Upload, Leaf, Loader2, Activity, Shield, Zap } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
-export default function MicrobiomePage() {
+function MicrobiomeContent() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [data, setData] = useState([]);
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,17 +21,23 @@ export default function MicrobiomePage() {
   const [form, setForm] = useState({ taxon_name: '', taxon_level: 'genus', relative_abundance: '', health_score: '' });
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) { router.push('/login'); return; }
+    if (!isAuthenticated()) { router.push('/login'); return; }
     fetchData();
-  }, [router]);
+  }, [router, isAuthenticated]);
 
   const fetchData = async () => {
-    try { const res = await microbiomeAPI.getUserData(); setData(res.data); }
-    catch (e) { console.error(e); } finally { setLoading(false); }
+    try { 
+      const res = await microbiomeAPI.getUserData(); 
+      setData(res.data); 
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to load microbiome data');
+    } finally { setLoading(false); }
   };
 
   const handleAdd = async (e) => {
-    e.preventDefault(); setUploading(true);
+    e.preventDefault(); 
+    setUploading(true);
     try {
       await microbiomeAPI.upload([{
         taxon_name: form.taxon_name,
@@ -35,17 +45,25 @@ export default function MicrobiomePage() {
         relative_abundance: parseFloat(form.relative_abundance),
         health_score: form.health_score ? parseFloat(form.health_score) : undefined,
       }]);
+      toast.success('Microbiome entry added successfully!');
       setForm({ taxon_name: '', taxon_level: 'genus', relative_abundance: '', health_score: '' });
       fetchData();
-    } catch (e) { console.error(e); }
-    finally { setUploading(false); }
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to add microbiome entry');
+    } finally { setUploading(false); }
   };
 
   const handleAnalyze = async () => {
     setLoading(true);
-    try { const res = await microbiomeAPI.analyze(); setAnalysis(res.data); }
-    catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    try { 
+      const res = await microbiomeAPI.analyze(); 
+      setAnalysis(res.data); 
+      toast.success('Analysis completed!');
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to analyze microbiome data');
+    } finally { setLoading(false); }
   };
 
   const pieOption = {
@@ -213,5 +231,13 @@ export default function MicrobiomePage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function MicrobiomePage() {
+  return (
+    <ErrorBoundary>
+      <MicrobiomeContent />
+    </ErrorBoundary>
   );
 }

@@ -3,6 +3,17 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const LanguageContext = createContext(null);
 
+const STORAGE_KEY = 'metanutri-language';
+
+const getStoredLanguage = () => {
+  if (typeof window === 'undefined') return 'en';
+  try {
+    return localStorage.getItem(STORAGE_KEY) || 'en';
+  } catch {
+    return 'en';
+  }
+};
+
 const translations = {
   en: {
     title: 'Build Your Metabolic Digital Twin',
@@ -32,7 +43,57 @@ const translations = {
     ctaExplore: 'Explore Datasets',
     getStarted: 'Get Started',
     login: 'Login',
+    logout: 'Logout',
     dashboard: 'Dashboard',
+    welcomeBack: 'Welcome back',
+    createAccount: 'Create account',
+    username: 'Username',
+    email: 'Email',
+    password: 'Password',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    dontHaveAccount: "Don't have an account?",
+    alreadyHaveAccount: 'Already have an account?',
+    nutritionDashboard: 'Nutrition Dashboard',
+    personalizedOverview: 'Your personalized metabolic overview',
+    healthScore: 'Health Score',
+    riskProfile: 'Risk Profile',
+    bodyMetrics: 'Body Metrics',
+    recentRecommendations: 'Recent Recommendations',
+    age: 'Age',
+    height: 'Height',
+    weight: 'Weight',
+    bmi: 'BMI',
+    activity: 'Activity',
+    completeProfile: 'Complete your profile to see metrics.',
+    noRecommendations: 'No recommendations yet. Generate a meal plan to get started.',
+    genomicData: 'Genomic Data',
+    microbiome: 'Microbiome',
+    metabolomics: 'Metabolomics',
+    diversityIndex: 'Diversity Index',
+    activePathways: 'Active Pathways',
+    addData: 'Add data to see analysis',
+    userProfile: 'User Profile',
+    manageHealthInfo: 'Manage your health information',
+    healthProfile: 'Health Profile',
+    updateHealthInfo: 'Update your personal health information',
+    activityLevel: 'Activity Level',
+    dietaryGoals: 'Dietary Goals',
+    dietaryRestrictions: 'Dietary Restrictions',
+    saveProfile: 'Save Profile',
+    reset: 'Reset',
+    saved: 'Saved!',
+    bmiCalculation: 'BMI Calculation',
+    underweight: 'Underweight',
+    normal: 'Normal',
+    overweight: 'Overweight',
+    obese: 'Obese',
+    selectGender: 'Select gender',
+    selectActivity: 'Select activity level',
+    canvas: 'Canvas',
+    canvasMode: 'Canvas Mode',
+    switchToChinese: 'Switch to Chinese',
+    switchToEnglish: 'Switch to English',
   },
   zh: {
     title: '构建您的代谢数字孪生',
@@ -62,12 +123,66 @@ const translations = {
     ctaExplore: '探索数据集',
     getStarted: '开始使用',
     login: '登录',
+    logout: '退出登录',
     dashboard: '仪表盘',
+    welcomeBack: '欢迎回来',
+    createAccount: '创建账户',
+    username: '用户名',
+    email: '邮箱',
+    password: '密码',
+    signIn: '登录',
+    signUp: '注册',
+    dontHaveAccount: '还没有账户？',
+    alreadyHaveAccount: '已有账户？',
+    nutritionDashboard: '营养仪表盘',
+    personalizedOverview: '您的个性化代谢概览',
+    healthScore: '健康评分',
+    riskProfile: '风险评估',
+    bodyMetrics: '身体指标',
+    recentRecommendations: '近期推荐',
+    age: '年龄',
+    height: '身高',
+    weight: '体重',
+    bmi: 'BMI',
+    activity: '活动量',
+    completeProfile: '完成个人资料以查看指标。',
+    noRecommendations: '暂无推荐。生成膳食计划开始使用。',
+    genomicData: '基因组数据',
+    microbiome: '微生物组',
+    metabolomics: '代谢组',
+    diversityIndex: '多样性指数',
+    activePathways: '活性通路',
+    addData: '添加数据以查看分析',
+    userProfile: '用户资料',
+    manageHealthInfo: '管理您的健康信息',
+    healthProfile: '健康档案',
+    updateHealthInfo: '更新您的个人健康信息',
+    activityLevel: '活动水平',
+    dietaryGoals: '膳食目标',
+    dietaryRestrictions: '饮食限制',
+    saveProfile: '保存资料',
+    reset: '重置',
+    saved: '已保存！',
+    bmiCalculation: 'BMI 计算',
+    underweight: '偏瘦',
+    normal: '正常',
+    overweight: '超重',
+    obese: '肥胖',
+    selectGender: '选择性别',
+    selectActivity: '选择活动水平',
+    canvas: '画布',
+    canvasMode: '画布模式',
+    switchToChinese: '切换到中文',
+    switchToEnglish: '切换到英文',
   },
 };
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState(getStoredLanguage);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, language);
+  }, [language]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {

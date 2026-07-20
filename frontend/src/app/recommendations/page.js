@@ -2,11 +2,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { recommendationAPI, foodAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { toast } from 'react-hot-toast';
 import { Utensils, Search, Star, Loader2, Sparkles } from 'lucide-react';
 
-export default function RecommendationsPage() {
+function RecommendationsContent() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [recs, setRecs] = useState([]);
   const [query, setQuery] = useState('');
   const [foods, setFoods] = useState([]);
@@ -15,36 +19,53 @@ export default function RecommendationsPage() {
   const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) { router.push('/login'); return; }
+    if (!isAuthenticated()) { router.push('/login'); return; }
     fetchRecs();
-  }, [router]);
+  }, [router, isAuthenticated]);
 
   const fetchRecs = async () => {
-    try { const res = await recommendationAPI.getPersonalized(); setRecs(res.data); }
-    catch (e) { console.error(e); }
+    try { 
+      const res = await recommendationAPI.getPersonalized(); 
+      setRecs(res.data); 
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to load recommendations');
+    }
   };
 
   const searchFoods = async (e) => {
     e.preventDefault();
     if (!query.trim()) return;
     setLoading(true);
-    try { const res = await foodAPI.search(query); setFoods(res.data.results); }
-    catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    try { 
+      const res = await foodAPI.search(query); 
+      setFoods(res.data.results); 
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Search failed');
+    } finally { setLoading(false); }
   };
 
   const scoreFood = async (foodId, foodName) => {
     try {
       const res = await recommendationAPI.foodScore({ user_id: 'me', food_id: foodId });
       setFoodScore(res.data);
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to score food');
+    }
   };
 
   const generateMeal = async () => {
     setGenerating(true);
-    try { await recommendationAPI.mealPlan({}); fetchRecs(); }
-    catch (e) { console.error(e); }
-    finally { setGenerating(false); }
+    try { 
+      await recommendationAPI.mealPlan({}); 
+      fetchRecs(); 
+      toast.success('Meal plan generated successfully!');
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to generate meal plan');
+    } finally { setGenerating(false); }
   };
 
   return (
@@ -133,5 +154,13 @@ export default function RecommendationsPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function RecommendationsPage() {
+  return (
+    <ErrorBoundary>
+      <RecommendationsContent />
+    </ErrorBoundary>
   );
 }

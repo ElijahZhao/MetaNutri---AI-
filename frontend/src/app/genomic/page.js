@@ -2,11 +2,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { genomicAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { toast } from 'react-hot-toast';
 import { Dna, Upload, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 
-export default function GenomicPage() {
+function GenomicContent() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [data, setData] = useState([]);
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,15 +18,18 @@ export default function GenomicPage() {
   const [form, setForm] = useState({ gene_name: '', snp_id: '', genotype: '', effect_score: '', trait_description: '' });
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) { router.push('/login'); return; }
+    if (!isAuthenticated()) { router.push('/login'); return; }
     fetchData();
-  }, [router]);
+  }, [router, isAuthenticated]);
 
   const fetchData = async () => {
     try {
       const res = await genomicAPI.getUserData();
       setData(res.data);
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to load genomic data');
+    }
     finally { setLoading(false); }
   };
 
@@ -38,9 +45,13 @@ export default function GenomicPage() {
         trait_description: form.trait_description || undefined,
       }];
       await genomicAPI.upload(payload);
+      toast.success('Genomic entry added successfully!');
       setForm({ gene_name: '', snp_id: '', genotype: '', effect_score: '', trait_description: '' });
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to add genomic entry');
+    }
     finally { setUploading(false); }
   };
 
@@ -49,7 +60,11 @@ export default function GenomicPage() {
     try {
       const res = await genomicAPI.analyze();
       setAnalysis(res.data);
-    } catch (e) { console.error(e); }
+      toast.success('Analysis completed!');
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to analyze genomic data');
+    }
     finally { setLoading(false); }
   };
 
@@ -161,5 +176,13 @@ export default function GenomicPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function GenomicPage() {
+  return (
+    <ErrorBoundary>
+      <GenomicContent />
+    </ErrorBoundary>
   );
 }
