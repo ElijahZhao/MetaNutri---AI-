@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useRef, useState } from 'react';
 
 export default function ScrollReveal({ children, className = '', threshold = 0.1 }) {

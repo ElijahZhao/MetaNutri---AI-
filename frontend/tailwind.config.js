@@ -12,9 +12,9 @@ module.exports = {
       },
       animation: {
         float: 'float 15s ease-in-out infinite',
-        pulse-glow: 'pulse-glow 2s ease-in-out infinite',
-        fade-in: 'fade-in 0.5s ease-out forwards',
-        slide-up: 'slide-up 0.6s ease-out forwards',
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        'fade-in': 'fade-in 0.5s ease-out forwards',
+        'slide-up': 'slide-up 0.6s ease-out forwards',
       },
       keyframes: {
         float: {
