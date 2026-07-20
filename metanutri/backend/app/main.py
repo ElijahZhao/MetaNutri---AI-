@@ -39,6 +39,7 @@ app.include_router(genomic.router)
 app.include_router(microbiome.router)
 app.include_router(recommendation.router)
 app.include_router(predict.router)
+app.include_router(metabolomics.router)
 app.include_router(datasets.router)
 
 
