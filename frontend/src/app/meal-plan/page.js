@@ -18,7 +18,7 @@ export default function MealPlanPage() {
   const generateMealPlan = async () => {
     setLoading(true);
     try {
-      const res = await recommendationAPI.generateMealPlan({});
+      const res = await recommendationAPI.mealPlan({});
       setMealPlan(res.data);
     } catch (err) {
       console.error(err);
