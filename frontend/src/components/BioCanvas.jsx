@@ -384,12 +384,23 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
           0,
           canvas.width / 2,
           canvas.height / 2,
-          canvas.width * 0.7
+          canvas.width * 0.8
         );
-        gradient.addColorStop(0, '#0f172a');
-        gradient.addColorStop(1, '#020617');
+        gradient.addColorStop(0, '#f8fafc');
+        gradient.addColorStop(0.5, '#f1f5f9');
+        gradient.addColorStop(1, '#e2e8f0');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.03)';
+        for (let i = 0; i < 8; i++) {
+          const x = ((i * 137.5) % 1) * canvas.width;
+          const y = ((i * 73.3) % 1) * canvas.height;
+          const r = 100 + (i % 5) * 80;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
 
       ripplesRef.current = ripplesRef.current.filter(ripple => {
@@ -445,8 +456,8 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
               ctx.beginPath();
               ctx.moveTo(particle.x, particle.y);
               ctx.lineTo(other.x, other.y);
-              ctx.strokeStyle = `rgba(99, 102, 241, ${0.15 * (1 - distance / 150)})`;
-              ctx.lineWidth = 0.5;
+              ctx.strokeStyle = `rgba(15, 23, 42, ${0.12 * (1 - distance / 150)})`;
+              ctx.lineWidth = 0.8;
               ctx.stroke();
             }
           });
@@ -460,20 +471,20 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
         if (particle.isHovered) {
           const glowGradient = ctx.createRadialGradient(
             particle.x, particle.y, 0,
-            particle.x, particle.y, particle.size * 2
+            particle.x, particle.y, particle.size * 2.5
           );
-          glowGradient.addColorStop(0, 'rgba(34, 211, 238, 0.3)');
-          glowGradient.addColorStop(0.5, 'rgba(34, 211, 238, 0.1)');
-          glowGradient.addColorStop(1, 'rgba(34, 211, 238, 0)');
+          glowGradient.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
+          glowGradient.addColorStop(0.5, 'rgba(6, 182, 212, 0.12)');
+          glowGradient.addColorStop(1, 'rgba(6, 182, 212, 0)');
           
           ctx.beginPath();
-          ctx.arc(particle.x, particle.y, particle.size * 2, 0, Math.PI * 2);
+          ctx.arc(particle.x, particle.y, particle.size * 2.5, 0, Math.PI * 2);
           ctx.fillStyle = glowGradient;
           ctx.fill();
 
           ctx.beginPath();
-          ctx.arc(particle.x, particle.y, particle.size * 2, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+          ctx.arc(particle.x, particle.y, particle.size * 2.5, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
           ctx.lineWidth = 2;
           ctx.stroke();
         }
@@ -506,7 +517,7 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
       {isCanvasMode && (
         <button
           onClick={onExitCanvas}
-          className="fixed top-6 right-6 z-50 px-4 py-2 bg-white/10 backdrop-blur-md text-white rounded-lg border border-white/20 hover:bg-white/20 transition-all"
+          className="fixed top-6 right-6 z-50 px-4 py-2 bg-white/60 backdrop-blur-md text-slate-700 rounded-lg border border-slate-200 shadow-lg hover:bg-white/80 transition-all"
         >
           退出画布模式 (ESC)
         </button>
