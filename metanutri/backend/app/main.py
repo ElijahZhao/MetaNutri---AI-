@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.db.session import engine, Base
-from app.api import auth, users, food, genomic, microbiome, recommendation, predict
+from app.api import auth, users, food, genomic, microbiome, recommendation, predict, datasets
 
 
 @asynccontextmanager
@@ -39,6 +39,7 @@ app.include_router(genomic.router)
 app.include_router(microbiome.router)
 app.include_router(recommendation.router)
 app.include_router(predict.router)
+app.include_router(datasets.router)
 
 
 @app.get("/health")

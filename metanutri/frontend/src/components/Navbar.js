@@ -26,6 +26,7 @@ export default function Navbar() {
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/genomic', label: 'Genomic' },
     { href: '/microbiome', label: 'Microbiome' },
+    { href: '/datasets', label: 'Datasets' },
     { href: '/recommendations', label: 'Recommendations' },
     { href: '/predict', label: 'Predictions' },
   ];

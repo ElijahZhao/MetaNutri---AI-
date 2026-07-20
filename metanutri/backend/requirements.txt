@@ -10,7 +10,7 @@ passlib[bcrypt]==1.7.4
 python-multipart==0.0.9
 redis==5.0.7
 celery==5.4.0
-torch==2.3.1
+torch==2.12.0
 numpy==1.26.4
 pandas==2.2.2
 scikit-learn==1.5.1
