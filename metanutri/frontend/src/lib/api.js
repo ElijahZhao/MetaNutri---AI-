@@ -60,3 +60,15 @@ export const predictAPI = {
   nutrientAbsorption: (data) => api.post('/api/predict/nutrient-absorption', data),
   riskAssessment: () => api.get('/api/predict/risk-assessment'),
 };
+
+export const datasetAPI = {
+  list: () => api.get('/api/datasets'),
+  categories: () => api.get('/api/datasets/categories'),
+  download: (datasetId) => api.post(`/api/datasets/download/${datasetId}`),
+  downloadAll: () => api.post('/api/datasets/download'),
+  import: (datasetId) => api.post(`/api/datasets/import/${datasetId}`),
+  stats: () => api.get('/api/datasets/stats'),
+  tianchiList: () => api.get('/api/datasets/tianchi'),
+  tianchiSearch: (keyword, category) => api.get('/api/datasets/tianchi/search', { params: { keyword, category } }),
+  tianchiDetail: (datasetId) => api.get(`/api/datasets/tianchi/${datasetId}`),
+};

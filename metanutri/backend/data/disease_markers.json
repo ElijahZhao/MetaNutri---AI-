@@ -1,0 +1,150 @@
+{
+  "description": "Metabolic and Microbiome Biomarkers for Disease Risk Assessment",
+  "sources": [
+    "MetaNutri Research",
+    "PubMed",
+    "GWAS Catalog"
+  ],
+  "markers": [
+    {
+      "disease": "Type 2 Diabetes",
+      "risk_factors": [
+        {
+          "biomarker": "Glucose",
+          "threshold": 126,
+          "unit": "mg/dL",
+          "direction": "high"
+        },
+        {
+          "biomarker": "Insulin",
+          "threshold": 25,
+          "unit": "uIU/mL",
+          "direction": "high"
+        },
+        {
+          "biomarker": "HOMA-IR",
+          "threshold": 2.5,
+          "unit": "",
+          "direction": "high"
+        },
+        {
+          "biomarker": "HbA1c",
+          "threshold": 6.5,
+          "unit": "%",
+          "direction": "high"
+        }
+      ],
+      "microbiome_signature": {
+        "reduced": [
+          "Roseburia",
+          "Bifidobacterium",
+          "Akkermansia"
+        ],
+        "increased": [
+          "Escherichia",
+          "Enterobacter"
+        ]
+      }
+    },
+    {
+      "disease": "Cardiovascular Disease",
+      "risk_factors": [
+        {
+          "biomarker": "LDL-Cholesterol",
+          "threshold": 130,
+          "unit": "mg/dL",
+          "direction": "high"
+        },
+        {
+          "biomarker": "HDL-Cholesterol",
+          "threshold": 40,
+          "unit": "mg/dL",
+          "direction": "low"
+        },
+        {
+          "biomarker": "Triglycerides",
+          "threshold": 150,
+          "unit": "mg/dL",
+          "direction": "high"
+        },
+        {
+          "biomarker": "C-Reactive Protein",
+          "threshold": 3,
+          "unit": "mg/L",
+          "direction": "high"
+        }
+      ],
+      "microbiome_signature": {
+        "reduced": [
+          "Bifidobacterium",
+          "Faecalibacterium"
+        ],
+        "increased": [
+          "Collinsella",
+          "Eubacterium"
+        ]
+      }
+    },
+    {
+      "disease": "Obesity",
+      "risk_factors": [
+        {
+          "biomarker": "BMI",
+          "threshold": 30,
+          "unit": "kg/m\u00b2",
+          "direction": "high"
+        },
+        {
+          "biomarker": "Waist Circumference",
+          "threshold": 102,
+          "unit": "cm",
+          "direction": "high"
+        },
+        {
+          "biomarker": "Leptin",
+          "threshold": 25,
+          "unit": "ng/mL",
+          "direction": "high"
+        }
+      ],
+      "microbiome_signature": {
+        "reduced": [
+          "Akkermansia",
+          "Bifidobacterium"
+        ],
+        "increased": [
+          "Firmicutes_unclassified",
+          "Ruminococcus"
+        ]
+      }
+    },
+    {
+      "disease": "Inflammatory Bowel Disease",
+      "risk_factors": [
+        {
+          "biomarker": "Calprotectin",
+          "threshold": 250,
+          "unit": "\u00b5g/g",
+          "direction": "high"
+        },
+        {
+          "biomarker": "CRP",
+          "threshold": 10,
+          "unit": "mg/L",
+          "direction": "high"
+        }
+      ],
+      "microbiome_signature": {
+        "reduced": [
+          "Faecalibacterium",
+          "Roseburia",
+          "Bifidobacterium"
+        ],
+        "increased": [
+          "Escherichia",
+          "Enterococcus"
+        ]
+      }
+    }
+  ]
+}

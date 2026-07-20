@@ -1,0 +1,118 @@
+{
+  "description": "Human Gut Microbiome Sample Data - Multi-study reference",
+  "sources": [
+    "MetaNutri Demo",
+    "HMP",
+    "American Gut Project"
+  ],
+  "studies": [
+    {
+      "study_name": "Healthy Adults",
+      "sample_count": 100,
+      "population": "Healthy adults aged 18-45",
+      "geographic_region": "North America",
+      "taxa": [
+        {
+          "phylum": "Bacteroidetes",
+          "genus": "Bacteroides",
+          "mean_abundance": 0.22,
+          "std_abundance": 0.08
+        },
+        {
+          "phylum": "Firmicutes",
+          "genus": "Faecalibacterium",
+          "mean_abundance": 0.12,
+          "std_abundance": 0.05
+        },
+        {
+          "phylum": "Firmicutes",
+          "genus": "Roseburia",
+          "mean_abundance": 0.08,
+          "std_abundance": 0.04
+        },
+        {
+          "phylum": "Firmicutes",
+          "genus": "Lactobacillus",
+          "mean_abundance": 0.06,
+          "std_abundance": 0.03
+        },
+        {
+          "phylum": "Actinobacteria",
+          "genus": "Bifidobacterium",
+          "mean_abundance": 0.05,
+          "std_abundance": 0.03
+        },
+        {
+          "phylum": "Verrucomicrobia",
+          "genus": "Akkermansia",
+          "mean_abundance": 0.04,
+          "std_abundance": 0.02
+        }
+      ]
+    },
+    {
+      "study_name": "Obese Individuals",
+      "sample_count": 80,
+      "population": "Individuals with BMI > 30",
+      "geographic_region": "Europe",
+      "taxa": [
+        {
+          "phylum": "Firmicutes",
+          "genus": "Firmicutes_unclassified",
+          "mean_abundance": 0.35,
+          "std_abundance": 0.1
+        },
+        {
+          "phylum": "Bacteroidetes",
+          "genus": "Bacteroides",
+          "mean_abundance": 0.18,
+          "std_abundance": 0.07
+        },
+        {
+          "phylum": "Firmicutes",
+          "genus": "Escherichia",
+          "mean_abundance": 0.08,
+          "std_abundance": 0.04
+        },
+        {
+          "phylum": "Proteobacteria",
+          "genus": "Enterobacter",
+          "mean_abundance": 0.05,
+          "std_abundance": 0.03
+        }
+      ]
+    },
+    {
+      "study_name": "Type 2 Diabetes",
+      "sample_count": 120,
+      "population": "T2D patients",
+      "geographic_region": "Asia",
+      "taxa": [
+        {
+          "phylum": "Proteobacteria",
+          "genus": "Escherichia",
+          "mean_abundance": 0.12,
+          "std_abundance": 0.06
+        },
+        {
+          "phylum": "Bacteroidetes",
+          "genus": "Bacteroides",
+          "mean_abundance": 0.18,
+          "std_abundance": 0.08
+        },
+        {
+          "phylum": "Firmicutes",
+          "genus": "Roseburia",
+          "mean_abundance": 0.03,
+          "std_abundance": 0.02
+        },
+        {
+          "phylum": "Actinobacteria",
+          "genus": "Bifidobacterium",
+          "mean_abundance": 0.02,
+          "std_abundance": 0.01
+        }
+      ]
+    }
+  ]
+}

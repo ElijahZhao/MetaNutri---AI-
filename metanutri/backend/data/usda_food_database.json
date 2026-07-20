@@ -1,0 +1,757 @@
+{
+  "description": "USDA FoodData Central - Food Nutrition Database",
+  "version": "2023",
+  "source": "USDA FoodData Central",
+  "foods": [
+    {
+      "name": "Apple, raw, with skin",
+      "category": "Fruits",
+      "calories": 52,
+      "protein": 0.3,
+      "carbs": 14,
+      "fat": 0.2,
+      "fiber": 2.4,
+      "sugar": 10
+    },
+    {
+      "name": "Banana, raw",
+      "category": "Fruits",
+      "calories": 89,
+      "protein": 1.1,
+      "carbs": 23,
+      "fat": 0.3,
+      "fiber": 2.6,
+      "sugar": 12
+    },
+    {
+      "name": "Orange, raw",
+      "category": "Fruits",
+      "calories": 47,
+      "protein": 1.2,
+      "carbs": 12,
+      "fat": 0.1,
+      "fiber": 2.4,
+      "sugar": 9
+    },
+    {
+      "name": "Grapefruit, raw",
+      "category": "Fruits",
+      "calories": 42,
+      "protein": 0.9,
+      "carbs": 11,
+      "fat": 0.1,
+      "fiber": 1.6,
+      "sugar": 7
+    },
+    {
+      "name": "Strawberries, raw",
+      "category": "Fruits",
+      "calories": 32,
+      "protein": 0.7,
+      "carbs": 8,
+      "fat": 0.3,
+      "fiber": 2.0,
+      "sugar": 5
+    },
+    {
+      "name": "Blueberries, raw",
+      "category": "Fruits",
+      "calories": 57,
+      "protein": 0.7,
+      "carbs": 14,
+      "fat": 0.3,
+      "fiber": 2.4,
+      "sugar": 10
+    },
+    {
+      "name": "Raspberries, raw",
+      "category": "Fruits",
+      "calories": 53,
+      "protein": 1.2,
+      "carbs": 12,
+      "fat": 0.7,
+      "fiber": 6.5,
+      "sugar": 5
+    },
+    {
+      "name": "Mango, raw",
+      "category": "Fruits",
+      "calories": 60,
+      "protein": 0.8,
+      "carbs": 15,
+      "fat": 0.4,
+      "fiber": 1.6,
+      "sugar": 14
+    },
+    {
+      "name": "Pineapple, raw",
+      "category": "Fruits",
+      "calories": 50,
+      "protein": 0.5,
+      "carbs": 13,
+      "fat": 0.1,
+      "fiber": 1.4,
+      "sugar": 10
+    },
+    {
+      "name": "Watermelon, raw",
+      "category": "Fruits",
+      "calories": 30,
+      "protein": 0.6,
+      "carbs": 8,
+      "fat": 0.2,
+      "fiber": 0.4,
+      "sugar": 6
+    },
+    {
+      "name": "Spinach, raw",
+      "category": "Vegetables",
+      "calories": 23,
+      "protein": 2.9,
+      "carbs": 3.6,
+      "fat": 0.4,
+      "fiber": 2.2,
+      "sugar": 0.4
+    },
+    {
+      "name": "Broccoli, raw",
+      "category": "Vegetables",
+      "calories": 34,
+      "protein": 2.8,
+      "carbs": 7,
+      "fat": 0.4,
+      "fiber": 2.6,
+      "sugar": 1.7
+    },
+    {
+      "name": "Cauliflower, raw",
+      "category": "Vegetables",
+      "calories": 25,
+      "protein": 1.9,
+      "carbs": 5,
+      "fat": 0.3,
+      "fiber": 2.0,
+      "sugar": 1.9
+    },
+    {
+      "name": "Kale, raw",
+      "category": "Vegetables",
+      "calories": 49,
+      "protein": 4.3,
+      "carbs": 9,
+      "fat": 0.9,
+      "fiber": 2.6,
+      "sugar": 1.3
+    },
+    {
+      "name": "Carrots, raw",
+      "category": "Vegetables",
+      "calories": 41,
+      "protein": 0.9,
+      "carbs": 10,
+      "fat": 0.2,
+      "fiber": 2.8,
+      "sugar": 5
+    },
+    {
+      "name": "Bell peppers, raw",
+      "category": "Vegetables",
+      "calories": 26,
+      "protein": 1.1,
+      "carbs": 6,
+      "fat": 0.3,
+      "fiber": 2.1,
+      "sugar": 4
+    },
+    {
+      "name": "Tomatoes, raw",
+      "category": "Vegetables",
+      "calories": 18,
+      "protein": 0.9,
+      "carbs": 4,
+      "fat": 0.2,
+      "fiber": 1.2,
+      "sugar": 2.6
+    },
+    {
+      "name": "Cucumber, raw",
+      "category": "Vegetables",
+      "calories": 15,
+      "protein": 0.6,
+      "carbs": 3,
+      "fat": 0.1,
+      "fiber": 0.5,
+      "sugar": 1.7
+    },
+    {
+      "name": "Lettuce, romaine, raw",
+      "category": "Vegetables",
+      "calories": 16,
+      "protein": 1.2,
+      "carbs": 3,
+      "fat": 0.2,
+      "fiber": 1.6,
+      "sugar": 0.6
+    },
+    {
+      "name": "Onions, raw",
+      "category": "Vegetables",
+      "calories": 40,
+      "protein": 1.1,
+      "carbs": 9,
+      "fat": 0.1,
+      "fiber": 1.7,
+      "sugar": 5
+    },
+    {
+      "name": "Chicken breast, skinless, cooked",
+      "category": "Meat",
+      "calories": 165,
+      "protein": 31,
+      "carbs": 0,
+      "fat": 3.6,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Chicken thigh, skinless, cooked",
+      "category": "Meat",
+      "calories": 209,
+      "protein": 25,
+      "carbs": 0,
+      "fat": 10,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Turkey breast, skinless, cooked",
+      "category": "Meat",
+      "calories": 167,
+      "protein": 28,
+      "carbs": 0,
+      "fat": 4.4,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Beef, sirloin, cooked",
+      "category": "Meat",
+      "calories": 250,
+      "protein": 26,
+      "carbs": 0,
+      "fat": 16,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Beef, ground, 80% lean, cooked",
+      "category": "Meat",
+      "calories": 280,
+      "protein": 26,
+      "carbs": 0,
+      "fat": 20,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Pork tenderloin, cooked",
+      "category": "Meat",
+      "calories": 143,
+      "protein": 23,
+      "carbs": 0,
+      "fat": 5.1,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Lamb, leg, cooked",
+      "category": "Meat",
+      "calories": 250,
+      "protein": 25,
+      "carbs": 0,
+      "fat": 17,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Salmon, cooked",
+      "category": "Seafood",
+      "calories": 208,
+      "protein": 20,
+      "carbs": 0,
+      "fat": 13,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Tuna, canned in water",
+      "category": "Seafood",
+      "calories": 109,
+      "protein": 22,
+      "carbs": 0,
+      "fat": 1.5,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Shrimp, cooked",
+      "category": "Seafood",
+      "calories": 99,
+      "protein": 20,
+      "carbs": 1.4,
+      "fat": 0.9,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Egg, whole, raw",
+      "category": "Eggs",
+      "calories": 155,
+      "protein": 13,
+      "carbs": 1,
+      "fat": 11,
+      "fiber": 0,
+      "sugar": 1
+    },
+    {
+      "name": "Egg white, raw",
+      "category": "Eggs",
+      "calories": 17,
+      "protein": 3.6,
+      "carbs": 0.2,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Milk, whole",
+      "category": "Dairy",
+      "calories": 61,
+      "protein": 3.2,
+      "carbs": 4.8,
+      "fat": 3.2,
+      "fiber": 0,
+      "sugar": 4.8
+    },
+    {
+      "name": "Milk, skim",
+      "category": "Dairy",
+      "calories": 34,
+      "protein": 3.4,
+      "carbs": 5,
+      "fat": 0.1,
+      "fiber": 0,
+      "sugar": 5
+    },
+    {
+      "name": "Yogurt, Greek, non-fat",
+      "category": "Dairy",
+      "calories": 59,
+      "protein": 10,
+      "carbs": 3.6,
+      "fat": 0.1,
+      "fiber": 0,
+      "sugar": 3.6
+    },
+    {
+      "name": "Yogurt, plain, whole milk",
+      "category": "Dairy",
+      "calories": 61,
+      "protein": 2.9,
+      "carbs": 4.8,
+      "fat": 3.2,
+      "fiber": 0,
+      "sugar": 4.8
+    },
+    {
+      "name": "Cheese, cheddar",
+      "category": "Dairy",
+      "calories": 402,
+      "protein": 28,
+      "carbs": 1.3,
+      "fat": 33,
+      "fiber": 0,
+      "sugar": 0.5
+    },
+    {
+      "name": "Cheese, mozzarella, low-moisture",
+      "category": "Dairy",
+      "calories": 351,
+      "protein": 28,
+      "carbs": 1.2,
+      "fat": 28,
+      "fiber": 0,
+      "sugar": 0.6
+    },
+    {
+      "name": "Oats, rolled",
+      "category": "Grains",
+      "calories": 389,
+      "protein": 13,
+      "carbs": 66,
+      "fat": 7,
+      "fiber": 10,
+      "sugar": 1.1
+    },
+    {
+      "name": "Brown rice, cooked",
+      "category": "Grains",
+      "calories": 111,
+      "protein": 2.6,
+      "carbs": 23,
+      "fat": 0.9,
+      "fiber": 3.5,
+      "sugar": 0.8
+    },
+    {
+      "name": "White rice, cooked",
+      "category": "Grains",
+      "calories": 130,
+      "protein": 2.7,
+      "carbs": 28,
+      "fat": 0.4,
+      "fiber": 0.4,
+      "sugar": 0.1
+    },
+    {
+      "name": "Quinoa, cooked",
+      "category": "Grains",
+      "calories": 120,
+      "protein": 4.4,
+      "carbs": 21,
+      "fat": 1.9,
+      "fiber": 2.8,
+      "sugar": 0.7
+    },
+    {
+      "name": "Whole wheat bread",
+      "category": "Grains",
+      "calories": 265,
+      "protein": 10,
+      "carbs": 49,
+      "fat": 3.6,
+      "fiber": 7.5,
+      "sugar": 3.2
+    },
+    {
+      "name": "White bread",
+      "category": "Grains",
+      "calories": 250,
+      "protein": 7.6,
+      "carbs": 49,
+      "fat": 3.2,
+      "fiber": 2.7,
+      "sugar": 3.3
+    },
+    {
+      "name": "Pasta, whole wheat, cooked",
+      "category": "Grains",
+      "calories": 174,
+      "protein": 7.5,
+      "carbs": 37,
+      "fat": 1.3,
+      "fiber": 6.3,
+      "sugar": 1
+    },
+    {
+      "name": "Pasta, white, cooked",
+      "category": "Grains",
+      "calories": 170,
+      "protein": 5.8,
+      "carbs": 37,
+      "fat": 0.7,
+      "fiber": 2.5,
+      "sugar": 0.6
+    },
+    {
+      "name": "Barley, cooked",
+      "category": "Grains",
+      "calories": 130,
+      "protein": 2.7,
+      "carbs": 28,
+      "fat": 0.4,
+      "fiber": 4.3,
+      "sugar": 0.4
+    },
+    {
+      "name": "Lentils, cooked",
+      "category": "Legumes",
+      "calories": 116,
+      "protein": 9,
+      "carbs": 20,
+      "fat": 0.4,
+      "fiber": 7.9,
+      "sugar": 1.8
+    },
+    {
+      "name": "Chickpeas, cooked",
+      "category": "Legumes",
+      "calories": 164,
+      "protein": 8.9,
+      "carbs": 27,
+      "fat": 2.6,
+      "fiber": 7.6,
+      "sugar": 2.6
+    },
+    {
+      "name": "Black beans, cooked",
+      "category": "Legumes",
+      "calories": 121,
+      "protein": 8.8,
+      "carbs": 23,
+      "fat": 0.5,
+      "fiber": 8.7,
+      "sugar": 0.3
+    },
+    {
+      "name": "Kidney beans, cooked",
+      "category": "Legumes",
+      "calories": 120,
+      "protein": 8.7,
+      "carbs": 22,
+      "fat": 0.5,
+      "fiber": 6.4,
+      "sugar": 0.3
+    },
+    {
+      "name": "Tofu, firm",
+      "category": "Legumes",
+      "calories": 76,
+      "protein": 8,
+      "carbs": 1.9,
+      "fat": 4.8,
+      "fiber": 1.8,
+      "sugar": 0.2
+    },
+    {
+      "name": "Edamame, cooked",
+      "category": "Legumes",
+      "calories": 121,
+      "protein": 11,
+      "carbs": 11,
+      "fat": 5.2,
+      "fiber": 5,
+      "sugar": 2.4
+    },
+    {
+      "name": "Almonds",
+      "category": "Nuts",
+      "calories": 579,
+      "protein": 21,
+      "carbs": 22,
+      "fat": 49,
+      "fiber": 7.6,
+      "sugar": 4.3
+    },
+    {
+      "name": "Walnuts",
+      "category": "Nuts",
+      "calories": 654,
+      "protein": 15,
+      "carbs": 14,
+      "fat": 65,
+      "fiber": 6.7,
+      "sugar": 2.6
+    },
+    {
+      "name": "Cashews",
+      "category": "Nuts",
+      "calories": 553,
+      "protein": 18,
+      "carbs": 23,
+      "fat": 44,
+      "fiber": 3.3,
+      "sugar": 5.9
+    },
+    {
+      "name": "Peanuts",
+      "category": "Nuts",
+      "calories": 567,
+      "protein": 25,
+      "carbs": 16,
+      "fat": 49,
+      "fiber": 8.5,
+      "sugar": 4.7
+    },
+    {
+      "name": "Avocado",
+      "category": "Fruits",
+      "calories": 160,
+      "protein": 2,
+      "carbs": 9,
+      "fat": 14.7,
+      "fiber": 7,
+      "sugar": 0.6
+    },
+    {
+      "name": "Sweet potato, baked",
+      "category": "Vegetables",
+      "calories": 86,
+      "protein": 1.6,
+      "carbs": 20,
+      "fat": 0.1,
+      "fiber": 3,
+      "sugar": 4.2
+    },
+    {
+      "name": "Potato, baked, with skin",
+      "category": "Vegetables",
+      "calories": 93,
+      "protein": 2.7,
+      "carbs": 20,
+      "fat": 0.1,
+      "fiber": 1.6,
+      "sugar": 0.6
+    },
+    {
+      "name": "Honey",
+      "category": "Sweets",
+      "calories": 304,
+      "protein": 0.3,
+      "carbs": 82,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 82
+    },
+    {
+      "name": "Maple syrup",
+      "category": "Sweets",
+      "calories": 260,
+      "protein": 0,
+      "carbs": 67,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 54
+    },
+    {
+      "name": "Dark chocolate, 70-85%",
+      "category": "Sweets",
+      "calories": 604,
+      "protein": 7.9,
+      "carbs": 24,
+      "fat": 48,
+      "fiber": 11,
+      "sugar": 10
+    },
+    {
+      "name": "Olive oil",
+      "category": "Oils",
+      "calories": 884,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 100,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Coconut oil",
+      "category": "Oils",
+      "calories": 890,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 100,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Butter",
+      "category": "Dairy",
+      "calories": 717,
+      "protein": 0.9,
+      "carbs": 0.1,
+      "fat": 81,
+      "fiber": 0,
+      "sugar": 0.1
+    },
+    {
+      "name": "Margarine",
+      "category": "Dairy",
+      "calories": 628,
+      "protein": 1.2,
+      "carbs": 0.5,
+      "fat": 71,
+      "fiber": 0,
+      "sugar": 0.3
+    },
+    {
+      "name": "Coffee, black",
+      "category": "Beverages",
+      "calories": 2,
+      "protein": 0.1,
+      "carbs": 0,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Tea, black",
+      "category": "Beverages",
+      "calories": 2,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Water",
+      "category": "Beverages",
+      "calories": 0,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 0
+    },
+    {
+      "name": "Orange juice",
+      "category": "Beverages",
+      "calories": 45,
+      "protein": 0.9,
+      "carbs": 11,
+      "fat": 0.1,
+      "fiber": 0.2,
+      "sugar": 10
+    },
+    {
+      "name": "Apple juice",
+      "category": "Beverages",
+      "calories": 46,
+      "protein": 0.1,
+      "carbs": 12,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 10
+    },
+    {
+      "name": "Red wine",
+      "category": "Beverages",
+      "calories": 85,
+      "protein": 0.1,
+      "carbs": 2.6,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 0.9
+    },
+    {
+      "name": "White wine",
+      "category": "Beverages",
+      "calories": 89,
+      "protein": 0.1,
+      "carbs": 3.8,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 1.4
+    },
+    {
+      "name": "Beer",
+      "category": "Beverages",
+      "calories": 43,
+      "protein": 0.3,
+      "carbs": 3.6,
+      "fat": 0,
+      "fiber": 0,
+      "sugar": 0.8
+    }
+  ]
+}

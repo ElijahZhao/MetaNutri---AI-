@@ -1,0 +1,107 @@
+{
+  "description": "Human Microbiome Project - Gut Microbiome Reference",
+  "sources": [
+    "HMP Consortium",
+    "NCBI",
+    "QIIME2"
+  ],
+  "body_site": "gut",
+  "taxa": [
+    {
+      "phylum": "Bacteroidetes",
+      "genus": "Bacteroides",
+      "relative_abundance": 0.25,
+      "health_role": "Fermentation"
+    },
+    {
+      "phylum": "Firmicutes",
+      "genus": "Faecalibacterium",
+      "relative_abundance": 0.12,
+      "health_role": "Anti-inflammatory"
+    },
+    {
+      "phylum": "Firmicutes",
+      "genus": "Roseburia",
+      "relative_abundance": 0.08,
+      "health_role": "Butyrate production"
+    },
+    {
+      "phylum": "Firmicutes",
+      "genus": "Lactobacillus",
+      "relative_abundance": 0.06,
+      "health_role": "Probiotic"
+    },
+    {
+      "phylum": "Actinobacteria",
+      "genus": "Bifidobacterium",
+      "relative_abundance": 0.05,
+      "health_role": "Probiotic"
+    },
+    {
+      "phylum": "Verrucomicrobia",
+      "genus": "Akkermansia",
+      "relative_abundance": 0.04,
+      "health_role": "Mucus degradation"
+    },
+    {
+      "phylum": "Firmicutes",
+      "genus": "Ruminococcus",
+      "relative_abundance": 0.05,
+      "health_role": "Fiber digestion"
+    },
+    {
+      "phylum": "Bacteroidetes",
+      "genus": "Prevotella",
+      "relative_abundance": 0.08,
+      "health_role": "Complex carbs"
+    },
+    {
+      "phylum": "Firmicutes",
+      "genus": "Eubacterium",
+      "relative_abundance": 0.03,
+      "health_role": "Butyrate production"
+    },
+    {
+      "phylum": "Firmicutes",
+      "genus": "Clostridium",
+      "relative_abundance": 0.04,
+      "health_role": "Diverse metabolic"
+    },
+    {
+      "phylum": "Bacteroidetes",
+      "genus": "Alistipes",
+      "relative_abundance": 0.03,
+      "health_role": "Short-chain FA"
+    },
+    {
+      "phylum": "Proteobacteria",
+      "genus": "Escherichia",
+      "relative_abundance": 0.02,
+      "health_role": "Opportunistic"
+    },
+    {
+      "phylum": "Firmicutes",
+      "genus": "Streptococcus",
+      "relative_abundance": 0.02,
+      "health_role": "Pathogen"
+    },
+    {
+      "phylum": "Actinobacteria",
+      "genus": "Collinsella",
+      "relative_abundance": 0.02,
+      "health_role": "Mucosal health"
+    },
+    {
+      "phylum": "Firmicutes",
+      "genus": "Coprococcus",
+      "relative_abundance": 0.03,
+      "health_role": "Butyrate"
+    },
+    {
+      "phylum": "Firmicutes",
+      "genus": "Anaerostipes",
+      "relative_abundance": 0.02,
+      "health_role": "Butyrate"
+    }
+  ]
+}
