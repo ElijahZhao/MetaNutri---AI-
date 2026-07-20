@@ -36,7 +36,7 @@
 3. **添加上游仓库**
 
    ```bash
-   git remote add upstream https://github.com/bytedance/metanutri.git
+   git remote add upstream https://github.com/ElijahZhao/MetaNutri---AI-.git
    ```
 
 4. **创建功能分支**
@@ -147,7 +147,7 @@ npm test
 ## 💬 沟通
 
 - 对于问题和讨论，请使用 GitHub Issues
-- 对于紧急问题，可以发送邮件到 metanutri@bytedance.com
+- 对于紧急问题，可以发送邮件到 elijahzhao@gmail.com
 
 ## 📜 许可证
 

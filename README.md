@@ -1,11 +1,11 @@
 # MetaNutri - AI驱动的精准营养代谢数字孪生平台
 
-![GitHub stars](https://img.shields.io/github/stars/bytedance/metanutri?style=social)
-![GitHub forks](https://img.shields.io/github/forks/bytedance/metanutri?style=social)
-![GitHub license](https://img.shields.io/github/license/bytedance/metanutri)
-![GitHub last commit](https://img.shields.io/github/last-commit/bytedance/metanutri)
-![GitHub issues](https://img.shields.io/github/issues/bytedance/metanutri)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/bytedance/metanutri)
+![GitHub stars](https://img.shields.io/github/stars/ElijahZhao/MetaNutri---AI-?style=social)
+![GitHub forks](https://img.shields.io/github/forks/ElijahZhao/MetaNutri---AI-?style=social)
+![GitHub license](https://img.shields.io/github/license/ElijahZhao/MetaNutri---AI-)
+![GitHub last commit](https://img.shields.io/github/last-commit/ElijahZhao/MetaNutri---AI-)
+![GitHub issues](https://img.shields.io/github/issues/ElijahZhao/MetaNutri---AI-)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/ElijahZhao/MetaNutri---AI-)
 
 ---
 
@@ -146,7 +146,7 @@
 #### 1. 克隆项目
 
 ```bash
-git clone https://github.com/bytedance/metanutri.git
+git clone https://github.com/ElijahZhao/MetaNutri---AI-.git
 cd metanutri
 ```
 
@@ -482,7 +482,7 @@ npm test
 
 ### 贡献者
 
-- [ByteDance AI Lab](https://github.com/bytedance)
+- [ElijahZhao](https://github.com/ElijahZhao)
 
 ---
 
@@ -496,8 +496,8 @@ npm test
 
 如有问题或建议，请通过以下方式联系：
 
-- 提交Issue: [GitHub Issues](https://github.com/bytedance/metanutri/issues)
-- 发送邮件: metanutri@bytedance.com
+- 提交Issue: [GitHub Issues](https://github.com/ElijahZhao/MetaNutri---AI-/issues)
+- 发送邮件: elijahzhao@gmail.com
 
 ---
 
