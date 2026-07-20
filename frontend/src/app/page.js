@@ -159,7 +159,8 @@ export default function Home() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               <ScrollReveal className="md:delay-100">
-                <div className="group relative p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-300 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-emerald-500/20 hover:border-emerald-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/0 via-emerald-50/50 to-emerald-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
@@ -175,7 +176,8 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-200">
-                <div className="group relative p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-300 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 via-blue-50/50 to-blue-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
@@ -191,7 +193,8 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-300">
-                <div className="group relative p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-300 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-amber-500/20 hover:border-amber-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-br from-amber-50/0 via-amber-50/50 to-amber-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
@@ -207,7 +210,8 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-400">
-                <div className="group relative p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-300 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-50/0 via-purple-50/50 to-purple-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-purple-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
@@ -223,7 +227,8 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-500">
-                <div className="group relative p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-cyan-500/10 hover:border-cyan-300 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-cyan-500/20 hover:border-cyan-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-50/0 via-cyan-50/50 to-cyan-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
@@ -239,7 +244,8 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-600">
-                <div className="group relative p-8 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-pink-500/10 hover:border-pink-300 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-br from-pink-50/0 via-pink-50/50 to-pink-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-pink-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
