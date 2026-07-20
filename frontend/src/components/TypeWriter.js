@@ -1,10 +1,14 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
-export default function TypeWriter({ texts, speed = 100, delay = 2000 }) {
+export default function TypeWriter({ texts, speed = 80, delay = 2500 }) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const maxTextLength = useMemo(() => {
+    return Math.max(...texts.map(t => t.length));
+  }, [texts]);
 
   useEffect(() => {
     const currentText = texts[currentTextIndex];
@@ -33,9 +37,9 @@ export default function TypeWriter({ texts, speed = 100, delay = 2000 }) {
   }, [displayText, isDeleting, currentTextIndex, texts, speed, delay]);
 
   return (
-    <span className="inline-block">
+    <span className="inline-block" style={{ minWidth: `${maxTextLength}ch` }}>
       {displayText}
-      <span className="animate-pulse">|</span>
+      <span className="opacity-70">|</span>
     </span>
   );
 }
