@@ -49,6 +49,13 @@ export const microbiomeAPI = {
   analyze: () => api.post('/api/microbiome/analysis'),
 };
 
+export const metabolomicsAPI = {
+  upload: (data) => api.post('/api/metabolomics/upload', data),
+  getUserData: () => api.get('/api/metabolomics/user'),
+  analyze: () => api.get('/api/metabolomics/analysis'),
+  delete: (id) => api.delete(`/api/metabolomics/${id}`),
+};
+
 export const recommendationAPI = {
   getPersonalized: () => api.get('/api/recommendations/personalized'),
   foodScore: (data) => api.post('/api/recommendations/food-score', data),
