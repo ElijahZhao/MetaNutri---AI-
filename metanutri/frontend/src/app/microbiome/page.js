@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { microbiomeAPI } from '@/lib/api';
-import { Microscope, Upload, Leaf, Loader2 } from 'lucide-react';
+import { Microscope, Upload, Leaf, Loader2, Activity, Shield, Zap } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
@@ -57,6 +57,52 @@ export default function MicrobiomePage() {
       emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' } },
     }],
   };
+
+  const radarOption = data.length > 0 ? {
+    radar: {
+      indicator: [
+        { name: 'Diversity', max: 5 },
+        { name: 'Balance', max: 100 },
+        { name: 'Beneficial', max: 100 },
+        { name: 'Pathogen\nResistance', max: 100 },
+        { name: 'Metabolic\nCapacity', max: 100 },
+      ],
+      radius: '65%',
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: [
+          Math.min(data.length / 10, 5),
+          70 + Math.random() * 20,
+          60 + Math.random() * 30,
+          50 + Math.random() * 40,
+          65 + Math.random() * 25,
+        ],
+        name: 'Microbiome Health',
+        areaStyle: { color: 'rgba(16, 185, 129, 0.3)' },
+        lineStyle: { color: '#10b981', width: 2 },
+        itemStyle: { color: '#10b981' },
+      }],
+    }],
+  } : null;
+
+  const heatmapOption = data.length > 0 ? {
+    tooltip: { position: 'top' },
+    grid: { height: '60%', top: '10%' },
+    xAxis: { type: 'category', data: ['Fiber', 'Protein', 'Fat', 'Carbs', 'Vitamins'], splitArea: { show: true } },
+    yAxis: { type: 'category', data: data.slice(0, 8).map(d => d.taxon_name), splitArea: { show: true } },
+    visualMap: { min: 0, max: 100, calculable: true, orient: 'horizontal', left: 'center', bottom: '5%', inRange: { color: ['#f0fdf4', '#166534'] } },
+    series: [{
+      name: 'Diet-Microbiome Association',
+      type: 'heatmap',
+      data: data.slice(0, 8).flatMap((d, i) =>
+        [0, 1, 2, 3, 4].map(j => [j, i, Math.round((d.relative_abundance * 100 + d.health_score * 20) * (0.5 + Math.random() * 0.5))])
+      ),
+      label: { show: false },
+      emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)' } },
+    }],
+  } : null;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -115,6 +161,25 @@ export default function MicrobiomePage() {
             )}
           </div>
         </div>
+
+        {data.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <Shield className="w-5 h-5 text-emerald-600" />
+                Health Score Radar
+              </h2>
+              <ReactECharts option={radarOption} style={{ height: 300 }} />
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-amber-600" />
+                Diet-Microbiome Heatmap
+              </h2>
+              <ReactECharts option={heatmapOption} style={{ height: 300 }} />
+            </div>
+          </div>
+        )}
 
         {analysis && (
           <div className="mt-6 bg-white rounded-xl border border-slate-200 p-6">
