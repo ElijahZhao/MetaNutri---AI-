@@ -8,13 +8,13 @@ class Particle {
     this.vx = (Math.random() - 0.5) * 0.5;
     this.vy = (Math.random() - 0.5) * 0.5;
     this.type = type;
-    this.size = type === 'dna' ? 30 : type === 'molecule' ? 25 : type === 'atom' ? 15 : 10;
+    this.size = type === 'dna' ? 35 : type === 'molecule' ? 30 : type === 'atom' ? 20 : type === 'glucose' ? 30 : 25;
     this.originalSize = this.size;
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
     this.angle = Math.random() * Math.PI * 2;
     this.rotationSpeed = (Math.random() - 0.5) * 0.02;
-    this.opacity = 0.4 + Math.random() * 0.3;
+    this.opacity = 0.5 + Math.random() * 0.3;
     this.originalOpacity = this.opacity;
     this.phase = Math.random() * Math.PI * 2;
     this.pulseSpeed = 0.02 + Math.random() * 0.02;
@@ -22,6 +22,7 @@ class Particle {
     this.clickScale = 1;
     this.clickOpacity = 1;
     this.spawnedParticles = [];
+    this.isHovered = false;
   }
 
   update() {
@@ -36,8 +37,8 @@ class Particle {
     if (this.y > this.canvasHeight + this.size) this.y = -this.size;
 
     if (this.clicked) {
-      this.clickScale += 0.05;
-      this.clickOpacity -= 0.03;
+      this.clickScale += 0.08;
+      this.clickOpacity -= 0.02;
       if (this.clickOpacity <= 0) {
         this.clicked = false;
         this.clickScale = 1;
@@ -59,7 +60,9 @@ class Particle {
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
 
-    const scale = this.clicked ? this.clickScale : (1 + Math.sin(this.phase) * 0.1);
+    let scale = this.clicked ? this.clickScale : (1 + Math.sin(this.phase) * 0.08);
+    if (this.isHovered) scale *= 1.15;
+    
     const opacity = this.clicked ? this.clickOpacity * this.opacity : this.opacity;
 
     switch (this.type) {
@@ -84,7 +87,7 @@ class Particle {
 
     this.spawnedParticles.forEach(p => {
       ctx.beginPath();
-      ctx.arc(p.x - this.x, p.y - this.y, p.size, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${p.life})`;
       ctx.fill();
     });
@@ -187,8 +190,8 @@ class Particle {
     }
 
     ctx.beginPath();
-    ctx.arc(0, 0, s * 0.2, 0, Math.PI * 2);
-    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 0.2);
+    ctx.arc(0, 0, s * 0.25, 0, Math.PI * 2);
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 0.25);
     gradient.addColorStop(0, `rgba(16, 185, 129, ${opacity})`);
     gradient.addColorStop(1, `rgba(16, 185, 129, ${opacity * 0.5})`);
     ctx.fillStyle = gradient;
@@ -264,16 +267,16 @@ class Particle {
       { r: 236, g: 72, b: 153 },
     ];
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 25; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2 + Math.random() * 4;
+      const speed = 3 + Math.random() * 5;
       const color = colors[Math.floor(Math.random() * colors.length)];
       this.spawnedParticles.push({
         x: this.x,
         y: this.y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        size: 3 + Math.random() * 4,
+        size: 4 + Math.random() * 5,
         life: 1,
         r: color.r,
         g: color.g,
@@ -287,12 +290,12 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
   const animationRef = useRef(null);
-  const mouseRef = useRef({ x: 0, y: 0, isInCanvas: false });
-  const connectionLinesRef = useRef([]);
+  const mouseRef = useRef({ x: -1000, y: -1000 });
+  const ripplesRef = useRef([]);
 
   const initParticles = useCallback((width, height) => {
     const types = ['dna', 'molecule', 'atom', 'glucose', 'protein'];
-    const counts = { dna: 4, molecule: 8, atom: 15, glucose: 3, protein: 4 };
+    const counts = { dna: 5, molecule: 10, atom: 18, glucose: 4, protein: 5 };
     const particles = [];
 
     Object.entries(counts).forEach(([type, count]) => {
@@ -317,6 +320,7 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
+    
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -344,7 +348,7 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
         }
       });
 
-      if (!clickedAny && isCanvasMode) {
+      if (!clickedAny) {
         const colors = [
           { r: 16, g: 185, b: 129 },
           { r: 6, g: 182, b: 212 },
@@ -353,24 +357,17 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
           { r: 236, g: 72, b: 153 },
         ];
         const color = colors[Math.floor(Math.random() * colors.length)];
-        const ripple = {
+        ripplesRef.current.push({
           x,
           y,
           radius: 0,
-          maxRadius: 150,
-          opacity: 1,
+          maxRadius: 180,
+          opacity: 0.8,
           r: color.r,
           g: color.g,
           b: color.b,
-        };
-        (function animateRipple() {
-          ripple.radius += 3;
-          ripple.opacity -= 0.02;
-          if (ripple.opacity > 0) {
-            connectionLinesRef.current.push(ripple);
-            requestAnimationFrame(animateRipple);
-          }
-        })();
+          speed: 4,
+        });
       }
     };
 
@@ -395,45 +392,89 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
-      connectionLinesRef.current = connectionLinesRef.current.filter(ripple => {
+      ripplesRef.current = ripplesRef.current.filter(ripple => {
+        ripple.radius += ripple.speed;
+        ripple.opacity -= 0.015;
+        
+        const gradient = ctx.createRadialGradient(
+          ripple.x, ripple.y, ripple.radius * 0.5,
+          ripple.x, ripple.y, ripple.radius
+        );
+        gradient.addColorStop(0, `rgba(${ripple.r}, ${ripple.g}, ${ripple.b}, 0)`);
+        gradient.addColorStop(1, `rgba(${ripple.r}, ${ripple.g}, ${ripple.b}, ${ripple.opacity})`);
+        
+        ctx.beginPath();
+        ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
         ctx.beginPath();
         ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(${ripple.r}, ${ripple.g}, ${ripple.b}, ${ripple.opacity * 0.5})`;
         ctx.lineWidth = 2;
         ctx.stroke();
+        
         return ripple.opacity > 0;
       });
 
-      particlesRef.current.forEach((particle, i) => {
-        particle.update();
+      particlesRef.current.forEach((particle) => {
+        particle.isHovered = false;
+      });
 
-        if (isCanvasMode) {
+      const mouseX = mouseRef.current.x;
+      const mouseY = mouseRef.current.y;
+
+      particlesRef.current.forEach((particle) => {
+        const dx = mouseX - particle.x;
+        const dy = mouseY - particle.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < particle.size * 2) {
+          particle.isHovered = true;
+        }
+      });
+
+      if (isCanvasMode) {
+        particlesRef.current.forEach((particle, i) => {
           particlesRef.current.slice(i + 1).forEach(other => {
             const dx = particle.x - other.x;
             const dy = particle.y - other.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance < 120) {
+            if (distance < 150) {
               ctx.beginPath();
               ctx.moveTo(particle.x, particle.y);
               ctx.lineTo(other.x, other.y);
-              ctx.strokeStyle = `rgba(99, 102, 241, ${0.2 * (1 - distance / 120)})`;
+              ctx.strokeStyle = `rgba(99, 102, 241, ${0.15 * (1 - distance / 150)})`;
               ctx.lineWidth = 0.5;
               ctx.stroke();
             }
           });
-        }
+        });
+      }
 
+      particlesRef.current.forEach((particle) => {
+        particle.update();
         particle.draw(ctx);
 
-        const dx = mouseRef.current.x - particle.x;
-        const dy = mouseRef.current.y - particle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 100) {
+        if (particle.isHovered) {
+          const glowGradient = ctx.createRadialGradient(
+            particle.x, particle.y, 0,
+            particle.x, particle.y, particle.size * 2
+          );
+          glowGradient.addColorStop(0, 'rgba(34, 211, 238, 0.3)');
+          glowGradient.addColorStop(0.5, 'rgba(34, 211, 238, 0.1)');
+          glowGradient.addColorStop(1, 'rgba(34, 211, 238, 0)');
+          
           ctx.beginPath();
-          ctx.arc(particle.x, particle.y, particle.size * 1.8, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(34, 211, 238, ${0.3 * (1 - distance / 100)})`;
-          ctx.lineWidth = 1;
+          ctx.arc(particle.x, particle.y, particle.size * 2, 0, Math.PI * 2);
+          ctx.fillStyle = glowGradient;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.size * 2, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+          ctx.lineWidth = 2;
           ctx.stroke();
         }
       });
@@ -457,10 +498,10 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
     <>
       <canvas
         ref={canvasRef}
-        className={`fixed inset-0 pointer-events-none z-0 transition-all duration-500 ${
-          isCanvasMode ? 'pointer-events-auto z-50' : 'pointer-events-none'
+        className={`fixed inset-0 z-0 transition-all duration-500 ${
+          isCanvasMode ? 'pointer-events-auto' : 'pointer-events-auto'
         }`}
-        style={{ opacity: isCanvasMode ? 1 : 0.3 }}
+        style={{ opacity: isCanvasMode ? 1 : 0.4 }}
       />
       {isCanvasMode && (
         <button
