@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
-import { userAPI, predictAPI, recommendationAPI } from '@/lib/api';
-import { Activity, TrendingUp, ShieldAlert, Utensils, Loader2 } from 'lucide-react';
+import MetabolicPathway from '@/components/MetabolicPathway';
+import { userAPI, predictAPI, recommendationAPI, genomicAPI } from '@/lib/api';
+import { Activity, TrendingUp, ShieldAlert, Utensils, Loader2, Dna, Microscope, Apple } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
@@ -13,6 +14,7 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState(null);
   const [risk, setRisk] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
+  const [genomicData, setGenomicData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,20 +28,24 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const [profileRes, riskRes, recRes] = await Promise.all([
+      const [profileRes, riskRes, recRes, genomicRes] = await Promise.all([
         userAPI.getProfile().catch(() => ({ data: null })),
         predictAPI.riskAssessment(),
         recommendationAPI.getPersonalized(),
+        genomicAPI.getUserData().catch(() => ({ data: [] })),
       ]);
       setProfile(profileRes.data);
       setRisk(riskRes.data);
       setRecommendations(recRes.data);
+      setGenomicData(genomicRes.data || []);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
+
+  const userGenes = genomicData.map(d => d.gene_name).filter(Boolean);
 
   if (loading) {
     return (
@@ -178,7 +184,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Utensils className="w-5 h-5 text-emerald-600" />
@@ -226,6 +232,51 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Dna className="w-5 h-5 text-purple-600" />
+              <h3 className="font-semibold text-slate-900">Genomic Data</h3>
+            </div>
+            <div className="space-y-2">
+              {genomicData.length > 0 ? (
+                genomicData.slice(0, 3).map((d) => (
+                  <div key={d.id} className="flex justify-between items-center p-2 bg-slate-50 rounded-lg text-sm">
+                    <span className="font-medium text-slate-700">{d.gene_name}</span>
+                    <span className="text-slate-500 text-xs">{d.snp_id || 'N/A'}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-slate-500">No genomic data added yet.</p>
+              )}
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Microscope className="w-5 h-5 text-cyan-600" />
+              <h3 className="font-semibold text-slate-900">Microbiome</h3>
+            </div>
+            <div className="p-4 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-lg">
+              <p className="text-sm text-slate-600">Diversity Index</p>
+              <p className="text-2xl font-bold text-slate-900">--</p>
+              <p className="text-xs text-slate-500 mt-1">Add microbiome data to see analysis</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Apple className="w-5 h-5 text-green-600" />
+              <h3 className="font-semibold text-slate-900">Metabolomics</h3>
+            </div>
+            <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
+              <p className="text-sm text-slate-600">Active Pathways</p>
+              <p className="text-2xl font-bold text-slate-900">--</p>
+              <p className="text-xs text-slate-500 mt-1">Add metabolomics data to see analysis</p>
+            </div>
+          </div>
+        </div>
+
+        <MetabolicPathway userGenes={userGenes} />
       </main>
     </div>
   );
