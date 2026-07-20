@@ -7,7 +7,7 @@ import json
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserLogin, UserResponse, Token
-from app.core.security import get_password_hash, verify_password, create_access_token
+from app.core.security import get_password_hash, verify_password, create_access_token, get_current_active_user
 from app.core.config import settings
 from app.core.redis import cache_user_token, get_user_token, invalidate_user_token
 
