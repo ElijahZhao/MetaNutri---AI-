@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.db.session import engine, Base
-from app.api import auth, users, food, genomic, microbiome, recommendation, predict, datasets
+from app.api import auth, users, food, genomic, microbiome, metabolomics, recommendation, predict, datasets
 
 
 @asynccontextmanager
