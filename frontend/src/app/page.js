@@ -47,6 +47,7 @@ export default function Home() {
   };
 
   return (
+    <>
     <div className={`min-h-screen transition-opacity duration-500 ${isCanvasMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -290,7 +291,8 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <BioCanvas isCanvasMode={isCanvasMode} onExitCanvas={exitCanvasMode} />
     </div>
+    <BioCanvas isCanvasMode={isCanvasMode} onExitCanvas={exitCanvasMode} />
+    </>
   );
 }
