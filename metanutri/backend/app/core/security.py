@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.user import User
+from app.core.redis import get_user_token
 
 pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
@@ -48,6 +49,10 @@ async def get_current_user(
         if user_id is None:
             raise credentials_exception
     except JWTError:
+        raise credentials_exception
+
+    cached_token = get_user_token(user_id)
+    if cached_token is not None and cached_token != token:
         raise credentials_exception
 
     from sqlalchemy import select
