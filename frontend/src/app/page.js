@@ -159,12 +159,13 @@ export default function Home() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               <ScrollReveal className="md:delay-100">
-                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-emerald-500/20 hover:border-emerald-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+                <div className="group relative p-8 rounded-2xl bg-white/85 backdrop-blur-xl border border-white/80 border-b-slate-300/60 shadow-xl shadow-slate-300/50 hover:shadow-2xl hover:shadow-emerald-500/20 hover:border-emerald-300/90 hover:bg-white/95 transition-all duration-500 hover:-translate-y-1 hover:-translate-y-2 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-90" />
+                  <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/40 to-transparent opacity-60" />
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/0 via-emerald-50/50 to-emerald-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
-                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-xl flex items-center justify-center mb-6 shadow-md shadow-slate-200/50 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
                       <Dna className="w-7 h-7 text-emerald-600 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-shadow duration-300" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-emerald-700 transition-colors">{t.feature1Title}</h3>
@@ -176,12 +177,13 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-200">
-                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+                <div className="group relative p-8 rounded-2xl bg-white/85 backdrop-blur-xl border border-white/80 border-b-slate-300/60 shadow-xl shadow-slate-300/50 hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-300/90 hover:bg-white/95 transition-all duration-500 hover:-translate-y-1 hover:-translate-y-2 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-90" />
+                  <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/40 to-transparent opacity-60" />
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 via-blue-50/50 to-blue-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
-                    <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl flex items-center justify-center mb-6 shadow-md shadow-slate-200/50 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
                       <Brain className="w-7 h-7 text-blue-600 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] transition-shadow duration-300" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">{t.feature2Title}</h3>
@@ -193,12 +195,13 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-300">
-                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-amber-500/20 hover:border-amber-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+                <div className="group relative p-8 rounded-2xl bg-white/85 backdrop-blur-xl border border-white/80 border-b-slate-300/60 shadow-xl shadow-slate-300/50 hover:shadow-2xl hover:shadow-amber-500/20 hover:border-amber-300/90 hover:bg-white/95 transition-all duration-500 hover:-translate-y-1 hover:-translate-y-2 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-90" />
+                  <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/40 to-transparent opacity-60" />
                   <div className="absolute inset-0 bg-gradient-to-br from-amber-50/0 via-amber-50/50 to-amber-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
-                    <div className="w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl flex items-center justify-center mb-6 shadow-md shadow-slate-200/50 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
                       <Microscope className="w-7 h-7 text-amber-600 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.5)] transition-shadow duration-300" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-amber-700 transition-colors">{t.feature3Title}</h3>
@@ -210,12 +213,13 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-400">
-                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+                <div className="group relative p-8 rounded-2xl bg-white/85 backdrop-blur-xl border border-white/80 border-b-slate-300/60 shadow-xl shadow-slate-300/50 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-300/90 hover:bg-white/95 transition-all duration-500 hover:-translate-y-1 hover:-translate-y-2 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-90" />
+                  <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/40 to-transparent opacity-60" />
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-50/0 via-purple-50/50 to-purple-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-purple-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
-                    <div className="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl flex items-center justify-center mb-6 shadow-md shadow-slate-200/50 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
                       <Shield className="w-7 h-7 text-purple-600 group-hover:drop-shadow-[0_0_8px_rgba(147,51,234,0.5)] transition-shadow duration-300" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-purple-700 transition-colors">{t.feature4Title}</h3>
@@ -227,12 +231,13 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-500">
-                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-cyan-500/20 hover:border-cyan-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+                <div className="group relative p-8 rounded-2xl bg-white/85 backdrop-blur-xl border border-white/80 border-b-slate-300/60 shadow-xl shadow-slate-300/50 hover:shadow-2xl hover:shadow-cyan-500/20 hover:border-cyan-300/90 hover:bg-white/95 transition-all duration-500 hover:-translate-y-1 hover:-translate-y-2 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-90" />
+                  <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/40 to-transparent opacity-60" />
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-50/0 via-cyan-50/50 to-cyan-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
-                    <div className="w-14 h-14 bg-gradient-to-br from-cyan-100 to-cyan-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-cyan-100 to-cyan-50 rounded-xl flex items-center justify-center mb-6 shadow-md shadow-slate-200/50 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
                       <Zap className="w-7 h-7 text-cyan-600 group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.5)] transition-shadow duration-300" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-cyan-700 transition-colors">{t.feature5Title}</h3>
@@ -244,12 +249,13 @@ export default function Home() {
               </ScrollReveal>
 
               <ScrollReveal className="md:delay-600">
-                <div className="group relative p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 border-b-slate-200/60 shadow-lg shadow-slate-200/40 hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-300/80 hover:bg-white/85 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+                <div className="group relative p-8 rounded-2xl bg-white/85 backdrop-blur-xl border border-white/80 border-b-slate-300/60 shadow-xl shadow-slate-300/50 hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-300/90 hover:bg-white/95 transition-all duration-500 hover:-translate-y-1 hover:-translate-y-2 overflow-hidden">
+                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-90" />
+                  <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/40 to-transparent opacity-60" />
                   <div className="absolute inset-0 bg-gradient-to-br from-pink-50/0 via-pink-50/50 to-pink-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-pink-400/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                   <div className="relative">
-                    <div className="w-14 h-14 bg-gradient-to-br from-pink-100 to-pink-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-pink-100 to-pink-50 rounded-xl flex items-center justify-center mb-6 shadow-md shadow-slate-200/50 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
                       <Activity className="w-7 h-7 text-pink-600 group-hover:drop-shadow-[0_0_8px_rgba(236,72,153,0.5)] transition-shadow duration-300" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-3 group-hover:text-pink-700 transition-colors">{t.feature6Title}</h3>
