@@ -2,7 +2,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { datasetAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { toast } from 'react-hot-toast';
 import {
   Database,
   Download,
@@ -38,8 +41,9 @@ const statusColors = {
   error: 'bg-red-100 text-red-700',
 };
 
-export default function DatasetsPage() {
+function DatasetsContent() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [datasets, setDatasets] = useState([]);
   const [stats, setStats] = useState(null);
   const [tianchiDatasets, setTianchiDatasets] = useState([]);
@@ -49,13 +53,12 @@ export default function DatasetsPage() {
   const [loadingDataset, setLoadingDataset] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!isAuthenticated()) {
       router.push('/login');
       return;
     }
     fetchData();
-  }, [router]);
+  }, [router, isAuthenticated]);
 
   const fetchData = async () => {
     try {
@@ -69,6 +72,7 @@ export default function DatasetsPage() {
       setTianchiDatasets(tianchiRes.data.bioinformatics_datasets || []);
     } catch (err) {
       console.error(err);
+      toast.error(err.userMessage || 'Failed to load datasets');
     } finally {
       setLoading(false);
     }
@@ -78,9 +82,11 @@ export default function DatasetsPage() {
     setLoadingDataset(datasetId);
     try {
       await datasetAPI.download(datasetId);
+      toast.success('Dataset downloaded successfully!');
       fetchData();
     } catch (err) {
       console.error(err);
+      toast.error(err.userMessage || 'Failed to download dataset');
     } finally {
       setLoadingDataset(null);
     }
@@ -90,9 +96,11 @@ export default function DatasetsPage() {
     setLoadingDataset(datasetId);
     try {
       await datasetAPI.import(datasetId);
+      toast.success('Dataset imported successfully!');
       fetchData();
     } catch (err) {
       console.error(err);
+      toast.error(err.userMessage || 'Failed to import dataset');
     } finally {
       setLoadingDataset(null);
     }
@@ -102,9 +110,11 @@ export default function DatasetsPage() {
     setLoading(true);
     try {
       await datasetAPI.downloadAll();
+      toast.success('All datasets downloaded successfully!');
       fetchData();
     } catch (err) {
       console.error(err);
+      toast.error(err.userMessage || 'Failed to download all datasets');
     } finally {
       setLoading(false);
     }
@@ -374,5 +384,13 @@ export default function DatasetsPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function DatasetsPage() {
+  return (
+    <ErrorBoundary>
+      <DatasetsContent />
+    </ErrorBoundary>
   );
 }

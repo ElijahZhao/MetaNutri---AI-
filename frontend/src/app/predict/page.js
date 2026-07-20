@@ -2,14 +2,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { predictAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { toast } from 'react-hot-toast';
 import { Brain, Activity, Pill, Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
-export default function PredictPage() {
+function PredictContent() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [glucose, setGlucose] = useState(null);
   const [nutrient, setNutrient] = useState(null);
   const [loadingGlucose, setLoadingGlucose] = useState(false);
@@ -17,16 +21,18 @@ export default function PredictPage() {
   const [nutrientForm, setNutrientForm] = useState({ nutrient: 'Iron', amount_mg: 18 });
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) { router.push('/login'); return; }
-  }, [router]);
+    if (!isAuthenticated()) { router.push('/login'); return; }
+  }, [router, isAuthenticated]);
 
   const predictGlucose = async () => {
     setLoadingGlucose(true);
     try {
       const res = await predictAPI.glucoseResponse({ user_id: 'me', food_ids: [] });
       setGlucose(res.data);
-    } catch (e) { console.error(e); }
-    finally { setLoadingGlucose(false); }
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to predict glucose response');
+    } finally { setLoadingGlucose(false); }
   };
 
   const predictNutrient = async (e) => {
@@ -35,8 +41,10 @@ export default function PredictPage() {
     try {
       const res = await predictAPI.nutrientAbsorption({ user_id: 'me', nutrient: nutrientForm.nutrient, amount_mg: nutrientForm.amount_mg });
       setNutrient(res.data);
-    } catch (e) { console.error(e); }
-    finally { setLoadingNutrient(false); }
+    } catch (e) { 
+      console.error(e); 
+      toast.error(e.userMessage || 'Failed to predict nutrient absorption');
+    } finally { setLoadingNutrient(false); }
   };
 
   const glucoseOption = glucose ? {
@@ -143,5 +151,13 @@ export default function PredictPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function PredictPage() {
+  return (
+    <ErrorBoundary>
+      <PredictContent />
+    </ErrorBoundary>
   );
 }

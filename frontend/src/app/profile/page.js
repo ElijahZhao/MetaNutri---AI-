@@ -1,13 +1,19 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { userAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { useLanguage } from '@/lib/i18n';
+import { toast } from 'react-hot-toast';
 import { User, Heart, Activity, Scale, Ruler, Calendar, Check } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 
-export default function ProfilePage() {
+function ProfileContent() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
+  const { t, language } = useLanguage();
   const [profile, setProfile] = useState({
     age: '',
     gender: '',
@@ -21,13 +27,12 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!isAuthenticated()) {
       router.push('/login');
       return;
     }
     loadProfile();
-  }, [router]);
+  }, [router, isAuthenticated]);
 
   const loadProfile = async () => {
     try {
@@ -37,6 +42,7 @@ export default function ProfilePage() {
       }
     } catch (err) {
       console.error(err);
+      toast.error(err.userMessage || (language === 'en' ? 'Failed to load profile' : '加载资料失败'));
     } finally {
       setLoading(false);
     }
@@ -46,10 +52,11 @@ export default function ProfilePage() {
     e.preventDefault();
     try {
       await userAPI.updateProfile(profile);
+      toast.success(language === 'en' ? 'Profile saved successfully!' : '资料保存成功！');
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      console.error(err);
+      toast.error(err.userMessage || (language === 'en' ? 'Failed to save profile' : '保存资料失败'));
     }
   };
 
@@ -81,23 +88,32 @@ export default function ProfilePage() {
     }));
   };
 
-  const calculateBMI = () => {
+  const calculateBMI = useMemo(() => {
     if (profile.height_cm && profile.weight_kg) {
       return (profile.weight_kg / ((profile.height_cm / 100) ** 2)).toFixed(1);
     }
     return '--';
-  };
+  }, [profile.height_cm, profile.weight_kg]);
 
-  const getBMICategory = () => {
-    const bmi = parseFloat(calculateBMI());
+  const getBMICategory = useMemo(() => {
+    const bmi = parseFloat(calculateBMI);
     if (isNaN(bmi)) return 'N/A';
-    if (bmi < 18.5) return { text: 'Underweight', color: 'text-blue-600' };
-    if (bmi < 25) return { text: 'Normal', color: 'text-emerald-600' };
-    if (bmi < 30) return { text: 'Overweight', color: 'text-amber-600' };
-    return { text: 'Obese', color: 'text-red-600' };
-  };
+    if (bmi < 18.5) return { text: t.underweight, color: 'text-blue-600' };
+    if (bmi < 25) return { text: t.normal, color: 'text-emerald-600' };
+    if (bmi < 30) return { text: t.overweight, color: 'text-amber-600' };
+    return { text: t.obese, color: 'text-red-600' };
+  }, [calculateBMI, t]);
 
-  const bmiCategory = getBMICategory();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <Activity className="w-10 h-10 animate-spin text-emerald-600 mx-auto mb-4" />
+          <p className="text-slate-500">{language === 'en' ? 'Loading...' : '加载中...'}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -105,21 +121,21 @@ export default function ProfilePage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ScrollReveal>
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-slate-900">User Profile</h1>
-            <p className="text-slate-600">Manage your health information</p>
+            <h1 className="text-2xl font-bold text-slate-900">{t.userProfile}</h1>
+            <p className="text-slate-600">{t.manageHealthInfo}</p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal className="mt-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-white">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
                   <User className="w-8 h-8" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold">Health Profile</h2>
-                  <p className="text-emerald-100">Update your personal health information</p>
+                  <h2 className="text-xl font-semibold">{t.healthProfile}</h2>
+                  <p className="text-emerald-100">{t.updateHealthInfo}</p>
                 </div>
               </div>
             </div>
@@ -129,28 +145,28 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <Calendar className="w-4 h-4 inline mr-1" />
-                    Age
+                    {t.age}
                   </label>
                   <input
                     type="number"
                     value={profile.age}
                     onChange={(e) => setProfile({ ...profile, age: parseInt(e.target.value) || '' })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    placeholder="Enter your age"
+                    placeholder={language === 'en' ? 'Enter your age' : '输入年龄'}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <Heart className="w-4 h-4 inline mr-1" />
-                    Gender
+                    {t.gender || 'Gender'}
                   </label>
                   <select
                     value={profile.gender}
                     onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   >
-                    <option value="">Select gender</option>
+                    <option value="">{t.selectGender || 'Select gender'}</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="other">Other</option>
@@ -160,42 +176,42 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <Ruler className="w-4 h-4 inline mr-1" />
-                    Height (cm)
+                    {t.height} (cm)
                   </label>
                   <input
                     type="number"
                     value={profile.height_cm}
                     onChange={(e) => setProfile({ ...profile, height_cm: parseFloat(e.target.value) || '' })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    placeholder="Enter height in cm"
+                    placeholder={language === 'en' ? 'Enter height in cm' : '输入身高（cm）'}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <Scale className="w-4 h-4 inline mr-1" />
-                    Weight (kg)
+                    {t.weight} (kg)
                   </label>
                   <input
                     type="number"
                     value={profile.weight_kg}
                     onChange={(e) => setProfile({ ...profile, weight_kg: parseFloat(e.target.value) || '' })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    placeholder="Enter weight in kg"
+                    placeholder={language === 'en' ? 'Enter weight in kg' : '输入体重（kg）'}
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <Activity className="w-4 h-4 inline mr-1" />
-                    Activity Level
+                    {t.activityLevel}
                   </label>
                   <select
                     value={profile.activity_level}
                     onChange={(e) => setProfile({ ...profile, activity_level: e.target.value })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   >
-                    <option value="">Select activity level</option>
+                    <option value="">{t.selectActivity || 'Select activity level'}</option>
                     {activityOptions.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
@@ -204,7 +220,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="pt-4 border-t border-slate-100">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Dietary Goals</h3>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">{t.dietaryGoals}</h3>
                 <div className="flex flex-wrap gap-3">
                   {goalOptions.map(goal => (
                     <button
@@ -225,7 +241,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="pt-4 border-t border-slate-100">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Dietary Restrictions</h3>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">{t.dietaryRestrictions}</h3>
                 <div className="flex flex-wrap gap-3">
                   {restrictionOptions.map(restriction => (
                     <button
@@ -247,18 +263,18 @@ export default function ProfilePage() {
 
               <div className="pt-4 border-t border-slate-100">
                 <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4">
-                  <h3 className="font-semibold text-amber-800 mb-2">BMI Calculation</h3>
+                  <h3 className="font-semibold text-amber-800 mb-2">{t.bmiCalculation}</h3>
                   <div className="flex items-center gap-4">
                     <div>
-                      <p className="text-3xl font-bold text-slate-900">{calculateBMI()}</p>
-                      <p className={`text-sm font-medium ${typeof bmiCategory === 'object' ? bmiCategory.color : 'text-slate-600'}`}>
-                        {typeof bmiCategory === 'object' ? bmiCategory.text : bmiCategory}
+                      <p className="text-3xl font-bold text-slate-900">{calculateBMI}</p>
+                      <p className={`text-sm font-medium ${typeof getBMICategory === 'object' ? getBMICategory.color : 'text-slate-600'}`}>
+                        {typeof getBMICategory === 'object' ? getBMICategory.text : getBMICategory}
                       </p>
                     </div>
                     <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-blue-500 via-emerald-500 via-amber-500 to-red-500"
-                        style={{ width: `${Math.min(parseFloat(calculateBMI()) * 2, 100)}%` }}
+                        style={{ width: `${Math.min(parseFloat(calculateBMI) * 2, 100)}%` }}
                       />
                     </div>
                   </div>
@@ -271,14 +287,14 @@ export default function ProfilePage() {
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-all hover:shadow-lg hover:shadow-emerald-500/30"
                 >
                   {saved ? <Check className="w-5 h-5" /> : null}
-                  {saved ? 'Saved!' : 'Save Profile'}
+                  {saved ? t.saved : t.saveProfile}
                 </button>
                 <button
                   type="button"
                   onClick={loadProfile}
                   className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-all"
                 >
-                  Reset
+                  {t.reset}
                 </button>
               </div>
             </form>
@@ -286,5 +302,13 @@ export default function ProfilePage() {
         </ScrollReveal>
       </main>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <ErrorBoundary>
+      <ProfileContent />
+    </ErrorBoundary>
   );
 }

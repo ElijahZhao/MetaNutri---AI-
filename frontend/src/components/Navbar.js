@@ -1,43 +1,39 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Activity, LogOut, User, Menu, X } from 'lucide-react';
+import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Activity, LogOut, User, Menu, X, Globe } from 'lucide-react';
+import { useAuthStore } from '@/lib/store/authStore';
+import { useLanguage } from '@/lib/i18n';
 
 export default function Navbar() {
-  const [user, setUser] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, logout } = useAuthStore();
+  const { t, language, toggleLanguage } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    const stored = localStorage.getItem('user');
-    if (stored) setUser(JSON.parse(stored));
-  }, []);
-
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
+    logout();
     router.push('/login');
   };
 
   const navLinks = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/genomic', label: 'Genomic' },
-    { href: '/microbiome', label: 'Microbiome' },
-    { href: '/metabolomics', label: 'Metabolomics' },
+    { href: '/dashboard', label: t.dashboard },
+    { href: '/genomic', label: t.genomicData },
+    { href: '/microbiome', label: t.microbiome },
+    { href: '/metabolomics', label: t.metabolomics },
     { href: '/datasets', label: 'Datasets' },
     { href: '/recommendations', label: 'Recommendations' },
     { href: '/predict', label: 'Predictions' },
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b border-slate-200">
+    <nav className="bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 text-primary font-bold text-xl">
+            <Link href="/" className="flex items-center gap-2 text-emerald-600 font-bold text-xl">
               <Activity className="w-6 h-6" />
               MetaNutri
             </Link>
@@ -59,28 +55,39 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
+              aria-label={language === 'en' ? t.switchToChinese : t.switchToEnglish}
+            >
+              <Globe className="w-4 h-4" />
+              {language === 'en' ? '中文' : 'EN'}
+            </button>
             {user ? (
               <div className="hidden md:flex items-center gap-3">
-                <span className="text-sm text-slate-600 flex items-center gap-1">
+                <Link
+                  href="/profile"
+                  className="text-sm text-slate-600 hover:text-slate-900 flex items-center gap-1"
+                >
                   <User className="w-4 h-4" />
                   {user.username}
-                </span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
                 >
                   <LogOut className="w-4 h-4" />
-                  Logout
+                  {t.logout}
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-emerald-600 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors"
                 >
-                  Login
+                  {t.login}
                 </Link>
               </div>
             )}
@@ -113,7 +120,7 @@ export default function Navbar() {
             onClick={handleLogout}
             className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
           >
-            Logout
+            {t.logout}
           </button>
         </div>
       )}

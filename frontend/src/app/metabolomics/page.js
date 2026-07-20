@@ -2,14 +2,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { metabolomicsAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { toast } from 'react-hot-toast';
 import { FlaskConical, Upload, TrendingUp, TrendingDown, Activity, Loader2, Trash2, BarChart3 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
-export default function MetabolomicsPage() {
+function MetabolomicsContent() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [data, setData] = useState([]);
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,12 +28,12 @@ export default function MetabolomicsPage() {
   });
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) {
+    if (!isAuthenticated()) {
       router.push('/login');
       return;
     }
     fetchData();
-  }, [router]);
+  }, [router, isAuthenticated]);
 
   const fetchData = async () => {
     try {
@@ -41,6 +45,7 @@ export default function MetabolomicsPage() {
       setAnalysis(analysisRes.data);
     } catch (e) {
       console.error(e);
+      toast.error(e.userMessage || 'Failed to load metabolomics data');
     } finally {
       setLoading(false);
     }
@@ -58,6 +63,7 @@ export default function MetabolomicsPage() {
         z_score: form.z_score ? parseFloat(form.z_score) : undefined,
         significance: form.significance ? parseFloat(form.significance) : undefined,
       }]);
+      toast.success('Metabolite entry added successfully!');
       setForm({
         metabolite_name: '',
         pathway_name: '',
@@ -69,6 +75,7 @@ export default function MetabolomicsPage() {
       fetchData();
     } catch (e) {
       console.error(e);
+      toast.error(e.userMessage || 'Failed to add metabolite entry');
     } finally {
       setUploading(false);
     }
@@ -77,9 +84,11 @@ export default function MetabolomicsPage() {
   const handleDelete = async (id) => {
     try {
       await metabolomicsAPI.delete(id);
+      toast.success('Entry deleted successfully!');
       fetchData();
     } catch (e) {
       console.error(e);
+      toast.error(e.userMessage || 'Failed to delete entry');
     }
   };
 
@@ -341,5 +350,13 @@ export default function MetabolomicsPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function MetabolomicsPage() {
+  return (
+    <ErrorBoundary>
+      <MetabolomicsContent />
+    </ErrorBoundary>
   );
 }

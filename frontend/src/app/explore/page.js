@@ -2,14 +2,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { foodAPI, recommendationAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { toast } from 'react-hot-toast';
 import { Search, Compass, Star, Filter, ChevronDown, Leaf, Flame, Droplets, Wheat, Info } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
-export default function ExplorePage() {
+function ExploreContent() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [foods, setFoods] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,12 +30,12 @@ export default function ExplorePage() {
   });
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) {
+    if (!isAuthenticated()) {
       router.push('/login');
       return;
     }
     fetchFoods();
-  }, [router]);
+  }, [router, isAuthenticated]);
 
   const fetchFoods = async () => {
     try {
@@ -42,6 +46,7 @@ export default function ExplorePage() {
       setCategories(cats);
     } catch (e) {
       console.error(e);
+      toast.error(e.userMessage || 'Failed to load foods');
     } finally {
       setLoading(false);
     }
@@ -55,6 +60,7 @@ export default function ExplorePage() {
       setFoods(res.data.results || []);
     } catch (e) {
       console.error(e);
+      toast.error(e.userMessage || 'Search failed');
     } finally {
       setLoading(false);
     }
@@ -67,6 +73,7 @@ export default function ExplorePage() {
       setSelectedFood(food);
     } catch (e) {
       console.error(e);
+      toast.error(e.userMessage || 'Failed to score food');
     }
   };
 
@@ -347,5 +354,13 @@ export default function ExplorePage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ExplorePage() {
+  return (
+    <ErrorBoundary>
+      <ExploreContent />
+    </ErrorBoundary>
   );
 }

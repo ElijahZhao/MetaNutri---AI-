@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from './store/authStore';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -7,17 +8,38 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 15000,
 });
 
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('metanutri-token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+    
+    const message = error.response?.data?.detail || 
+                    error.response?.data?.message || 
+                    error.message || 
+                    'Something went wrong';
+    
+    error.userMessage = message;
+    return Promise.reject(error);
+  }
+);
 
 export default api;
 
@@ -91,6 +113,7 @@ export const importExportAPI = {
     formData.append('file', file);
     return api.post(`/api/import-export/import/${dataType}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
     });
   },
   exportData: (dataType, format = 'json') => api.get(`/api/import-export/export/${dataType}?format=${format}`),
