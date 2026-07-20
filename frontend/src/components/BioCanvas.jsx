@@ -499,7 +499,7 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
       <canvas
         ref={canvasRef}
         className={`fixed inset-0 z-0 transition-all duration-500 ${
-          isCanvasMode ? 'pointer-events-auto' : 'pointer-events-auto'
+          isCanvasMode ? 'pointer-events-auto' : 'pointer-events-none'
         }`}
         style={{ opacity: isCanvasMode ? 1 : 0.4 }}
       />
