@@ -1,30 +1,57 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { userAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
-import { User, Heart, Activity, Scale, Ruler, Calendar, Check } from 'lucide-react';
+import { User, Heart, Activity, Scale, Ruler, Calendar, Check, Loader2 } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 
 function ProfileContent() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
-  const { t, language } = useLanguage();
-  const [profile, setProfile] = useState({
-    age: '',
-    gender: '',
-    height_cm: '',
-    weight_kg: '',
-    activity_level: '',
-    dietary_goals: [],
-    dietary_restrictions: [],
-  });
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
+
+  const schema = z.object({
+    age: z.coerce.number().min(1, t.validation.age).max(120, t.validation.age).optional().or(z.literal('')),
+    gender: z.string().optional(),
+    height_cm: z.coerce.number().min(50, t.validation.height).max(250, t.validation.height).optional().or(z.literal('')),
+    weight_kg: z.coerce.number().min(20, t.validation.weight).max(300, t.validation.weight).optional().or(z.literal('')),
+    activity_level: z.string().optional(),
+    dietary_goals: z.array(z.string()).default([]),
+    dietary_restrictions: z.array(z.string()).default([]),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onBlur',
+    defaultValues: {
+      age: '',
+      gender: '',
+      height_cm: '',
+      weight_kg: '',
+      activity_level: '',
+      dietary_goals: [],
+      dietary_restrictions: [],
+    },
+  });
+
+  const formValues = watch();
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -38,7 +65,15 @@ function ProfileContent() {
     try {
       const res = await userAPI.getProfile();
       if (res.data) {
-        setProfile(res.data);
+        reset({
+          age: res.data.age || '',
+          gender: res.data.gender || '',
+          height_cm: res.data.height_cm || '',
+          weight_kg: res.data.weight_kg || '',
+          activity_level: res.data.activity_level || '',
+          dietary_goals: res.data.dietary_goals || [],
+          dietary_restrictions: res.data.dietary_restrictions || [],
+        });
       }
     } catch (err) {
       console.error(err);
@@ -48,10 +83,13 @@ function ProfileContent() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     try {
-      await userAPI.updateProfile(profile);
+      const submitData = { ...data };
+      if (submitData.age === '') delete submitData.age;
+      if (submitData.height_cm === '') delete submitData.height_cm;
+      if (submitData.weight_kg === '') delete submitData.weight_kg;
+      await userAPI.updateProfile(submitData);
       toast.success(t.saveSuccess);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -84,41 +122,36 @@ function ProfileContent() {
     { value: 'very_active', label: t.activity.veryActive },
   ];
 
-  const toggleGoal = (goal) => {
-    const value = typeof goal === 'object' ? goal.value : goal;
-    setProfile(prev => ({
-      ...prev,
-      dietary_goals: prev.dietary_goals.includes(value)
-        ? prev.dietary_goals.filter(g => g !== value)
-        : [...prev.dietary_goals, value]
-    }));
-  };
-
-  const toggleRestriction = (restriction) => {
-    const value = typeof restriction === 'object' ? restriction.value : restriction;
-    setProfile(prev => ({
-      ...prev,
-      dietary_restrictions: prev.dietary_restrictions.includes(value)
-        ? prev.dietary_restrictions.filter(r => r !== value)
-        : [...prev.dietary_restrictions, value]
-    }));
+  const toggleArrayItem = (field, value) => {
+    const current = formValues[field] || [];
+    const next = current.includes(value)
+      ? current.filter((v) => v !== value)
+      : [...current, value];
+    setValue(field, next, { shouldDirty: true });
   };
 
   const calculateBMI = useMemo(() => {
-    if (profile.height_cm && profile.weight_kg) {
-      return (profile.weight_kg / ((profile.height_cm / 100) ** 2)).toFixed(1);
+    const h = parseFloat(formValues.height_cm);
+    const w = parseFloat(formValues.weight_kg);
+    if (h && w) {
+      return (w / ((h / 100) ** 2)).toFixed(1);
     }
     return '--';
-  }, [profile.height_cm, profile.weight_kg]);
+  }, [formValues.height_cm, formValues.weight_kg]);
 
   const getBMICategory = useMemo(() => {
     const bmi = parseFloat(calculateBMI);
-    if (isNaN(bmi)) return 'N/A';
+    if (isNaN(bmi)) return { text: 'N/A', color: 'text-slate-600' };
     if (bmi < 18.5) return { text: t.underweight, color: 'text-blue-600' };
     if (bmi < 25) return { text: t.normal, color: 'text-emerald-600' };
     if (bmi < 30) return { text: t.overweight, color: 'text-amber-600' };
     return { text: t.obese, color: 'text-red-600' };
   }, [calculateBMI, t]);
+
+  const inputClass = (hasError) =>
+    `w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${
+      hasError ? 'border-red-400 bg-red-50' : 'border-slate-200'
+    }`;
 
   if (loading) {
     return (
@@ -156,7 +189,7 @@ function ProfileContent() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -165,22 +198,21 @@ function ProfileContent() {
                   </label>
                   <input
                     type="number"
-                    value={profile.age}
-                    onChange={(e) => setProfile({ ...profile, age: parseInt(e.target.value) || '' })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    {...register('age')}
+                    className={inputClass(!!errors.age)}
                     placeholder={t.enterAge}
                   />
+                  {errors.age && <p className="mt-1 text-xs text-red-500">{errors.age.message}</p>}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <Heart className="w-4 h-4 inline mr-1" />
-                    {t.gender || 'Gender'}
+                    {t.gender}
                   </label>
                   <select
-                    value={profile.gender}
-                    onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    {...register('gender')}
+                    className={inputClass(!!errors.gender)}
                   >
                     <option value="">{t.selectGender}</option>
                     <option value="male">{t.gender.male}</option>
@@ -196,11 +228,11 @@ function ProfileContent() {
                   </label>
                   <input
                     type="number"
-                    value={profile.height_cm}
-                    onChange={(e) => setProfile({ ...profile, height_cm: parseFloat(e.target.value) || '' })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    {...register('height_cm')}
+                    className={inputClass(!!errors.height_cm)}
                     placeholder={t.enterHeight}
                   />
+                  {errors.height_cm && <p className="mt-1 text-xs text-red-500">{errors.height_cm.message}</p>}
                 </div>
 
                 <div>
@@ -210,11 +242,11 @@ function ProfileContent() {
                   </label>
                   <input
                     type="number"
-                    value={profile.weight_kg}
-                    onChange={(e) => setProfile({ ...profile, weight_kg: parseFloat(e.target.value) || '' })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    {...register('weight_kg')}
+                    className={inputClass(!!errors.weight_kg)}
                     placeholder={t.enterWeight}
                   />
+                  {errors.weight_kg && <p className="mt-1 text-xs text-red-500">{errors.weight_kg.message}</p>}
                 </div>
 
                 <div className="md:col-span-2">
@@ -223,12 +255,11 @@ function ProfileContent() {
                     {t.activityLevel}
                   </label>
                   <select
-                    value={profile.activity_level}
-                    onChange={(e) => setProfile({ ...profile, activity_level: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    {...register('activity_level')}
+                    className={inputClass(!!errors.activity_level)}
                   >
-                    <option value="">{t.selectActivity || 'Select activity level'}</option>
-                    {activityOptions.map(opt => (
+                    <option value="">{t.selectActivity}</option>
+                    {activityOptions.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>
@@ -238,18 +269,18 @@ function ProfileContent() {
               <div className="pt-4 border-t border-slate-100">
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">{t.dietaryGoals}</h3>
                 <div className="flex flex-wrap gap-3">
-                  {goalOptions.map(goal => (
+                  {goalOptions.map((goal) => (
                     <button
                       key={goal.value}
                       type="button"
-                      onClick={() => toggleGoal(goal)}
+                      onClick={() => toggleArrayItem('dietary_goals', goal.value)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        profile.dietary_goals.includes(goal.value)
+                        (formValues.dietary_goals || []).includes(goal.value)
                           ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300'
                           : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-200'
                       }`}
                     >
-                      {profile.dietary_goals.includes(goal.value) && <Check className="w-4 h-4 inline mr-1" />}
+                      {(formValues.dietary_goals || []).includes(goal.value) && <Check className="w-4 h-4 inline mr-1" />}
                       {goal.label}
                     </button>
                   ))}
@@ -259,18 +290,18 @@ function ProfileContent() {
               <div className="pt-4 border-t border-slate-100">
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">{t.dietaryRestrictions}</h3>
                 <div className="flex flex-wrap gap-3">
-                  {restrictionOptions.map(restriction => (
+                  {restrictionOptions.map((restriction) => (
                     <button
                       key={restriction.value}
                       type="button"
-                      onClick={() => toggleRestriction(restriction)}
+                      onClick={() => toggleArrayItem('dietary_restrictions', restriction.value)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        profile.dietary_restrictions.includes(restriction.value)
+                        (formValues.dietary_restrictions || []).includes(restriction.value)
                           ? 'bg-red-100 text-red-700 border-2 border-red-300'
                           : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-200'
                       }`}
                     >
-                      {profile.dietary_restrictions.includes(restriction.value) && <Check className="w-4 h-4 inline mr-1" />}
+                      {(formValues.dietary_restrictions || []).includes(restriction.value) && <Check className="w-4 h-4 inline mr-1" />}
                       {restriction.label}
                     </button>
                   ))}
@@ -283,8 +314,8 @@ function ProfileContent() {
                   <div className="flex items-center gap-4">
                     <div>
                       <p className="text-3xl font-bold text-slate-900">{calculateBMI}</p>
-                      <p className={`text-sm font-medium ${typeof getBMICategory === 'object' ? getBMICategory.color : 'text-slate-600'}`}>
-                        {typeof getBMICategory === 'object' ? getBMICategory.text : getBMICategory}
+                      <p className={`text-sm font-medium ${getBMICategory.color}`}>
+                        {getBMICategory.text}
                       </p>
                     </div>
                     <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -300,8 +331,10 @@ function ProfileContent() {
               <div className="flex gap-4 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-all hover:shadow-lg hover:shadow-emerald-500/30"
+                  disabled={isSubmitting}
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-all hover:shadow-lg hover:shadow-emerald-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
+                  {isSubmitting && <Loader2 className="w-5 h-5 animate-spin" />}
                   {saved ? <Check className="w-5 h-5" /> : null}
                   {saved ? t.saved : t.saveProfile}
                 </button>
