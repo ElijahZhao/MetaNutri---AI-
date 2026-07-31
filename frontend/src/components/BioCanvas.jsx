@@ -321,14 +321,29 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
 
     const ctx = canvas.getContext('2d');
     
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let isPaused = false;
+    let lastTime = 0;
+    const targetFPS = reduceMotion ? 10 : 60;
+    const frameInterval = 1000 / targetFPS;
+
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      particlesRef.current = initParticles(canvas.width, canvas.height);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.scale(dpr, dpr);
+      particlesRef.current = initParticles(window.innerWidth, window.innerHeight);
     };
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+
+    const handleVisibility = () => {
+      isPaused = document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
     const handleMouseMove = (e) => {
       mouseRef.current.x = e.clientX;
@@ -374,7 +389,19 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('click', handleClick);
 
-    const animate = () => {
+    const animate = (currentTime) => {
+      if (isPaused) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      const deltaTime = currentTime - lastTime;
+      if (deltaTime < frameInterval) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      lastTime = currentTime - (deltaTime % frameInterval);
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (isCanvasMode) {
@@ -493,10 +520,11 @@ export default function BioCanvas({ isCanvasMode, onExitCanvas }) {
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animationRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      document.removeEventListener('visibilitychange', handleVisibility);
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('click', handleClick);
       if (animationRef.current) {
