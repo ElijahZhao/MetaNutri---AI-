@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -121,6 +122,13 @@ export default function LoginPage() {
                 <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
               )}
             </div>
+            {isLogin && (
+              <div className="text-right">
+                <Link href="/forgot-password" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
+                  {t.forgotPassword}
+                </Link>
+              </div>
+            )}
             <button
               type="submit"
               disabled={loading}

@@ -82,11 +82,14 @@ export const authAPI = {
   login: (data) => api.post('/api/auth/login', data),
   register: (data) => api.post('/api/auth/register', data),
   me: () => api.get('/api/users/me'),
+  forgotPassword: (email) => api.post('/api/auth/forgot-password', { email }),
+  resetPassword: (token, newPassword) => api.post('/api/auth/reset-password', { token, newPassword }),
 };
 
 export const userAPI = {
   getProfile: () => api.get('/api/users/profile'),
   updateProfile: (data) => api.put('/api/users/profile', data),
+  changePassword: (oldPassword, newPassword) => api.post('/api/users/change-password', { oldPassword, newPassword }),
 };
 
 export const foodAPI = {
