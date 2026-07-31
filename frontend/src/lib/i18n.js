@@ -410,6 +410,15 @@ const translations = {
     next: '下一步',
     previous: '上一步',
     noData: '暂无数据',
+    validation: {
+      required: '此字段为必填项',
+      username: '用户名需 3-20 个字符（字母、数字、下划线）',
+      email: '请输入有效的邮箱地址',
+      password: '密码至少 8 位，包含字母和数字',
+      age: '年龄需在 1 到 120 之间',
+      height: '身高需在 50 到 250 厘米之间',
+      weight: '体重需在 20 到 300 公斤之间',
+    },
     tryAgain: '重试',
     genomic: {
       title: '基因组数据',
