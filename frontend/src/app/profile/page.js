@@ -42,7 +42,7 @@ function ProfileContent() {
       }
     } catch (err) {
       console.error(err);
-      toast.error(err.userMessage || (language === 'en' ? 'Failed to load profile' : '加载资料失败'));
+      toast.error(err.userMessage || t.loadFailed);
     } finally {
       setLoading(false);
     }
@@ -52,39 +52,55 @@ function ProfileContent() {
     e.preventDefault();
     try {
       await userAPI.updateProfile(profile);
-      toast.success(language === 'en' ? 'Profile saved successfully!' : '资料保存成功！');
+      toast.success(t.saveSuccess);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      toast.error(err.userMessage || (language === 'en' ? 'Failed to save profile' : '保存资料失败'));
+      toast.error(err.userMessage || t.saveFailed);
     }
   };
 
-  const goalOptions = ['Weight Loss', 'Muscle Gain', 'Maintenance', 'Improve Energy', 'Better Sleep'];
-  const restrictionOptions = ['Gluten Free', 'Dairy Free', 'Vegetarian', 'Vegan', 'Nut Free', 'Low Carb', 'Low Sugar'];
+  const goalOptions = [
+    { value: 'Weight Loss', label: t.goals.weightLoss },
+    { value: 'Muscle Gain', label: t.goals.muscleGain },
+    { value: 'Maintenance', label: t.goals.maintenance },
+    { value: 'Improve Energy', label: t.goals.improveEnergy },
+    { value: 'Better Sleep', label: t.goals.betterSleep },
+  ];
+  const restrictionOptions = [
+    { value: 'Gluten Free', label: t.restrictions.glutenFree },
+    { value: 'Dairy Free', label: t.restrictions.dairyFree },
+    { value: 'Vegetarian', label: t.restrictions.vegetarian },
+    { value: 'Vegan', label: t.restrictions.vegan },
+    { value: 'Nut Free', label: t.restrictions.nutFree },
+    { value: 'Low Carb', label: t.restrictions.lowCarb },
+    { value: 'Low Sugar', label: t.restrictions.lowSugar },
+  ];
   const activityOptions = [
-    { value: 'sedentary', label: 'Sedentary (little exercise)' },
-    { value: 'light', label: 'Light (1-3 days/week)' },
-    { value: 'moderate', label: 'Moderate (3-5 days/week)' },
-    { value: 'active', label: 'Active (6-7 days/week)' },
-    { value: 'very_active', label: 'Very Active (physical job)' },
+    { value: 'sedentary', label: t.activity.sedentary },
+    { value: 'light', label: t.activity.light },
+    { value: 'moderate', label: t.activity.moderate },
+    { value: 'active', label: t.activity.active },
+    { value: 'very_active', label: t.activity.veryActive },
   ];
 
   const toggleGoal = (goal) => {
+    const value = typeof goal === 'object' ? goal.value : goal;
     setProfile(prev => ({
       ...prev,
-      dietary_goals: prev.dietary_goals.includes(goal)
-        ? prev.dietary_goals.filter(g => g !== goal)
-        : [...prev.dietary_goals, goal]
+      dietary_goals: prev.dietary_goals.includes(value)
+        ? prev.dietary_goals.filter(g => g !== value)
+        : [...prev.dietary_goals, value]
     }));
   };
 
   const toggleRestriction = (restriction) => {
+    const value = typeof restriction === 'object' ? restriction.value : restriction;
     setProfile(prev => ({
       ...prev,
-      dietary_restrictions: prev.dietary_restrictions.includes(restriction)
-        ? prev.dietary_restrictions.filter(r => r !== restriction)
-        : [...prev.dietary_restrictions, restriction]
+      dietary_restrictions: prev.dietary_restrictions.includes(value)
+        ? prev.dietary_restrictions.filter(r => r !== value)
+        : [...prev.dietary_restrictions, value]
     }));
   };
 
@@ -109,7 +125,7 @@ function ProfileContent() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <Activity className="w-10 h-10 animate-spin text-emerald-600 mx-auto mb-4" />
-          <p className="text-slate-500">{language === 'en' ? 'Loading...' : '加载中...'}</p>
+          <p className="text-slate-500">{t.loading}</p>
         </div>
       </div>
     );
@@ -152,7 +168,7 @@ function ProfileContent() {
                     value={profile.age}
                     onChange={(e) => setProfile({ ...profile, age: parseInt(e.target.value) || '' })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    placeholder={language === 'en' ? 'Enter your age' : '输入年龄'}
+                    placeholder={t.enterAge}
                   />
                 </div>
 
@@ -166,10 +182,10 @@ function ProfileContent() {
                     onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   >
-                    <option value="">{t.selectGender || 'Select gender'}</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value="">{t.selectGender}</option>
+                    <option value="male">{t.gender.male}</option>
+                    <option value="female">{t.gender.female}</option>
+                    <option value="other">{t.gender.other}</option>
                   </select>
                 </div>
 
@@ -183,7 +199,7 @@ function ProfileContent() {
                     value={profile.height_cm}
                     onChange={(e) => setProfile({ ...profile, height_cm: parseFloat(e.target.value) || '' })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    placeholder={language === 'en' ? 'Enter height in cm' : '输入身高（cm）'}
+                    placeholder={t.enterHeight}
                   />
                 </div>
 
@@ -197,7 +213,7 @@ function ProfileContent() {
                     value={profile.weight_kg}
                     onChange={(e) => setProfile({ ...profile, weight_kg: parseFloat(e.target.value) || '' })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    placeholder={language === 'en' ? 'Enter weight in kg' : '输入体重（kg）'}
+                    placeholder={t.enterWeight}
                   />
                 </div>
 
@@ -224,17 +240,17 @@ function ProfileContent() {
                 <div className="flex flex-wrap gap-3">
                   {goalOptions.map(goal => (
                     <button
-                      key={goal}
+                      key={goal.value}
                       type="button"
                       onClick={() => toggleGoal(goal)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        profile.dietary_goals.includes(goal)
+                        profile.dietary_goals.includes(goal.value)
                           ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300'
                           : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-200'
                       }`}
                     >
-                      {profile.dietary_goals.includes(goal) && <Check className="w-4 h-4 inline mr-1" />}
-                      {goal}
+                      {profile.dietary_goals.includes(goal.value) && <Check className="w-4 h-4 inline mr-1" />}
+                      {goal.label}
                     </button>
                   ))}
                 </div>
@@ -245,17 +261,17 @@ function ProfileContent() {
                 <div className="flex flex-wrap gap-3">
                   {restrictionOptions.map(restriction => (
                     <button
-                      key={restriction}
+                      key={restriction.value}
                       type="button"
                       onClick={() => toggleRestriction(restriction)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        profile.dietary_restrictions.includes(restriction)
+                        profile.dietary_restrictions.includes(restriction.value)
                           ? 'bg-red-100 text-red-700 border-2 border-red-300'
                           : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-200'
                       }`}
                     >
-                      {profile.dietary_restrictions.includes(restriction) && <Check className="w-4 h-4 inline mr-1" />}
-                      {restriction}
+                      {profile.dietary_restrictions.includes(restriction.value) && <Check className="w-4 h-4 inline mr-1" />}
+                      {restriction.label}
                     </button>
                   ))}
                 </div>

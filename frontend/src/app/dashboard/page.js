@@ -9,8 +9,9 @@ import { userAPI, predictAPI, recommendationAPI, genomicAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
-import { Activity, TrendingUp, ShieldAlert, Utensils, Loader2, Dna, Microscope, Apple } from 'lucide-react';
+import { Activity, TrendingUp, ShieldAlert, Utensils, Dna, Microscope, Apple } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { SkeletonDashboard } from '@/components/Skeleton';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -56,11 +57,11 @@ function DashboardContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <Loader2 className="w-10 h-10 animate-spin text-emerald-600 mx-auto mb-4" />
-          <p className="text-slate-500">{t.loading || 'Loading...'}</p>
-        </div>
+      <div className="min-h-screen bg-slate-50">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <SkeletonDashboard />
+        </main>
       </div>
     );
   }

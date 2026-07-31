@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { metabolomicsAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import { FlaskConical, Upload, TrendingUp, TrendingDown, Activity, Loader2, Trash2, BarChart3 } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -14,6 +15,7 @@ const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 function MetabolomicsContent() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const { t } = useLanguage();
   const [data, setData] = useState([]);
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,7 @@ function MetabolomicsContent() {
       setAnalysis(analysisRes.data);
     } catch (e) {
       console.error(e);
-      toast.error(e.userMessage || 'Failed to load metabolomics data');
+      toast.error(e.userMessage || t.metabolomics.loadFailed);
     } finally {
       setLoading(false);
     }
@@ -63,7 +65,7 @@ function MetabolomicsContent() {
         z_score: form.z_score ? parseFloat(form.z_score) : undefined,
         significance: form.significance ? parseFloat(form.significance) : undefined,
       }]);
-      toast.success('Metabolite entry added successfully!');
+      toast.success(t.metabolomics.addSuccess);
       setForm({
         metabolite_name: '',
         pathway_name: '',
@@ -75,7 +77,7 @@ function MetabolomicsContent() {
       fetchData();
     } catch (e) {
       console.error(e);
-      toast.error(e.userMessage || 'Failed to add metabolite entry');
+      toast.error(e.userMessage || t.metabolomics.addFailed);
     } finally {
       setUploading(false);
     }
@@ -84,11 +86,11 @@ function MetabolomicsContent() {
   const handleDelete = async (id) => {
     try {
       await metabolomicsAPI.delete(id);
-      toast.success('Entry deleted successfully!');
+      toast.success(t.metabolomics.deleteSuccess);
       fetchData();
     } catch (e) {
       console.error(e);
-      toast.error(e.userMessage || 'Failed to delete entry');
+      toast.error(e.userMessage || t.metabolomics.deleteFailed);
     }
   };
 
@@ -130,21 +132,21 @@ function MetabolomicsContent() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <FlaskConical className="w-6 h-6 text-emerald-600" />
-            Metabolomics Data
+            {t.metabolomics.title}
           </h1>
-          <p className="text-slate-600">Track and analyze your metabolite profiles across key pathways</p>
+          <p className="text-slate-600">{t.metabolomics.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Upload className="w-5 h-5" />
-              Add Metabolite Entry
+              {t.metabolomics.addEntry}
             </h2>
             <form onSubmit={handleAdd} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Metabolite Name</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.metaboliteName}</label>
                   <input
                     required
                     value={form.metabolite_name}
@@ -154,7 +156,7 @@ function MetabolomicsContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Pathway</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.pathway}</label>
                   <input
                     value={form.pathway_name}
                     onChange={(e) => setForm({ ...form, pathway_name: e.target.value })}
@@ -163,7 +165,7 @@ function MetabolomicsContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Concentration</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.concentration}</label>
                   <input
                     type="number"
                     step="0.001"
@@ -174,7 +176,7 @@ function MetabolomicsContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Unit</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.unit}</label>
                   <select
                     value={form.unit}
                     onChange={(e) => setForm({ ...form, unit: e.target.value })}
@@ -187,7 +189,7 @@ function MetabolomicsContent() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Z-Score</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.zScore}</label>
                   <input
                     type="number"
                     step="0.01"
@@ -197,7 +199,7 @@ function MetabolomicsContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Significance (p-value)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.significance}</label>
                   <input
                     type="number"
                     step="0.0001"
@@ -213,7 +215,7 @@ function MetabolomicsContent() {
                 className="w-full py-2.5 text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {uploading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Add Entry
+                {t.add}
               </button>
             </form>
           </div>
@@ -221,42 +223,42 @@ function MetabolomicsContent() {
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
-              Z-Score Distribution
+              {t.metabolomics.zScoreDistribution}
             </h2>
             {data.length > 0 ? (
               <ReactECharts option={barOption} style={{ height: 280 }} />
             ) : (
-              <p className="text-sm text-slate-500 py-12 text-center">No metabolomics data yet.</p>
+              <p className="text-sm text-slate-500 py-12 text-center">{t.metabolomics.noData}</p>
             )}
           </div>
         </div>
 
         {analysis && (
           <div className="bg-white rounded-xl border border-slate-200 p-6 mb-8">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Analysis Results</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">{t.metabolomics.analysisResults}</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="p-4 bg-slate-50 rounded-lg">
-                <p className="text-sm text-slate-500">Total Metabolites</p>
+                <p className="text-sm text-slate-500">{t.metabolomics.totalMetabolites}</p>
                 <p className="text-2xl font-bold text-slate-900">{analysis.total_metabolites}</p>
               </div>
               <div className="p-4 bg-red-50 rounded-lg">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-red-600" />
-                  <p className="text-sm text-slate-500">Upregulated</p>
+                  <p className="text-sm text-slate-500">{t.metabolomics.upregulated}</p>
                 </div>
                 <p className="text-2xl font-bold text-red-600">{analysis.summary?.upregulated || 0}</p>
               </div>
               <div className="p-4 bg-blue-50 rounded-lg">
                 <div className="flex items-center gap-2">
                   <TrendingDown className="w-4 h-4 text-blue-600" />
-                  <p className="text-sm text-slate-500">Downregulated</p>
+                  <p className="text-sm text-slate-500">{t.metabolomics.downregulated}</p>
                 </div>
                 <p className="text-2xl font-bold text-blue-600">{analysis.summary?.downregulated || 0}</p>
               </div>
               <div className="p-4 bg-emerald-50 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-emerald-600" />
-                  <p className="text-sm text-slate-500">Normal</p>
+                  <p className="text-sm text-slate-500">{t.metabolomics.normal}</p>
                 </div>
                 <p className="text-2xl font-bold text-emerald-600">{analysis.summary?.normal || 0}</p>
               </div>
@@ -264,7 +266,7 @@ function MetabolomicsContent() {
 
             {analysis.insights && analysis.insights.length > 0 && (
               <div className="space-y-2">
-                <h3 className="text-sm font-medium text-slate-700">Key Insights</h3>
+                <h3 className="text-sm font-medium text-slate-700">{t.metabolomics.keyInsights}</h3>
                 {analysis.insights.map((insight, i) => (
                   <div key={i} className="flex items-start gap-2 p-3 bg-emerald-50 rounded-lg text-sm text-emerald-800">
                     <span className="flex-shrink-0 w-5 h-5 bg-emerald-200 text-emerald-800 rounded-full flex items-center justify-center text-xs font-bold">
@@ -280,7 +282,7 @@ function MetabolomicsContent() {
 
         {analysis?.pathways?.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 p-6 mb-8">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Pathway Enrichment</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">{t.metabolomics.pathwayEnrichment}</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ReactECharts option={pathwayOption} style={{ height: 280 }} />
               <div className="space-y-2">
@@ -299,18 +301,18 @@ function MetabolomicsContent() {
         )}
 
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Your Metabolite Data ({data.length})</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">{t.metabolomics.yourMetaboliteData} ({data.length})</h2>
           {data.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-200">
                 <thead>
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Metabolite</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Pathway</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Concentration</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Z-Score</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Action</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.metaboliteName}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.pathway}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.concentration}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.zScore}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.status}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.action}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
@@ -324,11 +326,11 @@ function MetabolomicsContent() {
                       <td className="px-4 py-3 text-sm text-slate-600">{item.z_score?.toFixed(2) || 'N/A'}</td>
                       <td className="px-4 py-3">
                         {item.z_score > 1 ? (
-                          <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">Upregulated</span>
+                          <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">{t.metabolomics.upregulated}</span>
                         ) : item.z_score < -1 ? (
-                          <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">Downregulated</span>
+                          <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">{t.metabolomics.downregulated}</span>
                         ) : (
-                          <span className="px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full">Normal</span>
+                          <span className="px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full">{t.metabolomics.normal}</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -345,7 +347,7 @@ function MetabolomicsContent() {
               </table>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 py-8 text-center">No metabolomics data yet. Add your first entry above.</p>
+            <p className="text-sm text-slate-500 py-8 text-center">{t.metabolomics.noData}</p>
           )}
         </div>
       </main>

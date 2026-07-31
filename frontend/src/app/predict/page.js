@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { predictAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import { Brain, Activity, Pill, Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -14,6 +15,7 @@ const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 function PredictContent() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const { t } = useLanguage();
   const [glucose, setGlucose] = useState(null);
   const [nutrient, setNutrient] = useState(null);
   const [loadingGlucose, setLoadingGlucose] = useState(false);
@@ -31,7 +33,7 @@ function PredictContent() {
       setGlucose(res.data);
     } catch (e) { 
       console.error(e); 
-      toast.error(e.userMessage || 'Failed to predict glucose response');
+      toast.error(e.userMessage || t.predict.glucoseFailed);
     } finally { setLoadingGlucose(false); }
   };
 
@@ -43,7 +45,7 @@ function PredictContent() {
       setNutrient(res.data);
     } catch (e) { 
       console.error(e); 
-      toast.error(e.userMessage || 'Failed to predict nutrient absorption');
+      toast.error(e.userMessage || t.predict.nutrientFailed);
     } finally { setLoadingNutrient(false); }
   };
 
@@ -69,9 +71,9 @@ function PredictContent() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <Brain className="w-6 h-6 text-emerald-600" />
-            AI Predictions
+            {t.predict.title}
           </h1>
-          <p className="text-slate-600">Run metabolic models to predict responses</p>
+          <p className="text-slate-600">{t.predict.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -79,68 +81,68 @@ function PredictContent() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                 <Activity className="w-5 h-5 text-red-500" />
-                Glucose Response Prediction
+                {t.predict.glucoseResponse}
               </h2>
               <button onClick={predictGlucose} disabled={loadingGlucose} className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors flex items-center gap-2 disabled:opacity-60">
                 {loadingGlucose && <Loader2 className="w-4 h-4 animate-spin" />}
-                Predict
+                {t.predict.predict}
               </button>
             </div>
             {glucose ? (
               <div>
                 <div className="grid grid-cols-3 gap-3 mb-4">
                   <div className="p-3 bg-slate-50 rounded-lg text-center">
-                    <p className="text-xs text-slate-500">Peak Glucose</p>
+                    <p className="text-xs text-slate-500">{t.predict.peakGlucose}</p>
                     <p className="text-lg font-bold text-slate-900">{glucose.peak_glucose.toFixed(0)}</p>
                   </div>
                   <div className="p-3 bg-slate-50 rounded-lg text-center">
-                    <p className="text-xs text-slate-500">Time to Peak</p>
+                    <p className="text-xs text-slate-500">{t.predict.timeToPeak}</p>
                     <p className="text-lg font-bold text-slate-900">{glucose.time_to_peak}m</p>
                   </div>
                   <div className="p-3 bg-slate-50 rounded-lg text-center">
-                    <p className="text-xs text-slate-500">HbA1c Est.</p>
+                    <p className="text-xs text-slate-500">{t.predict.hba1cEst}</p>
                     <p className="text-lg font-bold text-slate-900">{glucose.aic_score}%</p>
                   </div>
                 </div>
                 <ReactECharts option={glucoseOption} style={{ height: 280 }} />
               </div>
             ) : (
-              <div className="py-12 text-center text-sm text-slate-500">Click Predict to simulate a glucose curve based on your profile.</div>
+              <div className="py-12 text-center text-sm text-slate-500">{t.predict.clickToPredict}</div>
             )}
           </div>
 
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Pill className="w-5 h-5 text-blue-500" />
-              Nutrient Absorption
+              {t.predict.nutrientAbsorption}
             </h2>
             <form onSubmit={predictNutrient} className="space-y-4 mb-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Nutrient</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.predict.nutrient}</label>
                   <select value={nutrientForm.nutrient} onChange={(e) => setNutrientForm({ ...nutrientForm, nutrient: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     <option>Iron</option><option>Calcium</option><option>Vitamin C</option><option>Vitamin D</option><option>Zinc</option><option>Magnesium</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Amount (mg)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.predict.amount}</label>
                   <input type="number" value={nutrientForm.amount_mg} onChange={(e) => setNutrientForm({ ...nutrientForm, amount_mg: parseFloat(e.target.value) })} className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                 </div>
               </div>
               <button type="submit" disabled={loadingNutrient} className="w-full py-2.5 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-60">
                 {loadingNutrient && <Loader2 className="w-4 h-4 animate-spin" />}
-                Predict Absorption
+                {t.predict.predictAbsorption}
               </button>
             </form>
             {nutrient && (
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <div className="grid grid-cols-2 gap-4 mb-3">
                   <div>
-                    <p className="text-xs text-blue-600">Absorption Rate</p>
+                    <p className="text-xs text-blue-600">{t.predict.absorptionRate}</p>
                     <p className="text-xl font-bold text-blue-800">{(nutrient.absorption_rate * 100).toFixed(1)}%</p>
                   </div>
                   <div>
-                    <p className="text-xs text-blue-600">Bioavailability</p>
+                    <p className="text-xs text-blue-600">{t.predict.bioavailability}</p>
                     <p className="text-xl font-bold text-blue-800">{nutrient.bioavailability_score}</p>
                   </div>
                 </div>

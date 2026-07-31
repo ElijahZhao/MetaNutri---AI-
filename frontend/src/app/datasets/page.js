@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { datasetAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import {
   Database,
@@ -44,6 +45,7 @@ const statusColors = {
 function DatasetsContent() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const { t } = useLanguage();
   const [datasets, setDatasets] = useState([]);
   const [stats, setStats] = useState(null);
   const [tianchiDatasets, setTianchiDatasets] = useState([]);
@@ -72,7 +74,7 @@ function DatasetsContent() {
       setTianchiDatasets(tianchiRes.data.bioinformatics_datasets || []);
     } catch (err) {
       console.error(err);
-      toast.error(err.userMessage || 'Failed to load datasets');
+      toast.error(err.userMessage || t.datasets.loadFailed);
     } finally {
       setLoading(false);
     }
@@ -82,11 +84,11 @@ function DatasetsContent() {
     setLoadingDataset(datasetId);
     try {
       await datasetAPI.download(datasetId);
-      toast.success('Dataset downloaded successfully!');
+      toast.success(t.datasets.downloadSuccess);
       fetchData();
     } catch (err) {
       console.error(err);
-      toast.error(err.userMessage || 'Failed to download dataset');
+      toast.error(err.userMessage || t.datasets.downloadFailed);
     } finally {
       setLoadingDataset(null);
     }
@@ -96,11 +98,11 @@ function DatasetsContent() {
     setLoadingDataset(datasetId);
     try {
       await datasetAPI.import(datasetId);
-      toast.success('Dataset imported successfully!');
+      toast.success(t.datasets.importSuccess);
       fetchData();
     } catch (err) {
       console.error(err);
-      toast.error(err.userMessage || 'Failed to import dataset');
+      toast.error(err.userMessage || t.datasets.importFailed);
     } finally {
       setLoadingDataset(null);
     }
@@ -110,11 +112,11 @@ function DatasetsContent() {
     setLoading(true);
     try {
       await datasetAPI.downloadAll();
-      toast.success('All datasets downloaded successfully!');
+      toast.success(t.datasets.allDownloadSuccess);
       fetchData();
     } catch (err) {
       console.error(err);
-      toast.error(err.userMessage || 'Failed to download all datasets');
+      toast.error(err.userMessage || t.datasets.allDownloadFailed);
     } finally {
       setLoading(false);
     }
@@ -138,8 +140,8 @@ function DatasetsContent() {
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Dataset Management</h1>
-          <p className="text-slate-600">Manage public and external datasets for MetaNutri</p>
+          <h1 className="text-2xl font-bold text-slate-900">{t.datasets.title}</h1>
+          <p className="text-slate-600">{t.datasets.subtitle}</p>
         </div>
 
         {stats && (
@@ -202,7 +204,7 @@ function DatasetsContent() {
           >
             <span className="flex items-center gap-2">
               <Database className="w-4 h-4" />
-              Local Datasets
+              {t.datasets.localDatasets}
             </span>
           </button>
           <button
@@ -215,7 +217,7 @@ function DatasetsContent() {
           >
             <span className="flex items-center gap-2">
               <Globe className="w-4 h-4" />
-              TianChi Datasets
+              {t.datasets.tianchiDatasets}
             </span>
           </button>
         </div>
@@ -227,7 +229,7 @@ function DatasetsContent() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search datasets..."
+                  placeholder={t.datasets.searchDatasets}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 w-64"
@@ -238,7 +240,7 @@ function DatasetsContent() {
                 className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
               >
                 <Download className="w-4 h-4" />
-                Download All
+                {t.datasets.downloadAll}
               </button>
             </div>
 
@@ -260,7 +262,7 @@ function DatasetsContent() {
                         <div>
                           <h3 className="font-semibold text-slate-900">{dataset.name}</h3>
                           <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[dataset.status]}`}>
-                            {dataset.status.replace('_', ' ')}
+                            {dataset.status === 'available' ? t.datasets.available : t.datasets.notDownloaded}
                           </span>
                         </div>
                       </div>
@@ -279,9 +281,9 @@ function DatasetsContent() {
                     <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
                       <span className="flex items-center gap-1">
                         <FileJson className="w-3 h-3" />
-                        {dataset.count} records
+                        {dataset.count} {t.datasets.records}
                       </span>
-                      <span>Source: {dataset.source}</span>
+                      <span>{t.datasets.source}: {dataset.source}</span>
                     </div>
                     <div className="flex gap-2">
                       {dataset.status !== 'available' ? (
@@ -295,7 +297,7 @@ function DatasetsContent() {
                           ) : (
                             <Download className="w-4 h-4" />
                           )}
-                          Download
+                          {t.datasets.download}
                         </button>
                       ) : (
                         <button
@@ -308,7 +310,7 @@ function DatasetsContent() {
                           ) : (
                             <Upload className="w-4 h-4" />
                           )}
-                          Import
+                          {t.datasets.import}
                         </button>
                       )}
                     </div>
