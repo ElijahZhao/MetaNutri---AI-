@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
   async headers() {
     return [
       {
@@ -21,7 +24,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: blob: https:",
-              "connect-src 'self' http://backend:8000 ws:",
+              `connect-src 'self' ${API_URL} ws:`,
               "frame-ancestors 'none'",
               'upgrade-insecure-requests',
             ].join('; '),
@@ -34,7 +37,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://backend:8000/api/:path*',
+        destination: `${API_URL}/api/:path*`,
       },
     ];
   },
