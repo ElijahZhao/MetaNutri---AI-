@@ -1,12 +1,14 @@
 'use client';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { Activity, Dna, Microscope, Brain, ArrowRight, Sparkles, Shield, Zap, Globe, Maximize2 } from 'lucide-react';
 import TypeWriter from '../components/TypeWriter';
 import ScrollReveal from '../components/ScrollReveal';
 import SpotlightTitle from '../components/SpotlightTitle';
-import BioCanvas from '../components/BioCanvas';
 import { useLanguage } from '../lib/i18n';
+
+const BioCanvas = dynamic(() => import('../components/BioCanvas'), { ssr: false });
 
 export default function Home() {
   const { t, language, toggleLanguage } = useLanguage();
@@ -304,7 +306,7 @@ export default function Home() {
         </section>
       </main>
     </div>
-    <BioCanvas isCanvasMode={isCanvasMode} onExitCanvas={exitCanvasMode} />
+    {isCanvasMode && <BioCanvas isCanvasMode={isCanvasMode} onExitCanvas={exitCanvasMode} />}
     </>
   );
 }
