@@ -21,22 +21,57 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+const ERROR_MESSAGES = {
+  400: '请求参数错误',
+  401: '登录已过期，请重新登录',
+  403: '权限不足，无法访问',
+  404: '请求的资源不存在',
+  408: '请求超时，请稍后重试',
+  422: '数据验证失败',
+  500: '服务器内部错误',
+  502: '网关错误',
+  503: '服务暂不可用',
+  network: '网络连接失败，请检查网络',
+  timeout: '请求超时，请稍后重试',
+  unknown: '发生未知错误',
+};
+
+const getErrorMessage = (error) => {
+  const status = error.response?.status;
+  
+  if (status && ERROR_MESSAGES[status]) {
+    const detail = error.response?.data?.detail || error.response?.data?.message;
+    return detail || ERROR_MESSAGES[status];
+  }
+  
+  if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+    return ERROR_MESSAGES.timeout;
+  }
+  
+  if (!error.response) {
+    return ERROR_MESSAGES.network;
+  }
+  
+  return error.response?.data?.detail || error.response?.data?.message || error.message || ERROR_MESSAGES.unknown;
+};
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    
+    if (status === 401) {
       useAuthStore.getState().logout();
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }
     }
     
-    const message = error.response?.data?.detail || 
-                    error.response?.data?.message || 
-                    error.message || 
-                    'Something went wrong';
+    error.userMessage = getErrorMessage(error);
+    error.statusCode = status;
+    error.isNetworkError = !error.response;
+    error.isTimeout = error.code === 'ECONNABORTED' || error.message?.includes('timeout');
     
-    error.userMessage = message;
     return Promise.reject(error);
   }
 );

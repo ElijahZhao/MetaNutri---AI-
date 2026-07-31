@@ -120,6 +120,15 @@ const translations = {
     next: 'Next',
     previous: 'Previous',
     noData: 'No data available',
+    validation: {
+      required: 'This field is required',
+      username: 'Username must be 3-20 characters (letters, numbers, underscore)',
+      email: 'Please enter a valid email address',
+      password: 'Password must be at least 8 characters with letters and numbers',
+      age: 'Age must be between 1 and 120',
+      height: 'Height must be between 50 and 250 cm',
+      weight: 'Weight must be between 20 and 300 kg',
+    },
     tryAgain: 'Try Again',
     genomic: {
       title: 'Genomic Data',
