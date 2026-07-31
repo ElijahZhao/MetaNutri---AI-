@@ -10,7 +10,7 @@ import { userAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
-import { User, Heart, Activity, Scale, Ruler, Calendar, Check, Loader2 } from 'lucide-react';
+import { User, Heart, Activity, Scale, Ruler, Calendar, Check, Loader2, Key } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 
 function ProfileContent() {
@@ -349,6 +349,10 @@ function ProfileContent() {
             </form>
           </div>
         </ScrollReveal>
+
+        <ScrollReveal className="mt-6">
+          <ChangePasswordCard />
+        </ScrollReveal>
       </main>
     </div>
   );
@@ -359,5 +363,101 @@ export default function ProfilePage() {
     <ErrorBoundary>
       <ProfileContent />
     </ErrorBoundary>
+  );
+}
+
+function ChangePasswordCard() {
+  const { t } = useLanguage();
+
+  const passwordSchema = z
+    .object({
+      oldPassword: z.string().min(8, t.validation.password),
+      newPassword: z.string().min(8, t.validation.password),
+      confirmPassword: z.string().min(8, t.validation.password),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t.passwordMismatch,
+      path: ['confirmPassword'],
+    });
+
+  const {
+    register: registerPwd,
+    handleSubmit: handleSubmitPwd,
+    reset: resetPwd,
+    formState: { errors: pwdErrors, isSubmitting: pwdSubmitting },
+  } = useForm({
+    resolver: zodResolver(passwordSchema),
+    mode: 'onBlur',
+    defaultValues: { oldPassword: '', newPassword: '', confirmPassword: '' },
+  });
+
+  const onChangePassword = async (data) => {
+    try {
+      await userAPI.changePassword(data.oldPassword, data.newPassword);
+      toast.success(t.passwordChanged);
+      resetPwd();
+    } catch (err) {
+      toast.error(err.userMessage || t.passwordChangeFailed);
+    }
+  };
+
+  const pwdInputClass = (hasError) =>
+    `w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${
+      hasError ? 'border-red-400 bg-red-50' : 'border-slate-200'
+    }`;
+
+  return (
+    <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 text-white">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+            <Key className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">{t.changePassword}</h2>
+          </div>
+        </div>
+      </div>
+      <form onSubmit={handleSubmitPwd(onChangePassword)} className="p-6 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">{t.oldPassword}</label>
+          <input
+            type="password"
+            {...registerPwd('oldPassword')}
+            placeholder={t.enterOldPassword}
+            className={pwdInputClass(!!pwdErrors.oldPassword)}
+          />
+          {pwdErrors.oldPassword && <p className="mt-1 text-xs text-red-500">{pwdErrors.oldPassword.message}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">{t.newPassword}</label>
+          <input
+            type="password"
+            {...registerPwd('newPassword')}
+            placeholder={t.enterNewPassword}
+            className={pwdInputClass(!!pwdErrors.newPassword)}
+          />
+          {pwdErrors.newPassword && <p className="mt-1 text-xs text-red-500">{pwdErrors.newPassword.message}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">{t.confirmPassword}</label>
+          <input
+            type="password"
+            {...registerPwd('confirmPassword')}
+            placeholder={t.enterConfirmPassword}
+            className={pwdInputClass(!!pwdErrors.confirmPassword)}
+          />
+          {pwdErrors.confirmPassword && <p className="mt-1 text-xs text-red-500">{pwdErrors.confirmPassword.message}</p>}
+        </div>
+        <button
+          type="submit"
+          disabled={pwdSubmitting}
+          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {pwdSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+          {t.changePassword}
+        </button>
+      </form>
+    </div>
   );
 }
