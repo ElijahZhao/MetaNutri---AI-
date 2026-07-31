@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { foodAPI, recommendationAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import { Search, Compass, Star, Filter, ChevronDown, Leaf, Flame, Droplets, Wheat, Info } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -14,6 +15,7 @@ const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 function ExploreContent() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const { t } = useLanguage();
   const [foods, setFoods] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ function ExploreContent() {
       setCategories(cats);
     } catch (e) {
       console.error(e);
-      toast.error(e.userMessage || 'Failed to load foods');
+      toast.error(e.userMessage || t.explore.loadFailed);
     } finally {
       setLoading(false);
     }
@@ -60,7 +62,7 @@ function ExploreContent() {
       setFoods(res.data.results || []);
     } catch (e) {
       console.error(e);
-      toast.error(e.userMessage || 'Search failed');
+      toast.error(e.userMessage || t.explore.searchFailed);
     } finally {
       setLoading(false);
     }
@@ -73,7 +75,7 @@ function ExploreContent() {
       setSelectedFood(food);
     } catch (e) {
       console.error(e);
-      toast.error(e.userMessage || 'Failed to score food');
+      toast.error(e.userMessage || t.explore.scoreFailed);
     }
   };
 
@@ -147,9 +149,9 @@ function ExploreContent() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <Compass className="w-6 h-6 text-emerald-600" />
-            Food Explorer
+            {t.explore.title}
           </h1>
-          <p className="text-slate-600">Discover and evaluate foods for your personalized nutrition plan</p>
+          <p className="text-slate-600">{t.explore.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -161,12 +163,12 @@ function ExploreContent() {
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search foods..."
+                    placeholder={t.explore.search}
                     className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
                 <button type="submit" className="px-6 py-2.5 text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors font-medium">
-                  Search
+                  {t.search}
                 </button>
               </form>
 
@@ -177,7 +179,7 @@ function ExploreContent() {
                     selectedCategory === 'all' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
-                  All
+                  {t.explore.all}
                 </button>
                 {categories.map((cat) => (
                   <button
@@ -195,7 +197,7 @@ function ExploreContent() {
                   className="ml-auto flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
                 >
                   <Filter className="w-4 h-4" />
-                  Filters
+                  {t.explore.filters}
                   <ChevronDown className={`w-3 h-3 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
                 </button>
               </div>
@@ -203,7 +205,7 @@ function ExploreContent() {
               {showFilters && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-slate-50 rounded-lg mb-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Min Protein (g)</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">{t.explore.minProtein}</label>
                     <input
                       type="number"
                       value={filters.minProtein}
@@ -212,7 +214,7 @@ function ExploreContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Max Calories</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">{t.explore.maxCalories}</label>
                     <input
                       type="number"
                       value={filters.maxCalories}
@@ -228,7 +230,7 @@ function ExploreContent() {
                       onChange={(e) => setFilters({ ...filters, highFiber: e.target.checked })}
                       className="w-4 h-4 text-emerald-600 rounded"
                     />
-                    <label htmlFor="highFiber" className="text-sm text-slate-700">High Fiber (&gt;5g)</label>
+                    <label htmlFor="highFiber" className="text-sm text-slate-700">{t.explore.highFiber}</label>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
@@ -238,7 +240,7 @@ function ExploreContent() {
                       onChange={(e) => setFilters({ ...filters, lowGI: e.target.checked })}
                       className="w-4 h-4 text-emerald-600 rounded"
                     />
-                    <label htmlFor="lowGI" className="text-sm text-slate-700">Low GI (&lt;55)</label>
+                    <label htmlFor="lowGI" className="text-sm text-slate-700">{t.explore.lowGI}</label>
                   </div>
                 </div>
               )}
@@ -293,7 +295,7 @@ function ExploreContent() {
           <div className="space-y-6">
             {selectedFood && (
               <div className="bg-white rounded-xl border border-slate-200 p-6">
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">Nutrition Profile</h2>
+                <h2 className="text-lg font-semibold text-slate-900 mb-4">{t.explore.nutritionProfile}</h2>
                 <ReactECharts option={nutritionRadarOption} style={{ height: 280 }} />
                 <div className="space-y-3 mt-4">
                   <div className="flex justify-between text-sm">
@@ -328,7 +330,7 @@ function ExploreContent() {
               <div className="bg-white rounded-xl border border-slate-200 p-6">
                 <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                   <Star className="w-5 h-5 text-amber-500" />
-                  Personalized Score
+                  {t.explore.personalizedScore}
                 </h2>
                 <div className="text-center mb-4">
                   <p className="text-4xl font-bold text-emerald-600">{foodScore.score}</p>
@@ -341,7 +343,7 @@ function ExploreContent() {
             <div className="bg-white rounded-xl border border-slate-200 p-6">
               <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                 <Info className="w-5 h-5 text-blue-500" />
-                Nutrition Tips
+                {t.explore.nutritionTips}
               </h2>
               <div className="space-y-3 text-sm text-slate-600">
                 <p>• High fiber foods (&gt;5g) support gut health</p>

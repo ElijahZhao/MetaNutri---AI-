@@ -5,12 +5,14 @@ import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { recommendationAPI, foodAPI } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import { Utensils, Search, Star, Loader2, Sparkles } from 'lucide-react';
 
 function RecommendationsContent() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const { t } = useLanguage();
   const [recs, setRecs] = useState([]);
   const [query, setQuery] = useState('');
   const [foods, setFoods] = useState([]);
@@ -29,7 +31,7 @@ function RecommendationsContent() {
       setRecs(res.data); 
     } catch (e) { 
       console.error(e); 
-      toast.error(e.userMessage || 'Failed to load recommendations');
+      toast.error(e.userMessage || t.recommendations.loadFailed);
     }
   };
 
@@ -42,7 +44,7 @@ function RecommendationsContent() {
       setFoods(res.data.results); 
     } catch (e) { 
       console.error(e); 
-      toast.error(e.userMessage || 'Search failed');
+      toast.error(e.userMessage || t.recommendations.searchFailed);
     } finally { setLoading(false); }
   };
 
@@ -52,7 +54,7 @@ function RecommendationsContent() {
       setFoodScore(res.data);
     } catch (e) { 
       console.error(e); 
-      toast.error(e.userMessage || 'Failed to score food');
+      toast.error(e.userMessage || t.recommendations.scoreFailed);
     }
   };
 
@@ -61,10 +63,10 @@ function RecommendationsContent() {
     try { 
       await recommendationAPI.mealPlan({}); 
       fetchRecs(); 
-      toast.success('Meal plan generated successfully!');
+      toast.success(t.recommendations.generateSuccess);
     } catch (e) { 
       console.error(e); 
-      toast.error(e.userMessage || 'Failed to generate meal plan');
+      toast.error(e.userMessage || t.recommendations.generateFailed);
     } finally { setGenerating(false); }
   };
 
@@ -75,21 +77,21 @@ function RecommendationsContent() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <Utensils className="w-6 h-6 text-emerald-600" />
-            Recommendations
+            {t.recommendations.title}
           </h1>
-          <p className="text-slate-600">Search foods, score them, and generate meal plans</p>
+          <p className="text-slate-600">{t.recommendations.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Search className="w-5 h-5" />
-              Food Search
+              {t.recommendations.foodSearch}
             </h2>
             <form onSubmit={searchFoods} className="flex gap-2 mb-4">
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search foods..." className="flex-1 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.recommendations.search} className="flex-1 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               <button type="submit" disabled={loading} className="px-4 py-2 text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors font-medium disabled:opacity-60">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Search'}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t.recommendations.searchButton}
               </button>
             </form>
             <div className="space-y-2 max-h-72 overflow-y-auto">
@@ -100,7 +102,7 @@ function RecommendationsContent() {
                     <p className="text-xs text-slate-500">{f.calories_kcal} kcal | P:{f.protein_g} F:{f.fat_g} C:{f.carbs_g}</p>
                   </div>
                   <button onClick={() => scoreFood(f.id, f.food_name)} className="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-md hover:bg-emerald-100 transition-colors">
-                    Score
+                    {t.recommendations.score}
                   </button>
                 </div>
               ))}
@@ -121,11 +123,11 @@ function RecommendationsContent() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-amber-500" />
-                Meal Plans
+                {t.recommendations.mealPlans}
               </h2>
               <button onClick={generateMeal} disabled={generating} className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors flex items-center gap-2 disabled:opacity-60">
                 {generating && <Loader2 className="w-4 h-4 animate-spin" />}
-                Generate
+                {t.recommendations.generate}
               </button>
             </div>
             {recs.length > 0 ? (
@@ -148,7 +150,7 @@ function RecommendationsContent() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 py-12 text-center">No meal plans yet. Generate one to get started.</p>
+              <p className="text-sm text-slate-500 py-12 text-center">{t.recommendations.noMealPlans}</p>
             )}
           </div>
         </div>
