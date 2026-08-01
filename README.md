@@ -1,393 +1,410 @@
-# 🧬 MetaNutri - AI驱动的精准营养代谢数字孪生平台
+<div align="center">
 
-<p align="center">
-  <strong>基于深度学习的精准营养代谢数字孪生平台</strong>
-</p>
+![MetaNutri Banner](docs/assets/banner.jpg)
 
-<p align="center">
-  <a href="https://github.com/ElijahZhao/MetaNutri---AI-/stargazers"><img src="https://img.shields.io/github/stars/ElijahZhao/MetaNutri---AI-?style=social" alt="Stars"></a>
-  <a href="https://github.com/ElijahZhao/MetaNutri---AI-/network/members"><img src="https://img.shields.io/github/forks/ElijahZhao/MetaNutri---AI-?style=social" alt="Forks"></a>
-  <a href="https://github.com/ElijahZhao/MetaNutri---AI-/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ElijahZhao/MetaNutri---AI-" alt="License"></a>
-  <a href="https://github.com/ElijahZhao/MetaNutri---AI-/issues"><img src="https://img.shields.io/github/issues/ElijahZhao/MetaNutri---AI-" alt="Issues"></a>
-  <a href="https://github.com/ElijahZhao/MetaNutri---AI-/pulls"><img src="https://img.shields.io/github/issues-pr/ElijahZhao/MetaNutri---AI-" alt="PRs"></a>
-  <img src="https://img.shields.io/badge/python-3.10+-blue" alt="Python">
-  <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js">
-  <img src="https://img.shields.io/badge/FastAPI-0.115-green" alt="FastAPI">
-</p>
+# 🧬 MetaNutri
 
----
+**AI-Powered Precision Nutrition Metabolic Digital Twin Platform**
 
-## 📖 项目简介
+[![GitHub Stars](https://img.shields.io/github/stars/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=10b981)](https://github.com/ElijahZhao/MetaNutri---AI-/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=3b82f6)](https://github.com/ElijahZhao/MetaNutri---AI-/network/members)
+[![License](https://img.shields.io/github/license/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=8b5cf6)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=f59e0b)](https://github.com/ElijahZhao/MetaNutri---AI-/issues)
 
-**MetaNutri** 是一个基于深度学习的精准营养代谢数字孪生平台，通过整合基因组、微生物组和代谢组数据，为用户提供个性化的营养建议和健康管理方案。
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-### 🎯 核心能力
+**[🌐 Live Demo](#) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
-| 能力 | 描述 |
-|------|------|
-| 🧬 **三重组学整合** | 基因组 + 微生物组 + 代谢组数据闭环分析 |
-| 🤖 **深度学习模型** | Transformer、GNN、VAE 先进架构 |
-| 🔍 **可解释AI** | SHAP/LIME 特征重要性分析 |
-| ⚠️ **健康预警** | 营养缺乏检测和健康风险评估 |
-| 📊 **交互式可视化** | 代谢路径图、统计图表 |
-| 🐳 **容器化部署** | Docker 一键启动，环境隔离 |
+</div>
 
 ---
 
-## 🚀 快速开始（三步启动）
+## 📑 Table of Contents
 
-### 1. 克隆仓库
+- [About the Project](#-about-the-project)
+- [✨ Key Features](#-key-features)
+- [🏗️ Architecture](#️-architecture)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🚀 Getting Started](#-getting-started)
+- [☁️ Cloud Deployment](#️-cloud-deployment)
+- [📁 Project Structure](#-project-structure)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [📮 Contact](#-contact)
+
+---
+
+## 🌟 About the Project
+
+**MetaNutri** is an AI-powered precision nutrition metabolic digital twin platform that integrates **genomics**, **microbiome**, and **metabolomics** data to deliver personalized nutritional recommendations and health management solutions.
+
+By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, **VAEs**) and SHAP/LIME explainability, MetaNutri bridges the gap between multi-omics research and practical dietary guidance.
+
+### 🎯 Why MetaNutri?
+
+| Problem | Solution |
+|---------|----------|
+| 🍎 Generic diet advice ignores individual biology | Personalized recommendations based on YOUR omics profile |
+| 🧬 Genomics data is hard to interpret | AI translates complex data into actionable insights |
+| 📊 Scattered health data across apps | Unified dashboard for genomics, microbiome, metabolomics |
+| 🤖 "Black box" AI recommendations | SHAP/LIME explainability shows *why* each suggestion |
+| ⚠️ Reactive healthcare | Early nutritional deficiency detection and risk alerts |
+
+---
+
+## ✨ Key Features
+
+<div align="center">
+
+| | Feature | Description |
+|---|---------|-------------|
+| 🧬 | **Tri-Omics Integration** | Genomics + Microbiome + Metabolomics data analysis in a unified pipeline |
+| 🤖 | **Deep Learning Models** | Transformer, GNN, and VAE architectures for metabolic response prediction |
+| 🔍 | **Explainable AI** | SHAP and LIME feature importance for every recommendation |
+| 🚨 | **Health Alerts** | Real-time nutritional deficiency detection and health risk assessment |
+| 📊 | **Interactive Visualization** | Metabolic pathway maps, ECharts dashboards, and radar charts |
+| 👤 | **User Profiles** | Personal health metrics, goals, and RBAC permission system |
+| 🍽️ | **Meal Planning** | AI-generated personalized meal plans based on your biology |
+| 🌐 | **i18n Support** | Full English / Chinese bilingual interface |
+| 📱 | **Responsive Design** | Works beautifully on desktop, tablet, and mobile |
+
+</div>
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                              Users                                    │
+│                         (Browser / Mobile)                           │
+└──────────────────────────────────┬──────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                           Vercel (Frontend)                          │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐              │
+│  │ Next.js  │ │  React   │ │  ECharts │ │ i18n     │              │
+│  │  (SSR)   │ │  (UI)    │ │ (Charts) │ │ (l10n)   │              │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘              │
+└──────────────────────────────────┬──────────────────────────────────┘
+                                   │  HTTPS / REST API
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                          Railway (Backend)                            │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │                        FastAPI (Python)                       │    │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │    │
+│  │  │  Auth   │ │  Users  │ │  Foods  │ │  Omics  │          │    │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘          │    │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │    │
+│  │  │  Predict│ │  Alerts │ │  Datasets│ │ Import  │          │    │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘          │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
+│  │  PyTorch     │  │  SQLAlchemy  │  │  Redis (opt) │             │
+│  │  (ML Models) │  │   (ORM)      │  │   (Cache)    │             │
+│  └──────────────┘  └──────────────┘  └──────────────┘             │
+└──────────────────────────────────┬──────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Supabase (Database)                           │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  │
+│  │  PostgreSQL      │  │  Authentication   │  │  Storage         │  │
+│  │  (User + Omics)  │  │  (JWT + OAuth)   │  │  (Datasets)      │  │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### 🎨 Frontend
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| [Next.js](https://nextjs.org/) | 16 | React framework with SSR & SEO |
+| [React](https://react.dev/) | 19 | UI component library |
+| [TypeScript](https://www.typescriptlang.org/) | 5 | Type safety |
+| [Tailwind CSS](https://tailwindcss.com/) | 3 | Utility-first CSS |
+| [ECharts](https://echarts.apache.org/) | 5 | Data visualization |
+| [TanStack Query](https://tanstack.com/query) | 5 | Server state & caching |
+| [Zustand](https://zustand-demo.pmnd.rs/) | 5 | Client state management |
+| [React Hook Form](https://react-hook-form.com/) | 7 | Form validation |
+| [Zod](https://zod.dev/) | 4 | Schema validation |
+| [i18next](https://www.i18next.com/) | - | Internationalization |
+
+### ⚙️ Backend
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| [FastAPI](https://fastapi.tiangolo.com/) | 0.115 | High-performance async API |
+| [Python](https://www.python.org/) | 3.11 | Runtime |
+| [SQLAlchemy](https://www.sqlalchemy.org/) | 2.0 | Async ORM |
+| [PostgreSQL](https://www.postgresql.org/) | - | Primary database |
+| [Redis](https://redis.io/) | 7 | Caching (optional) |
+| [Pydantic](https://docs.pydantic.dev/) | 2 | Data validation |
+| [JWT](https://jwt.io/) | - | Authentication |
+| [Passlib](https://passlib.readthedocs.io/) | - | Password hashing |
+
+### 🧠 AI / ML
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| [PyTorch](https://pytorch.org/) | 2.x | Deep learning framework |
+| [scikit-learn](https://scikit-learn.org/) | 1.5 | Classical ML |
+| [SHAP](https://shap.readthedocs.io/) | 0.46 | Model explainability |
+| [NumPy](https://numpy.org/) | 1.26 | Numerical computing |
+| [Pandas](https://pandas.pydata.org/) | 2.2 | Data processing |
+| [BioPython](https://biopython.org/) | 1.84 | Bioinformatics |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Python** ≥ 3.11
+- **Node.js** ≥ 18
+- **npm** ≥ 9 or **pnpm** ≥ 8
+- **PostgreSQL** ≥ 14 (or use [Supabase](https://supabase.com/) for cloud)
+
+### 📦 Installation
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/ElijahZhao/MetaNutri---AI-.git
 cd MetaNutri---AI-
-```
 
-### 2. 安装依赖
-
-```bash
-# 使用一键脚本（推荐）
-./start.sh --install
-
-# 或手动安装
-cd backend && pip install -r requirements.txt && cd ..
-cd frontend && npm install && cd ..
-```
-
-### 3. 启动服务
-
-```bash
-# 一键启动前后端
-./start.sh --all
-
-# 或单独启动
-./start.sh --backend    # 仅后端
-./start.sh --frontend   # 仅前端
-```
-
-### 🌐 访问地址
-
-| 服务 | 地址 | 说明 |
-|------|------|------|
-| 🖥️ 前端 | http://localhost:3000 | Next.js 应用 |
-| ⚙️ 后端 API | http://localhost:8000 | FastAPI 服务 |
-| 📚 API 文档 | http://localhost:8000/docs | Swagger UI |
-| 🔍 ReDoc | http://localhost:8000/redoc | ReDoc 文档 |
-
-### 其他命令
-
-```bash
-./start.sh --stop      # 停止所有服务
-./start.sh --status    # 查看运行状态
-./start.sh --help      # 查看帮助
-```
-
----
-
-## 🛠️ 技术栈
-
-### 前端
-
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| [Next.js](https://nextjs.org/) | 16 | React 框架，支持 SSR |
-| [React](https://react.dev/) | 18 | UI 组件库 |
-| [Tailwind CSS](https://tailwindcss.com/) | 3 | 原子化 CSS 框架 |
-| [ECharts](https://echarts.apache.org/) | 5 | 数据可视化图表 |
-| [Lucide React](https://lucide.dev/) | 0.29 | 图标库 |
-| [Axios](https://axios-http.com/) | 1.6 | HTTP 客户端 |
-
-### 后端
-
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| [FastAPI](https://fastapi.tiangolo.com/) | 0.115 | 高性能 Python Web 框架 |
-| [SQLAlchemy](https://www.sqlalchemy.org/) | 2.0 | ORM 数据库操作 |
-| [SQLite](https://www.sqlite.org/) | 3 | 轻量级数据库 |
-| [Redis](https://redis.io/) | 7 | 缓存服务 |
-| [JWT](https://jwt.io/) | - | 身份认证 |
-| [scikit-bio](http://scikit-bio.org/) | 0.5 | 生物信息分析 |
-
-### AI/ML
-
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| [PyTorch](https://pytorch.org/) | 2.1 | 深度学习框架 |
-| [NumPy](https://numpy.org/) | 1.26 | 数值计算 |
-| [Pandas](https://pandas.pydata.org/) | 2.2 | 数据处理 |
-| [SHAP](https://shap.readthedocs.io/) | 0.46 | 模型可解释性 |
-| [scikit-learn](https://scikit-learn.org/) | 1.5 | 机器学习工具 |
-
----
-
-## ✨ 核心功能
-
-### 1. 用户管理 👤
-- JWT 认证，注册/登录
-- 个人档案编辑（身高、体重、目标等）
-- RBAC 细粒度权限控制
-
-### 2. 食物日志 🍎
-- 记录每日饮食摄入
-- 自动计算热量和营养素
-- 历史追踪和趋势分析
-
-### 3. 营养分析 📊
-- 摄入量分析与推荐值对比
-- 营养缺乏预警
-- 个性化饮食建议
-
-### 4. AI 预测 🤖
-- 代谢响应预测（血糖、胰岛素变化）
-- 健康风险评估
-- SHAP/LIME 特征重要性解释
-
-### 5. 组学数据 🧬
-- 基因组数据上传与分析
-- 微生物组α/β多样性分析
-- 代谢组数据可视化
-
-### 6. 数据可视化 📈
-- 交互式代谢路径图
-- ECharts 统计图表
-- 个性化仪表盘
-
----
-
-## 📁 项目结构
-
-```
-MetaNutri---AI-/
-├── backend/                         # 后端服务
-│   ├── app/
-│   │   ├── api/                     # API 路由
-│   │   │   ├── auth.py              # 认证接口
-│   │   │   ├── users.py             # 用户管理
-│   │   │   ├── food.py              # 食物日志
-│   │   │   ├── nutrition_alerts.py  # 营养预警
-│   │   │   ├── genomic.py           # 基因组数据
-│   │   │   ├── microbiome.py        # 微生物组数据
-│   │   │   ├── metabolomics.py      # 代谢组数据
-│   │   │   ├── predict.py           # AI 预测
-│   │   │   ├── recommendation.py    # 营养建议
-│   │   │   ├── datasets.py          # 数据集管理
-│   │   │   └── import_export.py     # 数据导入导出
-│   │   ├── core/                    # 核心配置
-│   │   │   ├── config.py            # 配置管理
-│   │   │   ├── security.py          # 安全/JWT
-│   │   │   └── redis.py             # Redis 缓存
-│   │   ├── db/                      # 数据库
-│   │   ├── ml/                      # 机器学习
-│   │   │   ├── metabolic_response_model.py  # 代谢响应Transformer
-│   │   │   ├── gene_nutrition_model.py      # 基因营养GNN
-│   │   │   ├── microbiome_vae.py            # 微生物组VAE
-│   │   │   ├── explainability.py            # SHAP/LIME解释
-│   │   │   ├── microbiome_analysis.py       # 微生物组分析
-│   │   │   ├── dataset_downloader.py        # 数据集下载
-│   │   │   ├── train_models.py              # 模型训练
-│   │   │   └── weights/                     # 模型权重
-│   │   ├── models/                  # 数据库模型
-│   │   ├── schemas/                 # Pydantic Schema
-│   │   ├── services/                # 业务服务
-│   │   └── main.py                  # 应用入口
-│   ├── data/                        # 示例数据
-│   ├── requirements.txt              # Python 依赖
-│   └── Dockerfile
-├── frontend/                        # 前端应用
-│   ├── src/
-│   │   ├── app/                     # Next.js 页面
-│   │   │   ├── dashboard/           # 仪表盘
-│   │   │   ├── food-log/            # 食物日志
-│   │   │   ├── genomic/             # 基因组
-│   │   │   ├── microbiome/          # 微生物组
-│   │   │   ├── metabolomics/        # 代谢组
-│   │   │   ├── predict/             # AI 预测
-│   │   │   ├── profile/             # 用户档案
-│   │   │   ├── meal-plan/           # 膳食计划
-│   │   │   ├── explore/             # 探索
-│   │   │   ├── datasets/            # 数据集
-│   │   │   ├── login/               # 登录
-│   │   │   └── recommendations/     # 营养建议
-│   │   ├── components/              # 通用组件
-│   │   │   ├── Navbar.js
-│   │   │   ├── MetabolicPathway.jsx    # 代谢路径可视化
-│   │   │   ├── NutritionAlerts.jsx     # 营养预警
-│   │   │   ├── FloatingElements.js     # 浮动动画
-│   │   │   ├── ParticleBackground.js   # 粒子背景
-│   │   │   ├── ScrollReveal.js         # 滚动渐显
-│   │   │   └── TypeWriter.js           # 打字机效果
-│   │   └── lib/                     # 工具库
-│   ├── package.json
-│   └── Dockerfile
-├── docs/                            # 详细文档
-│   ├── API.md                      # API 文档
-│   ├── DEPLOYMENT.md               # 部署指南
-│   ├── MODELS.md                   # 模型文档
-│   └── DATASETS.md                 # 数据集文档
-├── .github/                         # GitHub 配置
-│   ├── ISSUE_TEMPLATE/
-│   └── PULL_REQUEST_TEMPLATE/
-├── start.sh                         # 一键启动脚本
-├── docker-compose.yml               # Docker 编排
-├── .gitignore
-├── LICENSE                         # MIT 许可证
-├── CONTRIBUTING.md                 # 贡献指南
-├── CODE_OF_CONDUCT.md              # 行为准则
-└── README.md                       # 项目说明
-```
-
----
-
-## 📡 API 接口
-
-### 认证接口
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| `POST` | `/api/auth/register` | 用户注册 |
-| `POST` | `/api/auth/login` | 用户登录 |
-| `POST` | `/api/auth/logout` | 退出登录 |
-
-### 用户接口
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| `GET` | `/api/users/me` | 获取当前用户 |
-| `PUT` | `/api/users/me` | 更新用户信息 |
-
-### 食物日志
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| `GET` | `/api/food/logs` | 获取食物日志 |
-| `POST` | `/api/food/logs` | 添加食物日志 |
-| `PUT` | `/api/food/logs/{id}` | 更新日志 |
-| `DELETE` | `/api/food/logs/{id}` | 删除日志 |
-
-### 营养分析
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| `GET` | `/api/nutrition/alerts` | 营养预警 |
-| `GET` | `/api/recommendations` | 个性化建议 |
-
-### AI 预测
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| `POST` | `/api/predict/metabolic-response` | 代谢响应预测 |
-| `GET` | `/api/predict/explain/{id}` | 预测解释 |
-
-> 完整 API 文档请访问 `http://localhost:8000/docs`
-
----
-
-## 🧠 AI 模型
-
-### 模型架构
-
-| 模型 | 架构 | 输入 | 输出 |
-|------|------|------|------|
-| 代谢响应 Transformer | Transformer Encoder + MLP | 食物成分 + 基因型 + 微生物组 | 代谢物浓度变化 |
-| 基因营养 GNN | GraphSAGE + Attention | 基因-营养网络 | 营养素吸收效率 |
-| 微生物组 VAE | Variational Autoencoder | 微生物组丰度 | 健康状态预测 |
-
-### 模型训练
-
-```bash
+# 2. Set up backend
 cd backend
-python -m app.ml.train_models
+cp .env.example .env          # Edit with your credentials
+pip install -r requirements.txt
+cd ..
+
+# 3. Set up frontend
+cd frontend
+cp .env.example .env.local     # Edit with your API URL
+npm install
+cd ..
+
+# 4. Start services (use separate terminals)
+cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+cd frontend && npm run dev
 ```
 
-### 模型可解释性
+### 🌐 Access Points
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Frontend | http://localhost:3000 | Next.js web app |
+| Backend API | http://localhost:8000 | FastAPI server |
+| API Docs (Swagger) | http://localhost:8000/docs | Interactive API documentation |
+| API Docs (ReDoc) | http://localhost:8000/redoc | Alternative API docs |
+
+### 🐳 Docker (Alternative)
 
 ```bash
-cd backend
-python -c "from app.ml.explainability import explain_metabolic_prediction"
-```
-
----
-
-## 📊 数据集
-
-| 数据集 | 来源 | 描述 |
-|--------|------|------|
-| USDA 食物营养数据库 | USDA | 食物成分和营养信息 |
-| KEGG 代谢通路 | KEGG | 代谢通路和酶信息 |
-| HMP 参考数据 | Human Microbiome Project | 人类微生物组参考 |
-| 代谢组学参考 | MetaboLights | 代谢物参考谱 |
-| 基因-营养关联 | GWAS Catalog | 基因与营养关联 |
-
-下载数据集：
-
-```bash
-cd backend
-python -m app.ml.dataset_downloader --all
-```
-
----
-
-## 🐳 Docker 部署
-
-```bash
-# 启动所有服务
+# Start everything with one command
 docker-compose up -d
 
-# 查看日志
+# View logs
 docker-compose logs -f
 
-# 停止服务
+# Stop services
 docker-compose down
 ```
 
 ---
 
-## 👨‍💻 开发指南
+## ☁️ Cloud Deployment
 
-### 代码规范
+MetaNutri is designed for seamless cloud deployment with the following stack:
 
-- **Python**: 遵循 PEP 8，使用 type hints 和 async/await
-- **JavaScript**: 使用 ESLint + Prettier，React Hooks
-- **提交格式**: Conventional Commits (`feat:`, `fix:`, `docs:`, ...)
+| Component | Platform | Guide |
+|-----------|----------|-------|
+| 🗄️ Database | [Supabase](https://supabase.com/) | PostgreSQL + Auth in one |
+| ⚙️ Backend API | [Railway](https://railway.app/) | One-click Python deployment |
+| 🎨 Frontend Web | [Vercel](https://vercel.com/) | Next.js native platform |
 
-### 测试
+### Step 1: Supabase (Database)
 
-```bash
-# 后端测试
-cd backend && pytest
+1. Create a project at [supabase.com](https://supabase.com/)
+2. Go to **SQL Editor** → New query
+3. Run the SQL from [`backend/schema.sql`](backend/schema.sql)
+4. Copy your connection string from **Settings → Database → Connection string (URI)**
 
-# 前端测试
-cd frontend && npm test
+### Step 2: Railway (Backend)
+
+1. Create a new project → Deploy from GitHub → select your repo
+2. **Settings → Build**:
+   - Dockerfile Path: `backend/Dockerfile`
+3. **Variables → Add**:
+   - `DATABASE_URL` = your Supabase PostgreSQL connection string
+   - `SECRET_KEY` = a secure random string
+4. **Settings → Networking → Enable Outbound IPv6** (required for Supabase)
+5. Wait for deployment → copy your `.up.railway.app` domain
+
+### Step 3: Vercel (Frontend)
+
+1. Import project from GitHub → select your repo
+2. **Root Directory**: `frontend`
+3. **Framework Preset**: Next.js (auto-detected)
+4. **Environment Variables**:
+   - `NEXT_PUBLIC_API_URL` = your Railway backend URL (e.g. `https://xxx.up.railway.app`)
+5. Click **Deploy**
+
+---
+
+## 📁 Project Structure
+
+```
+MetaNutri---AI-/
+├── backend/                          # ⚙️ FastAPI backend
+│   ├── app/
+│   │   ├── api/                      # API route handlers
+│   │   │   ├── auth.py               # Authentication (register/login)
+│   │   │   ├── users.py              # User profile management
+│   │   │   ├── food.py               # Food logs & nutrition
+│   │   │   ├── genomic.py            # Genomics data analysis
+│   │   │   ├── microbiome.py         # Microbiome analysis
+│   │   │   ├── metabolomics.py       # Metabolomics data
+│   │   │   ├── predict.py            # AI prediction endpoints
+│   │   │   ├── recommendation.py     # Nutrition recommendations
+│   │   │   ├── datasets.py           # Dataset management
+│   │   │   ├── import_export.py      # Data import/export
+│   │   │   └── nutrition_alerts.py   # Health alert system
+│   │   ├── core/                     # Core infrastructure
+│   │   │   ├── config.py             # Settings & env vars
+│   │   │   ├── security.py           # JWT auth & password hashing
+│   │   │   └── redis.py              # Redis cache (graceful fallback)
+│   │   ├── db/                       # Database layer
+│   │   │   └── session.py            # SQLAlchemy async engine
+│   │   ├── ml/                       # 🧠 Machine learning models
+│   │   │   ├── metabolic_response_model.py   # Transformer predictor
+│   │   │   ├── gene_nutrition_model.py       # GNN gene-nutrition
+│   │   │   ├── microbiome_vae.py             # VAE microbiome health
+│   │   │   ├── explainability.py              # SHAP/LIME explainer
+│   │   │   ├── microbiome_analysis.py         # Diversity analysis
+│   │   │   ├── dataset_downloader.py           # Public dataset fetcher
+│   │   │   ├── train_models.py                 # Training scripts
+│   │   │   └── weights/                        # Pre-trained model weights
+│   │   ├── models/                   # SQLAlchemy ORM models
+│   │   ├── schemas/                  # Pydantic request/response schemas
+│   │   ├── services/                 # Business logic layer
+│   │   └── main.py                   # FastAPI application entry
+│   ├── data/                         # Seed & reference data
+│   ├── schema.sql                    # PostgreSQL table definitions
+│   ├── requirements.txt              # Python dependencies
+│   ├── Dockerfile                    # Production container
+│   ├── railway.json                  # Railway deployment config
+│   └── .env.example                  # Environment template
+│
+├── frontend/                         # 🎨 Next.js frontend
+│   ├── src/
+│   │   ├── app/                      # Next.js App Router pages
+│   │   │   ├── page.js               # Landing page
+│   │   │   ├── dashboard/            # Analytics dashboard
+│   │   │   ├── login/                # Sign in
+│   │   │   ├── forgot-password/      # Password recovery
+│   │   │   ├── profile/              # User profile
+│   │   │   ├── genomic/              # Genomics analysis
+│   │   │   ├── microbiome/           # Microbiome analysis
+│   │   │   ├── metabolomics/         # Metabolomics data
+│   │   │   ├── predict/              # AI prediction tools
+│   │   │   ├── recommendations/      # Personalized advice
+│   │   │   ├── meal-plan/            # AI meal planner
+│   │   │   ├── explore/              # Food exploration
+│   │   │   ├── datasets/             # Dataset browser
+│   │   │   ├── error.js              # Global error boundary
+│   │   │   ├── not-found.js          # Custom 404 page
+│   │   │   └── layout.js             # Root layout (metadata, i18n)
+│   │   ├── components/               # Reusable UI components
+│   │   │   ├── home/                 # Landing page sections
+│   │   │   ├── dashboard/            # Dashboard widgets & cards
+│   │   │   ├── Navbar.js             # Navigation bar
+│   │   │   ├── ProtectedRoute.jsx    # Auth route guard
+│   │   │   ├── ErrorBoundary.jsx     # React error boundary
+│   │   │   ├── Skeleton.js           # Loading skeletons
+│   │   │   ├── BioCanvas.jsx         # Animated DNA background
+│   │   │   ├── MetabolicPathway.jsx  # Interactive pathway viewer
+│   │   │   └── ...
+│   │   └── lib/                      # Utilities & services
+│   │       ├── api.js                # Axios client with interceptors
+│   │       ├── i18n.js               # Internationalization (EN/ZH)
+│   │       ├── hooks.js              # Custom React hooks
+│   │       └── store/
+│   │           └── authStore.js      # Zustand auth state
+│   ├── public/                       # Static assets
+│   ├── next.config.js                # Next.js config (security headers)
+│   ├── tailwind.config.js            # Tailwind theme
+│   ├── vercel.json                   # Vercel deployment config
+│   ├── .eslintrc.json                # ESLint rules
+│   ├── .prettierrc                   # Prettier formatting
+│   ├── package.json                  # Dependencies
+│   └── Dockerfile                    # Production container
+│
+├── docs/                             # 📚 Documentation & assets
+│   ├── assets/                       # Images & diagrams
+│   ├── API.md                        # API reference
+│   ├── DEPLOYMENT.md                 # Deployment guide
+│   ├── MODELS.md                     # AI model documentation
+│   └── DATASETS.md                   # Dataset references
+│
+├── .github/                          # GitHub config
+│   ├── ISSUE_TEMPLATE/               # Bug & feature templates
+│   └── PULL_REQUEST_TEMPLATE/        # PR template
+│
+├── docker-compose.yml                # Local orchestration
+├── start.sh                          # One-click startup script
+├── CONTRIBUTING.md                   # Contribution guidelines
+├── CODE_OF_CONDUCT.md                # Community code of conduct
+├── LICENSE                           # MIT License
+└── README.md                         # 👈 You are here
 ```
 
 ---
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎贡献代码！请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 了解贡献流程。
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-1. Fork 项目
-2. 创建功能分支: `git checkout -b feature/your-feature`
-3. 提交更改: `git commit -m 'feat: add your feature'`
-4. 推送: `git push origin feature/your-feature`
-5. 创建 Pull Request
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'feat: add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
----
-
-## 📄 许可证
-
-本项目采用 [MIT License](LICENSE)。
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ---
 
-## 📞 联系方式
+## 📄 License
 
-- 提交 Issue: [GitHub Issues](https://github.com/ElijahZhao/MetaNutri---AI-/issues)
-- 邮箱: elijahzhao@gmail.com
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ---
 
-<p align="center">
-  <strong>MetaNutri</strong> - AI驱动的精准营养代谢数字孪生平台<br>
-  Made with ❤️ by <a href="https://github.com/ElijahZhao">ElijahZhao</a>
-</p>
+## 📮 Contact
+
+**ElijahZhao** - [@ElijahZhao](https://github.com/ElijahZhao) - elijahzhao@gmail.com
+
+Project Link: [https://github.com/ElijahZhao/MetaNutri---AI-](https://github.com/ElijahZhao/MetaNutri---AI-)
+
+---
+
+<div align="center">
+
+Made with ❤️ by **ElijahZhao**
+
+**MetaNutri** — AI-Powered Precision Nutrition Metabolic Digital Twin
+
+[⬆ Back to Top](#-metanutri)
+
+</div>
