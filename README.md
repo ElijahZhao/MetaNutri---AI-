@@ -1,5 +1,9 @@
 <div align="center">
 
+<p align="right">
+  <strong>English</strong> | <a href="README.zh-CN.md">简体中文</a>
+</p>
+
 ![MetaNutri Banner](docs/assets/banner.jpg)
 
 # 🧬 MetaNutri
