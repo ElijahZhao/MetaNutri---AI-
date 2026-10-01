@@ -16,6 +16,17 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./metanutri.db"
     REDIS_URL: str = "redis://localhost:6379/0"
 
+    # Comma-separated list of allowed browser origins (no trailing slash), e.g.
+    # "https://meta-nutri-ai.vercel.app,http://localhost:3000"
+    CORS_ORIGINS: str = ""
+
+    @property
+    def cors_origins(self) -> list:
+        raw = self.CORS_ORIGINS.strip()
+        if not raw:
+            return []
+        return [o.strip() for o in raw.split(",") if o.strip()]
+
     @property
     def SQLALCHEMY_DATABASE_URL(self) -> str:
         url = self.DATABASE_URL
