@@ -8,7 +8,10 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  // The backend runs on a free tier that spins down when idle; the first request
+  // after that can take well over the old 15s, surfacing as a confusing
+  // "Login failed". Give cold starts room to finish.
+  timeout: 60000,
 });
 
 api.interceptors.request.use((config) => {
@@ -38,31 +41,36 @@ const ERROR_MESSAGES = {
 
 const getErrorMessage = (error) => {
   const status = error.response?.status;
-  
+
   if (status && ERROR_MESSAGES[status]) {
     const detail = error.response?.data?.detail || error.response?.data?.message;
     return detail || ERROR_MESSAGES[status];
   }
-  
+
   if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
     return ERROR_MESSAGES.timeout;
   }
-  
+
   if (!error.response) {
     return ERROR_MESSAGES.network;
   }
-  
-  return error.response?.data?.detail || error.response?.data?.message || error.message || ERROR_MESSAGES.unknown;
+
+  return (
+    error.response?.data?.detail ||
+    error.response?.data?.message ||
+    error.message ||
+    ERROR_MESSAGES.unknown
+  );
 };
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-    
+
     if (status === 401) {
-      const isAuthRequest = error.config?.url?.includes('/auth/login')
-        || error.config?.url?.includes('/auth/register');
+      const isAuthRequest =
+        error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
       if (!isAuthRequest) {
         useAuthStore.getState().logout();
         if (typeof window !== 'undefined') {
@@ -70,12 +78,12 @@ api.interceptors.response.use(
         }
       }
     }
-    
+
     error.userMessage = getErrorMessage(error);
     error.statusCode = status;
     error.isNetworkError = !error.response;
     error.isTimeout = error.code === 'ECONNABORTED' || error.message?.includes('timeout');
-    
+
     return Promise.reject(error);
   }
 );
@@ -87,13 +95,15 @@ export const authAPI = {
   register: (data) => api.post('/api/auth/register', data),
   me: () => api.get('/api/users/me'),
   forgotPassword: (email) => api.post('/api/auth/forgot-password', { email }),
-  resetPassword: (token, newPassword) => api.post('/api/auth/reset-password', { token, newPassword }),
+  resetPassword: (token, newPassword) =>
+    api.post('/api/auth/reset-password', { token, newPassword }),
 };
 
 export const userAPI = {
   getProfile: () => api.get('/api/users/profile'),
   updateProfile: (data) => api.put('/api/users/profile', data),
-  changePassword: (oldPassword, newPassword) => api.post('/api/users/change-password', { oldPassword, newPassword }),
+  changePassword: (oldPassword, newPassword) =>
+    api.post('/api/users/change-password', { oldPassword, newPassword }),
 };
 
 export const foodAPI = {
@@ -140,7 +150,8 @@ export const datasetAPI = {
   import: (datasetId) => api.post(`/api/datasets/import/${datasetId}`),
   stats: () => api.get('/api/datasets/stats'),
   tianchiList: () => api.get('/api/datasets/tianchi'),
-  tianchiSearch: (keyword, category) => api.get('/api/datasets/tianchi/search', { params: { keyword, category } }),
+  tianchiSearch: (keyword, category) =>
+    api.get('/api/datasets/tianchi/search', { params: { keyword, category } }),
   tianchiDetail: (datasetId) => api.get(`/api/datasets/tianchi/${datasetId}`),
 };
 
@@ -158,6 +169,7 @@ export const importExportAPI = {
       timeout: 60000,
     });
   },
-  exportData: (dataType, format = 'json') => api.get(`/api/import-export/export/${dataType}?format=${format}`),
+  exportData: (dataType, format = 'json') =>
+    api.get(`/api/import-export/export/${dataType}?format=${format}`),
   getTemplate: (dataType) => api.get(`/api/import-export/templates/${dataType}`),
 };

@@ -48,6 +48,10 @@ _DEFAULT_CORS_ORIGINS = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins or _DEFAULT_CORS_ORIGINS,
+    # Vercel serves every deployment (production, previews, branch/alias URLs) from a
+    # distinct *.vercel.app subdomain. Whitelisting only the production alias makes
+    # login silently fail with a CORS error on any other URL, so allow them all.
+    allow_origin_regex=r"^https://([a-z0-9-]+\.)*vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
