@@ -14,12 +14,12 @@
 
 | 状态 | 数量 | 占比 |
 |------|------|------|
-| ✅ 已完整落地 | 18 | 47% |
+| ✅ 已完整落地 | 19 | 50% |
 | 🟡 部分落地 | 10 | 26% |
-| ❌ 未落地 | 10 | 26% |
-| **合计（第一～九章 38 项）** | **38** | **有进展 74%** |
+| ❌ 未落地 | 9 | 24% |
+| **合计（第一～九章 38 项）** | **38** | **有进展 76%** |
 
-> 更新记录：第一轮完成 `2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks`（🟡→✅）并消除 `1.2` 的死代码缺口；第二轮把演示级功能改为真实实现（血糖预测、风险评分、膳食计划、种子数据）；第三轮修复登录链路（CORS 预览域名、token 落盘顺序、超时 60s）与登录后 React #31，并引入 Vitest + RTL 测试体系（`7.5` ❌→🟡）；第四轮补齐 Playwright E2E（`7.5` 🟡→✅，`e2e` job 接入 CI），并修正 E2E 打桩中 nutrition-alerts 响应形状错误。
+> 更新记录：第一轮完成 `2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks`（🟡→✅）并消除 `1.2` 的死代码缺口；第二轮把演示级功能改为真实实现（血糖预测、风险评分、膳食计划、种子数据）；第三轮修复登录链路（CORS 预览域名、token 落盘顺序、超时 60s）与登录后 React #31，并引入 Vitest + RTL 测试体系（`7.5` ❌→🟡）；第四轮补齐 Playwright E2E（`7.5` 🟡→✅，`e2e` job 接入 CI），并修正 E2E 打桩中 nutrition-alerts 响应形状错误；第五轮启动 TypeScript 迁移（`1.1` ❌→🟡）：新增 `src/types/`、核心逻辑层迁 `.ts`、开启 `strict`；第六轮完成 `1.1`（🟡→✅）：`src/` 全部 `.js/.jsx` 迁为 `.ts/.tsx`，并收尾 `next.config`、`playwright.config`、`vitest.setup`、E2E spec 的 TS 化。
 
 > 说明：原判断「第 1、2 章基本未落地」不准确。事实是第 1、2 章完成度最高（认证状态、API 拦截、错误边界均已落地），真正的缺口集中在 **TypeScript 迁移、Token 安全、测试/CI、以及若干新增功能**。
 
@@ -27,21 +27,21 @@
 
 ## 一、架构与工程化
 
-- [ ] ❌ **1.1 TypeScript 类型体系** — `tsconfig.json` 为 `strict:false` + `allowJs:true`，源码全为 `.js/.jsx`，无 `types/` 目录。需迁移核心文件、补 `types/auth|profile|api|recommendation.ts`、开 `strict`。
-- [ ] 🟡 **1.2 统一路由守卫与认证状态** — `src/lib/store/authStore.js`（Zustand+persist）已就绪；`ProtectedRoute` 已修复并接入全部 10 个受保护页面（原为死代码：把 `isAuthenticated` 当布尔值用导致永不生效）；**仍缺 `middleware.ts` 服务端边缘拦截**，跳转仍发生在客户端。
+- [x] **1.1 TypeScript 类型体系** — `src/types/`（`auth` / `profile` / `risk` / `omics` / `nutrition` / `dataset` / `api`）形状对齐后端 pydantic；核心逻辑层（`lib/api.ts`、`lib/hooks.ts`、`lib/store/authStore.ts`、`lib/i18n.tsx`）与全部 50+ 展示组件/页面 content 均已迁 `.ts/.tsx`；`tsconfig.json` 开启 `strict: true`，新增 `npm run typecheck`（`tsc --noEmit`）；配置与测试（`next.config.ts`、`playwright.config.ts`、`vitest.setup.ts`、`tests/e2e/smoke.spec.ts`）同步 TS 化。`typecheck` / `lint`（0 error）/ `test`（9）/ `build` 全绿。
+- [ ] 🟡 **1.2 统一路由守卫与认证状态** — `src/lib/store/authStore.ts`（Zustand+persist）已就绪；`ProtectedRoute` 已修复并接入全部 10 个受保护页面（原为死代码：把 `isAuthenticated` 当布尔值用导致永不生效）；**仍缺 `middleware.ts` 服务端边缘拦截**，跳转仍发生在客户端。
 - [ ] 🟡 **1.3 全局布局统一化** — 首页已拆分为 `components/home/`（SiteHeader/HeroSection/FeatureGrid/CTASection）；但未建 `(app)`/`(auth)` 路由组，各页仍各自 `import Navbar`。
 - [x] **1.4 统一错误边界** — `components/ErrorBoundary.jsx` + `app/error.js`，全局（ClientProvider 内）与 dashboard 局部均已包裹。
 
 ## 二、API 层优化
 
-- [x] **2.1 统一 API 错误处理与响应拦截** — `lib/api.js` 请求/响应双拦截器、`ERROR_MESSAGES` 归一化、401 统一登出；`timeout` 已由 15s 提升至 60s，给 Render 免费实例冷启动留出余量。
+- [x] **2.1 统一 API 错误处理与响应拦截** — `lib/api.ts` 请求/响应双拦截器、`ERROR_MESSAGES` 归一化、401 统一登出；`timeout` 已由 15s 提升至 60s，给 Render 免费实例冷启动留出余量。
 - [ ] ❌ **2.2 Token 刷新与无感登录** — 后端 `app/api/auth.py` 无 refresh token 机制，前端无静默刷新逻辑。
-- [x] **2.3 数据缓存与请求去重** — React Query 已接入实际页面：`lib/hooks.js` 的 9 个 hooks 全部被 dashboard/profile/datasets/microbiome/metabolomics/NutritionAlerts 使用；profile 更新走 `useUpdateProfile` 并自动失效缓存；跨页共享 `profile`/`risk` 缓存键。
+- [x] **2.3 数据缓存与请求去重** — React Query 已接入实际页面：`lib/hooks.ts` 的 9 个 hooks 全部被 dashboard/profile/datasets/microbiome/metabolomics/NutritionAlerts 使用；profile 更新走 `useUpdateProfile` 并自动失效缓存；跨页共享 `profile`/`risk` 缓存键。
 - [ ] 🟡 **2.4 上传接口统一封装** — `importExportAPI.importData` 已处理 FormData+60s 超时；但无通用 `uploadFile(endpoint, file, onProgress)`。后端 CORS 已收紧为白名单（✅ 该项已完成）。
 
 ## 三、状态管理
 
-- [ ] 🟡 **3.1 轻量级全局状态** — 仅有 `useAuthStore`；缺 `useUIStore`（language/toast/globalLoading/canvasMode）与 `useDataStore`；`LanguageProvider` 仍在 `lib/i18n.js` 用 Context+useState，未迁 Zustand。
+- [ ] 🟡 **3.1 轻量级全局状态** — 仅有 `useAuthStore`；缺 `useUIStore`（language/toast/globalLoading/canvasMode）与 `useDataStore`；`LanguageProvider` 仍在 `lib/i18n.tsx` 用 Context+useState，未迁 Zustand。
 - [x] **3.2 表单状态规范化** — `login/content.jsx`、`profile/content.jsx` 均用 `react-hook-form` + `zodResolver`；BMI 用 `useMemo` 计算。
 
 ## 四、性能优化
@@ -141,8 +141,20 @@
 - [x] 修正 E2E 打桩里 nutrition-alerts 响应形状（对象 → 原误写成数组，会导致 Dashboard 渲染崩溃）
 - [x] ESLint 忽略 Playwright 产物目录（`playwright-report/`、`test-results/`），避免 lint 误扫生成文件报错
 
+**已完成（第五轮：TypeScript 核心层迁移）**
+- [x] 新增 `src/types/`（auth / profile / risk / omics / nutrition / dataset / api），形状对齐后端 pydantic
+- [x] 核心逻辑层迁 TS：`lib/api.ts`、`lib/hooks.ts`、`lib/store/authStore.ts`、`lib/i18n.tsx`
+- [x] `tsconfig.json` 开启 `strict: true`，新增 `npm run typecheck`；`tsc` / lint / test(9) / build 全绿
+- [x] 修正 vitest 的 esbuild loader（`tsx` 覆盖 `js|jsx|ts|tsx`），否则 `.tsx` 源码无法被测试解析
+
+**已完成（第六轮：TypeScript 迁移收尾）**
+- [x] `src/` 下全部 `.js/.jsx` 组件与页面 content 迁为 `.ts/.tsx`（含 `BioCanvas`、`MetabolicPathway` 等复杂可视化）
+- [x] 配置与测试同步 TS 化：`next.config.ts`、`playwright.config.ts`、`vitest.setup.ts`、`tests/e2e/smoke.spec.ts`
+- [x] 调整 vitest 的 esbuild `include`（覆盖 `src` 与根目录 setup/config，排除 `node_modules`），修复迁移后 setup 文件解析失败
+- [x] `.gitignore` 忽略 `*.tsbuildinfo` 增量构建缓存
+- [x] 全量验证：`typecheck` / `lint`（0 error）/ `test`（9）/ `build` 全绿
+
 **待办 · 中大型**
-- [ ] TypeScript 迁移（1.1）
 - [ ] Token 迁 httpOnly Cookie + refresh（2.2，跨前后端）
 - [ ] 全站限流（当前仅 auth 端点）
 - [ ] `middleware.ts` 服务端边缘守卫（1.2 收尾）
