@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
@@ -31,11 +31,11 @@ export default function BodyMetricsCard({ profile }) {
           <div className="flex justify-between border-b border-slate-100 pb-2">
             <span className="text-slate-600">{t.bmi}</span>
             <span className="font-medium">
-              {((profile.weight_kg / (profile.height_cm / 100) ** 2)).toFixed(1)}
+              {(profile.weight_kg / (profile.height_cm / 100) ** 2).toFixed(1)}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-600">{t.activity}</span>
+            <span className="text-slate-600">{t.activityLabel}</span>
             <span className="font-medium capitalize">{profile.activity_level || 'N/A'}</span>
           </div>
         </div>

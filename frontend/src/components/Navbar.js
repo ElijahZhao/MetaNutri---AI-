@@ -21,8 +21,8 @@ export default function Navbar() {
   const navLinks = [
     { href: '/dashboard', label: t.dashboard },
     { href: '/genomic', label: t.genomicData },
-    { href: '/microbiome', label: t.microbiome },
-    { href: '/metabolomics', label: t.metabolomics },
+    { href: '/microbiome', label: t.microbiomeLabel },
+    { href: '/metabolomics', label: t.metabolomicsLabel },
     { href: '/datasets', label: 'Datasets' },
     { href: '/recommendations', label: 'Recommendations' },
     { href: '/predict', label: 'Predictions' },
