@@ -1,11 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from uuid import UUID
 import numpy as np
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.session import get_db
 from app.core.security import get_current_active_user
 from app.models.user import User
+from app.models.food import FoodNutrition
+from app.models.profile import UserProfile
 from app.ml.metabolic_response_model import get_predictor
 from app.ml.explainability import explain_metabolic_prediction, FeatureContributionExplainer
 
@@ -52,58 +57,92 @@ class RiskAssessmentResponse(BaseModel):
     confidence: float
 
 
+def _profile_features(profile: Optional[UserProfile]) -> dict:
+    feats = {"age": 35, "gender": 0.5, "bmi": 23.0, "activity": 1.5}
+    if not profile:
+        return feats
+    if profile.age:
+        feats["age"] = float(profile.age)
+    if profile.gender:
+        feats["gender"] = 1.0 if profile.gender.lower().startswith(("m", "n")) else 0.0
+    if profile.height_cm and profile.weight_kg:
+        h = float(profile.height_cm) / 100.0
+        if h > 0:
+            feats["bmi"] = round(float(profile.weight_kg) / (h * h), 1)
+    activity_map = {"sedentary": 1.2, "light": 1.4, "moderate": 1.6, "active": 1.8, "very_active": 2.0}
+    feats["activity"] = activity_map.get((profile.activity_level or "").lower(), 1.5)
+    return feats
+
+
+def _food_features(foods: List[FoodNutrition]) -> dict:
+    if not foods:
+        return {"calories": 250, "protein": 15, "fat": 12, "carbs": 35, "fiber": 6, "gi": 55}
+    n = len(foods)
+    def avg(field, default):
+        vals = [float(getattr(f, field)) for f in foods if getattr(f, field) is not None]
+        return (sum(vals) / len(vals)) if vals else default
+    return {
+        "calories": avg("calories_kcal", 250),
+        "protein": avg("protein_g", 15),
+        "fat": avg("fat_g", 12),
+        "carbs": avg("carbs_g", 35),
+        "fiber": avg("fiber_g", 6),
+        "gi": avg("glycemic_index", 55),
+    }
+
+
 @router.post("/glucose-response", response_model=GlucoseResponseResponse)
 async def predict_glucose_response(
     req: GlucoseResponseRequest,
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     predictor = get_predictor()
-    
-    user_features = {
-        'age': 35,
-        'gender': 0.5,
-        'bmi': 23,
-        'activity': 1.5,
-    }
-    
-    food_features = {
-        'calories': 250,
-        'protein': 15,
-        'fat': 12,
-        'carbs': 35,
-        'fiber': 6,
-        'gi': 55,
-    }
-    
+
+    # Use the caller's actual foods (falls back to neutral defaults when empty).
+    foods = []
+    if req.food_ids:
+        ids = [str(i) for i in req.food_ids]
+        result = await db.execute(select(FoodNutrition).where(FoodNutrition.id.in_(ids)))
+        foods = list(result.scalars().all())
+
+    profile_result = await db.execute(select(UserProfile).where(UserProfile.user_id == str(current_user.id)))
+    profile = profile_result.scalar_one_or_none()
+
+    user_features = _profile_features(profile)
+    food_features = _food_features(foods)
+
     model_prediction = predictor.predict(user_features, food_features)
-    
+    predicted_peak = float(model_prediction["glucose_response"])
+
     t = np.linspace(0, 120, 25)
-    peak_glucose = model_prediction['glucose_response']
-    time_peak = int(np.random.uniform(30, 60))
-    curve = peak_glucose * np.exp(-((t - time_peak) ** 2) / (2 * (25 ** 2))) + 80
+    # Deterministic peak: high-GI foods peak earlier.
+    avg_gi = food_features["gi"]
+    time_peak = int(max(20, min(90, round(48 - (avg_gi - 55) * 0.35))))
+    curve = predicted_peak * np.exp(-((t - time_peak) ** 2) / (2 * (25 ** 2))) + 80
     curve = np.maximum(curve, 70)
-    
+
     glucose_curve = [{"time": int(ti), "glucose": float(gi)} for ti, gi in zip(t, curve)]
-    
+
     input_data = {**user_features, **food_features}
-    explanation = explain_metabolic_prediction(input_data, peak_glucose)
-    
+    explanation = explain_metabolic_prediction(input_data, predicted_peak)
+
     interpretation_parts = []
-    top_positive = list(explanation['contribution_analysis'].get('top_positive', {}).keys())[:2]
-    top_negative = list(explanation['contribution_analysis'].get('top_negative', {}).keys())[:2]
-    
+    top_positive = list(explanation["contribution_analysis"].get("top_positive", {}).keys())[:2]
+    top_negative = list(explanation["contribution_analysis"].get("top_negative", {}).keys())[:2]
+
     if top_positive:
         interpretation_parts.append(f"主要正面因素: {', '.join(top_positive)}")
     if top_negative:
         interpretation_parts.append(f"主要负面因素: {', '.join(top_negative)}")
-    
+
     return GlucoseResponseResponse(
         user_id=current_user.id,
         predicted_glucose_curve=glucose_curve,
-        peak_glucose=float(peak_glucose),
+        peak_glucose=predicted_peak,
         time_to_peak=time_peak,
-        aic_score=round(np.random.uniform(5.0, 6.5), 2),
-        interpretation="; ".join(interpretation_parts) if interpretation_parts else "基于多因素综合预测"
+        aic_score=round(float(model_prediction.get("aic_score", 6.0)), 2),
+        interpretation="; ".join(interpretation_parts) if interpretation_parts else "基于真实食物与用户画像的综合预测"
     )
 
 
@@ -148,31 +187,45 @@ async def predict_nutrient_absorption(
 
 @router.get("/risk-assessment", response_model=RiskAssessmentResponse)
 async def risk_assessment(
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    diabetes = np.random.uniform(0.15, 0.75)
-    obesity = np.random.uniform(0.1, 0.65)
-    cardio = np.random.uniform(0.1, 0.6)
-    overall = (diabetes + obesity + cardio) / 3
-    
+    profile_result = await db.execute(select(UserProfile).where(UserProfile.user_id == str(current_user.id)))
+    profile = profile_result.scalar_one_or_none()
+
+    feats = _profile_features(profile)
+    age = feats["age"]
+    bmi = feats["bmi"]
+    activity = feats["activity"]
+
+    # Simple deterministic logistic-ish risk heuristics based on the profile.
+    def clamp_risk(v):
+        return round(min(0.85, max(0.08, v)), 2)
+
+    diabetes = clamp_risk(0.05 + (age - 20) * 0.008 + max(0, bmi - 22) * 0.02 + max(0, 1.6 - activity) * 0.1)
+    obesity = clamp_risk(0.05 + max(0, bmi - 18.5) * 0.05)
+    cardio = clamp_risk(0.04 + (age - 25) * 0.007 + max(0, bmi - 24) * 0.015 + max(0, 1.6 - activity) * 0.08)
+    overall = round((diabetes + obesity + cardio) / 3, 2)
+
     suggestions = []
-    if diabetes > 0.5:
+    if diabetes > 0.45:
         suggestions.append("减少精制碳水化合物摄入，定期监测血糖。")
-    if obesity > 0.5:
+    if obesity > 0.45:
         suggestions.append("控制热量摄入，增加体育锻炼。")
-    if cardio > 0.5:
+    if cardio > 0.45:
         suggestions.append("优先摄入Omega-3食物，减少钠摄入。")
     if not suggestions:
         suggestions.append("保持当前健康生活方式，定期体检。")
-    
-    confidence = min(0.95, 0.7 + (3 - sum([diabetes > 0.5, obesity > 0.5, cardio > 0.5])) * 0.08)
-    
+
+    high_count = sum([diabetes > 0.45, obesity > 0.45, cardio > 0.45])
+    confidence = round(min(0.95, 0.72 + (2 - high_count) * 0.06), 2)
+
     return RiskAssessmentResponse(
         user_id=current_user.id,
-        overall_risk_score=round(overall, 2),
-        diabetes_risk=round(diabetes, 2),
-        obesity_risk=round(obesity, 2),
-        cardiovascular_risk=round(cardio, 2),
+        overall_risk_score=overall,
+        diabetes_risk=diabetes,
+        obesity_risk=obesity,
+        cardiovascular_risk=cardio,
         suggestions=suggestions,
-        confidence=round(confidence, 2)
+        confidence=confidence
     )

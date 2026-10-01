@@ -6,6 +6,7 @@ import logging
 
 from app.core.config import settings
 from app.db.session import engine, Base
+from app.services.seed_data import seed_foods
 from app.api import auth, users, food, genomic, microbiome, metabolomics, recommendation, predict, datasets, import_export, nutrition_alerts
 
 logger = logging.getLogger(__name__)
@@ -19,6 +20,11 @@ async def lifespan(app: FastAPI):
         logger.info("Database tables initialized successfully")
     except Exception as e:
         logger.warning(f"Database initialization failed (app will start without DB): {e}")
+    try:
+        await seed_foods()
+        logger.info("Food seed data ensured (idempotent)")
+    except Exception as e:
+        logger.warning(f"Food seed failed (continuing): {e}")
     yield
     try:
         await engine.dispose()

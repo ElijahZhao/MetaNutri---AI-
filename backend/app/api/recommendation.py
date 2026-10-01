@@ -73,20 +73,52 @@ async def generate_meal_plan(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    result = await db.execute(select(FoodNutrition).limit(20))
-    foods = result.scalars().all()
+    result = await db.execute(select(FoodNutrition))
+    foods = list(result.scalars().all())
 
-    selected = random.sample(foods, min(6, len(foods))) if len(foods) >= 6 else foods
-    food_items = [{"name": f.food_name, "calories": float(f.calories_kcal or 0)} for f in selected]
+    target = float(req.calorie_target or 2000)
+    # Deterministic, target-aware selection: greedy from lowest-GI foods so the
+    # plan approaches the calorie budget without blowing past it, with variety.
+    chosen = []
+    total = 0.0
+    for f in sorted(foods, key=lambda x: (float(x.glycemic_index or 100), (x.category or ""))):
+        cal = float(f.calories_kcal or 0)
+        if cal <= 0:
+            continue
+        if total + cal > target * 1.25:
+            continue
+        chosen.append(f)
+        total += cal
+        if len(chosen) >= 8 or total >= target * 0.9:
+            break
 
-    total_calories = sum(f["calories"] for f in food_items)
+    # Ensure a protein source if none selected yet.
+    has_protein = any(float(f.protein_g or 0) >= 15 for f in chosen)
+    if not has_protein and len(foods) > len(chosen):
+        food_by_protein = sorted(
+            (f for f in foods if f not in chosen and float(f.protein_g or 0) >= 15),
+            key=lambda x: -float(x.protein_g or 0),
+        )
+        if food_by_protein and total + float(food_by_protein[0].calories_kcal or 0) <= target * 1.35:
+            chosen.append(food_by_protein[0])
+            total += float(food_by_protein[0].calories_kcal or 0)
+
+    food_items = [
+        {"name": f.food_name, "calories": round(float(f.calories_kcal or 0), 1), "protein": float(f.protein_g or 0), "category": f.category}
+        for f in chosen
+    ]
+
+    protein_total = sum(float(ft["protein"]) for ft in food_items)
     rec = NutritionRecommendation(
         user_id=current_user.id,
         recommendation_type="meal_plan",
         food_items=food_items,
-        nutrient_targets={"calories": req.calorie_target or 2000},
+        nutrient_targets={"calories": target, "target_protein_g": round(target * 0.25 / 4, 1)},
         confidence_score=0.75,
-        explanation=f"Generated a balanced meal plan with {total_calories:.0f} kcal."
+        explanation=(
+            f"Generated a {len(food_items)}-item plan around {target:.0f} kcal ({total:.0f} kcal selected, "
+            f"~{protein_total:.0f}g protein), prioritizing lower-GI foods for balanced blood glucose."
+        ),
     )
     db.add(rec)
     await db.commit()
