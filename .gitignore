@@ -31,6 +31,9 @@ coverage/
 htmlcov/
 .pytest_cache/
 .nyc_output/
+playwright-report/
+blob-report/
+test-results/
 
 # IDE
 .vscode/
