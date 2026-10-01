@@ -2,8 +2,16 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.orm import declarative_base
 from app.core.config import settings
 
+# Supabase transaction-pooler (pgbouncer) does not support reused prepared
+# statements across pooled connections, which asyncpg caches by default. Disable
+# that cache to avoid "prepared statement already exists" errors.
+_db_url = settings.SQLALCHEMY_DATABASE_URL
+if "prepared_statement_cache_size=" not in _db_url:
+    sep = "&" if "?" in _db_url else "?"
+    _db_url = f"{_db_url}{sep}prepared_statement_cache_size=0"
+
 engine = create_async_engine(
-    settings.SQLALCHEMY_DATABASE_URL,
+    _db_url,
     echo=False,
     future=True,
     pool_pre_ping=True,
