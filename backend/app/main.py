@@ -33,9 +33,16 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+_DEFAULT_CORS_ORIGINS = [
+    "https://meta-nutri-ai.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins or _DEFAULT_CORS_ORIGINS,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
