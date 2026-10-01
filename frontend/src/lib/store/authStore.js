@@ -36,18 +36,23 @@ export const useAuthStore = create(
         try {
           const res = await authAPI.login({ username, password });
           const token = res.data.access_token;
-          
+
+          // Persist the token before calling /me: the request interceptor reads it
+          // from localStorage, so calling /me first would send an unauthenticated
+          // request and the login would fail with a 401.
+          localStorage.setItem(TOKEN_STORAGE_KEY, token);
+          set({ token });
+
           const meRes = await authAPI.me();
           const user = meRes.data;
-          
-          localStorage.setItem(TOKEN_STORAGE_KEY, token);
+
           localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-          
+
           set({ user, token, isLoading: false });
           return { success: true, user, token };
         } catch (err) {
           set({ isLoading: false });
-          const message = err.response?.data?.detail || 'Login failed';
+          const message = err.userMessage || err.response?.data?.detail || 'Login failed';
           return { success: false, error: message };
         }
       },
@@ -59,18 +64,21 @@ export const useAuthStore = create(
           await authAPI.register({ username, email, password });
           const res = await authAPI.login({ username, password });
           const token = res.data.access_token;
-          
+
+          // Same ordering requirement as login(): persist the token before /me.
+          localStorage.setItem(TOKEN_STORAGE_KEY, token);
+          set({ token });
+
           const meRes = await authAPI.me();
           const user = meRes.data;
-          
-          localStorage.setItem(TOKEN_STORAGE_KEY, token);
+
           localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-          
+
           set({ user, token, isLoading: false });
           return { success: true, user, token };
         } catch (err) {
           set({ isLoading: false });
-          const message = err.response?.data?.detail || 'Registration failed';
+          const message = err.userMessage || err.response?.data?.detail || 'Registration failed';
           return { success: false, error: message };
         }
       },
