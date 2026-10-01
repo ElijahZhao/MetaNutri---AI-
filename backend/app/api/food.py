@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from typing import Optional
@@ -22,7 +22,10 @@ async def search_foods(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    stmt = select(FoodNutrition).where(FoodNutrition.food_name.ilike(f"%{q}%"))
+    escaped_q = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    stmt = select(FoodNutrition).where(
+        FoodNutrition.food_name.ilike(f"%{escaped_q}%", escape="\\")
+    )
     if category:
         stmt = stmt.where(FoodNutrition.category == category)
 

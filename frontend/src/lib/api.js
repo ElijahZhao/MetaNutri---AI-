@@ -61,9 +61,13 @@ api.interceptors.response.use(
     const status = error.response?.status;
     
     if (status === 401) {
-      useAuthStore.getState().logout();
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+      const isAuthRequest = error.config?.url?.includes('/auth/login')
+        || error.config?.url?.includes('/auth/register');
+      if (!isAuthRequest) {
+        useAuthStore.getState().logout();
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
       }
     }
     

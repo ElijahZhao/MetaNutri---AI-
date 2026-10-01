@@ -49,7 +49,7 @@ class GeneNutritionInteractionModel:
         self.model = GeneNutritionGNN().to(self.device)
         self.model.eval()
         if model_path and os.path.exists(model_path):
-            self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+            self.model.load_state_dict(torch.load(model_path, map_location=self.device, weights_only=True))
 
     def score_interaction(self, gene_indices, nutrient_indices):
         with torch.no_grad():
