@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy import select
 from typing import List, Optional
 from datetime import date
 import numpy as np
@@ -63,12 +64,12 @@ async def upload_metabolomics_data(
             )
             db.add(record)
             results.append(record)
-        db.commit()
+        await db.commit()
         return [MetabolomicsDataResponse(
             id=r.id,
             metabolite_name=r.metabolite_name,
             pathway_name=r.pathway_name,
-            concentration=float(r.concentration),
+            concentration=float(r.concentration) if r.concentration is not None else 0.0,
             unit=r.unit,
             z_score=float(r.z_score) if r.z_score else None,
             significance=float(r.significance) if r.significance else None,
@@ -85,12 +86,13 @@ async def get_user_metabolomics(
     current_user: User = Depends(get_current_active_user),
     db=Depends(get_db)
 ):
-    records = db.query(MetabolomicsData).filter(MetabolomicsData.user_id == str(current_user.id)).all()
+    result = await db.execute(select(MetabolomicsData).where(MetabolomicsData.user_id == str(current_user.id)))
+    records = result.scalars().all()
     return [MetabolomicsDataResponse(
         id=r.id,
         metabolite_name=r.metabolite_name,
         pathway_name=r.pathway_name,
-        concentration=float(r.concentration),
+        concentration=float(r.concentration) if r.concentration is not None else 0.0,
         unit=r.unit,
         z_score=float(r.z_score) if r.z_score else None,
         significance=float(r.significance) if r.significance else None,
@@ -104,7 +106,8 @@ async def analyze_metabolomics(
     current_user: User = Depends(get_current_active_user),
     db=Depends(get_db)
 ):
-    records = db.query(MetabolomicsData).filter(MetabolomicsData.user_id == str(current_user.id)).all()
+    result = await db.execute(select(MetabolomicsData).where(MetabolomicsData.user_id == str(current_user.id)))
+    records = result.scalars().all()
     
     if not records:
         return {
@@ -172,14 +175,15 @@ async def delete_metabolomics_data(
     current_user: User = Depends(get_current_active_user),
     db=Depends(get_db)
 ):
-    record = db.query(MetabolomicsData).filter(
+    result = await db.execute(select(MetabolomicsData).where(
         MetabolomicsData.id == data_id,
         MetabolomicsData.user_id == str(current_user.id)
-    ).first()
+    ))
+    record = result.scalar_one_or_none()
     
     if not record:
         raise HTTPException(status_code=404, detail="Record not found")
     
-    db.delete(record)
-    db.commit()
+    await db.delete(record)
+    await db.commit()
     return {"message": "Deleted successfully"}

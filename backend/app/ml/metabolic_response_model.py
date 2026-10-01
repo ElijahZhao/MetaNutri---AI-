@@ -77,7 +77,7 @@ class MetabolicResponsePredictor:
         self.model.eval()
 
         if model_path and os.path.exists(model_path):
-            self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+            self.model.load_state_dict(torch.load(model_path, map_location=self.device, weights_only=True))
         else:
             # Initialize with reasonable defaults for demo inference
             pass

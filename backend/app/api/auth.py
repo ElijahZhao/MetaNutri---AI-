@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from datetime import timedelta
 import json
 
@@ -16,13 +17,11 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == user_in.email))
+    result = await db.execute(
+        select(User).where((User.email == user_in.email) | (User.username == user_in.username))
+    )
     if result.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    result = await db.execute(select(User).where(User.username == user_in.username))
-    if result.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Username already taken")
+        raise HTTPException(status_code=400, detail="Username or email already registered")
 
     user = User(
         email=user_in.email,
@@ -30,7 +29,11 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
         password_hash=get_password_hash(user_in.password)
     )
     db.add(user)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail="Username or email already registered")
     await db.refresh(user)
     return user
 
@@ -41,6 +44,8 @@ async def login(user_in: UserLogin, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
     if not user or not verify_password(user_in.password, user.password_hash):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Account is inactive")
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(

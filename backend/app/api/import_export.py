@@ -28,14 +28,33 @@ async def import_data(
     db: AsyncSession = Depends(get_db)
 ):
     content = await file.read()
-    
+
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large (max 5 MB)")
+    if not file.filename or "." not in file.filename:
+        raise HTTPException(status_code=400, detail="File must have a .csv or .json extension")
+
     if file.filename.endswith('.csv'):
-        data = DataImporter.import_from_csv(content.decode('utf-8'))
+        try:
+            data = DataImporter.import_from_csv(content.decode('utf-8'))
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid CSV content: {e}")
     elif file.filename.endswith('.json'):
-        data = DataImporter.import_from_json(content.decode('utf-8'))
+        try:
+            data = DataImporter.import_from_json(content.decode('utf-8'))
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid JSON content: {e}")
     else:
         raise HTTPException(status_code=400, detail="Unsupported file format. Use CSV or JSON.")
-    
+
+    # Basic numeric range validation to keep analysis inputs sane.
+    def _bounded(value, lo, hi, default):
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return default
+        return max(lo, min(hi, v))
+
     imported = 0
     errors = []
     
@@ -47,7 +66,7 @@ async def import_data(
                     gene_name=record.get("gene_name"),
                     snp_id=record.get("snp_id"),
                     genotype=record.get("genotype"),
-                    effect_score=float(record.get("effect_score", 0)),
+                    effect_score=_bounded(record.get("effect_score", 0), -1, 1, 0),
                     trait_description=record.get("trait_description"),
                 )
                 db.add(genomic)
@@ -56,8 +75,8 @@ async def import_data(
                     user_id=current_user.id,
                     taxon_level=record.get("taxon_level", "genus"),
                     taxon_name=record.get("taxon_name"),
-                    relative_abundance=float(record.get("relative_abundance", 0)),
-                    health_score=float(record.get("health_score", 0.5)),
+                    relative_abundance=_bounded(record.get("relative_abundance", 0), 0, 1, 0),
+                    health_score=_bounded(record.get("health_score", 0.5), 0, 1, 0.5),
                 )
                 db.add(microbiome)
             elif data_type == "metabolomics":
@@ -65,10 +84,10 @@ async def import_data(
                     user_id=current_user.id,
                     metabolite_name=record.get("metabolite_name"),
                     pathway_name=record.get("pathway_name"),
-                    concentration=float(record.get("concentration", 0)),
+                    concentration=_bounded(record.get("concentration", 0), 0, 1e9, 0),
                     unit=record.get("unit", "μM"),
-                    z_score=float(record.get("z_score", 0)),
-                    significance=float(record.get("significance", 0.05)),
+                    z_score=_bounded(record.get("z_score", 0), -100, 100, 0),
+                    significance=_bounded(record.get("significance", 0.05), 0, 1, 0.05),
                 )
                 db.add(metabolomics)
             else:

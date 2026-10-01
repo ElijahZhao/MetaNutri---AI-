@@ -52,7 +52,6 @@ async def list_datasets(
                     "source": info["source"],
                     "url": info["url"],
                     "count": count,
-                    "file_path": str(file_path),
                     "status": "available"
                 })
             except Exception:
@@ -129,8 +128,8 @@ async def download_dataset(
         raise HTTPException(status_code=404, detail=f"Dataset {dataset_id} not supported")
     
     try:
-        path = download_methods[dataset_id]()
-        return {"status": "success", "dataset": dataset_id, "file_path": path}
+        download_methods[dataset_id]()
+        return {"status": "success", "dataset": dataset_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from uuid import UUID
@@ -28,8 +28,6 @@ async def get_profile(
         raise HTTPException(status_code=404, detail="Profile not found")
     return profile
 
-
-from fastapi import HTTPException
 
 @router.put("/profile", response_model=UserProfileResponse)
 async def update_profile(

@@ -6,6 +6,7 @@ Supports: Direct downloads, API access, and TianChi integration
 import json
 import csv
 import io
+import re
 import requests
 import zipfile
 from pathlib import Path
@@ -725,7 +726,8 @@ class TianChiDatasetClient:
         print("⚠️ Note: Real TianChi download requires competition registration or data approval")
         print("⚠️ This is a mock download - actual implementation requires AK/SK signing")
         
-        dataset_path = Path(save_path) / f"tianchi_{dataset_id}.json"
+        safe_id = re.sub(r'[^A-Za-z0-9_.-]', '', dataset_id) or 'dataset'
+        dataset_path = Path(save_path) / f"tianchi_{safe_id}.json"
         mock_data = {
             "dataset_id": dataset_id,
             "status": "mock_download",
