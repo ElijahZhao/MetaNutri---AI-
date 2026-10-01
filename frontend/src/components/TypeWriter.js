@@ -1,19 +1,14 @@
-"use client";
-import { useEffect, useState, useMemo, useRef } from 'react';
+'use client';
+import { useEffect, useState } from 'react';
 
 export default function TypeWriter({ texts, speed = 80, delay = 2500 }) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const containerRef = useRef(null);
-
-  const maxTextLength = useMemo(() => {
-    return Math.max(...texts.map(t => t.length));
-  }, [texts]);
 
   useEffect(() => {
     const currentText = texts[currentTextIndex];
-    
+
     const type = () => {
       if (!isDeleting) {
         if (displayText.length < currentText.length) {
@@ -38,16 +33,20 @@ export default function TypeWriter({ texts, speed = 80, delay = 2500 }) {
   }, [displayText, isDeleting, currentTextIndex, texts, speed, delay]);
 
   return (
-    <span 
-      ref={containerRef}
-      className="inline-block whitespace-nowrap"
-      style={{ 
-        minWidth: `${maxTextLength * 0.8}em`,
-        fontSize: 'inherit',
-      }}
-    >
-      {displayText}
-      <span className="opacity-70 animate-pulse">|</span>
+    <span className="relative inline-block whitespace-nowrap">
+      {/* 不可见的撑宽容器：把全部文案叠放在同一格，容器宽度即最宽文案的真实宽度，
+          避免用 em 估算导致中英混排抖动，也不依赖字体加载时机。 */}
+      <span aria-hidden="true" className="invisible grid">
+        {texts.map((text, index) => (
+          <span key={index} className="col-start-1 row-start-1">
+            {text}
+          </span>
+        ))}
+      </span>
+      <span className="absolute inset-0">
+        {displayText}
+        <span className="opacity-70 animate-pulse">|</span>
+      </span>
     </span>
   );
 }

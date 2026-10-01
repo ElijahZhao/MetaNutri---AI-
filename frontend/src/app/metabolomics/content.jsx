@@ -1,24 +1,30 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { metabolomicsAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useMetabolomicsData } from '@/lib/hooks';
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
-import { FlaskConical, Upload, TrendingUp, TrendingDown, Activity, Loader2, Trash2, BarChart3 } from 'lucide-react';
+import {
+  FlaskConical,
+  Upload,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  Loader2,
+  Trash2,
+  BarChart3,
+} from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
 function MetabolomicsContent() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
   const { t } = useLanguage();
-  const [data, setData] = useState([]);
+  const metabolomicsQuery = useMetabolomicsData();
+  const data = metabolomicsQuery.data ?? [];
   const [analysis, setAnalysis] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
     metabolite_name: '',
@@ -29,42 +35,41 @@ function MetabolomicsContent() {
     significance: '',
   });
 
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-    fetchData();
-  }, [router, isAuthenticated]);
-
-  const fetchData = async () => {
+  const fetchAnalysis = async () => {
     try {
-      const [dataRes, analysisRes] = await Promise.all([
-        metabolomicsAPI.getUserData(),
-        metabolomicsAPI.analyze(),
-      ]);
-      setData(dataRes.data || []);
-      setAnalysis(analysisRes.data);
+      const res = await metabolomicsAPI.analyze();
+      setAnalysis(res.data);
     } catch (e) {
       console.error(e);
       toast.error(e.userMessage || t.metabolomics.loadFailed);
-    } finally {
-      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAnalysis();
+  }, []);
+
+  useEffect(() => {
+    if (metabolomicsQuery.error) {
+      console.error(metabolomicsQuery.error);
+      toast.error(metabolomicsQuery.error.userMessage || t.metabolomics.loadFailed);
+    }
+  }, [metabolomicsQuery.error]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
     setUploading(true);
     try {
-      await metabolomicsAPI.upload([{
-        metabolite_name: form.metabolite_name,
-        pathway_name: form.pathway_name || undefined,
-        concentration: parseFloat(form.concentration),
-        unit: form.unit,
-        z_score: form.z_score ? parseFloat(form.z_score) : undefined,
-        significance: form.significance ? parseFloat(form.significance) : undefined,
-      }]);
+      await metabolomicsAPI.upload([
+        {
+          metabolite_name: form.metabolite_name,
+          pathway_name: form.pathway_name || undefined,
+          concentration: parseFloat(form.concentration),
+          unit: form.unit,
+          z_score: form.z_score ? parseFloat(form.z_score) : undefined,
+          significance: form.significance ? parseFloat(form.significance) : undefined,
+        },
+      ]);
       toast.success(t.metabolomics.addSuccess);
       setForm({
         metabolite_name: '',
@@ -74,7 +79,8 @@ function MetabolomicsContent() {
         z_score: '',
         significance: '',
       });
-      fetchData();
+      metabolomicsQuery.refetch();
+      fetchAnalysis();
     } catch (e) {
       console.error(e);
       toast.error(e.userMessage || t.metabolomics.addFailed);
@@ -87,7 +93,8 @@ function MetabolomicsContent() {
     try {
       await metabolomicsAPI.delete(id);
       toast.success(t.metabolomics.deleteSuccess);
-      fetchData();
+      metabolomicsQuery.refetch();
+      fetchAnalysis();
     } catch (e) {
       console.error(e);
       toast.error(e.userMessage || t.metabolomics.deleteFailed);
@@ -96,28 +103,42 @@ function MetabolomicsContent() {
 
   const barOption = {
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-    xAxis: { type: 'category', data: data.slice(0, 10).map(d => d.metabolite_name), axisLabel: { rotate: 45, fontSize: 10 } },
+    xAxis: {
+      type: 'category',
+      data: data.slice(0, 10).map((d) => d.metabolite_name),
+      axisLabel: { rotate: 45, fontSize: 10 },
+    },
     yAxis: { type: 'value', name: 'Z-Score' },
-    series: [{
-      data: data.slice(0, 10).map(d => d.z_score || 0),
-      type: 'bar',
-      itemStyle: {
-        color: (params) => params.value > 1 ? '#ef4444' : params.value < -1 ? '#3b82f6' : '#10b981',
+    series: [
+      {
+        data: data.slice(0, 10).map((d) => d.z_score || 0),
+        type: 'bar',
+        itemStyle: {
+          color: (params) =>
+            params.value > 1 ? '#ef4444' : params.value < -1 ? '#3b82f6' : '#10b981',
+        },
       },
-    }],
+    ],
   };
 
-  const pathwayOption = analysis && analysis.pathways && analysis.pathways.length > 0 ? {
-    tooltip: { trigger: 'item' },
-    series: [{
-      type: 'pie',
-      radius: ['40%', '70%'],
-      data: analysis.pathways.map(p => ({ value: p.metabolite_count, name: p.name })),
-      emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' } },
-    }],
-  } : null;
+  const pathwayOption =
+    analysis && analysis.pathways && analysis.pathways.length > 0
+      ? {
+          tooltip: { trigger: 'item' },
+          series: [
+            {
+              type: 'pie',
+              radius: ['40%', '70%'],
+              data: analysis.pathways.map((p) => ({ value: p.metabolite_count, name: p.name })),
+              emphasis: {
+                itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' },
+              },
+            },
+          ],
+        }
+      : null;
 
-  if (loading) {
+  if (metabolomicsQuery.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
@@ -146,7 +167,9 @@ function MetabolomicsContent() {
             <form onSubmit={handleAdd} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.metaboliteName}</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.metabolomics.metaboliteName}
+                  </label>
                   <input
                     required
                     value={form.metabolite_name}
@@ -156,7 +179,9 @@ function MetabolomicsContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.pathway}</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.metabolomics.pathway}
+                  </label>
                   <input
                     value={form.pathway_name}
                     onChange={(e) => setForm({ ...form, pathway_name: e.target.value })}
@@ -165,7 +190,9 @@ function MetabolomicsContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.concentration}</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.metabolomics.concentration}
+                  </label>
                   <input
                     type="number"
                     step="0.001"
@@ -176,7 +203,9 @@ function MetabolomicsContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.unit}</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.metabolomics.unit}
+                  </label>
                   <select
                     value={form.unit}
                     onChange={(e) => setForm({ ...form, unit: e.target.value })}
@@ -189,7 +218,9 @@ function MetabolomicsContent() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.zScore}</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.metabolomics.zScore}
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -199,7 +230,9 @@ function MetabolomicsContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">{t.metabolomics.significance}</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.metabolomics.significance}
+                  </label>
                   <input
                     type="number"
                     step="0.0001"
@@ -235,7 +268,9 @@ function MetabolomicsContent() {
 
         {analysis && (
           <div className="bg-white rounded-xl border border-slate-200 p-6 mb-8">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">{t.metabolomics.analysisResults}</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">
+              {t.metabolomics.analysisResults}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="p-4 bg-slate-50 rounded-lg">
                 <p className="text-sm text-slate-500">{t.metabolomics.totalMetabolites}</p>
@@ -246,21 +281,27 @@ function MetabolomicsContent() {
                   <TrendingUp className="w-4 h-4 text-red-600" />
                   <p className="text-sm text-slate-500">{t.metabolomics.upregulated}</p>
                 </div>
-                <p className="text-2xl font-bold text-red-600">{analysis.summary?.upregulated || 0}</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {analysis.summary?.upregulated || 0}
+                </p>
               </div>
               <div className="p-4 bg-blue-50 rounded-lg">
                 <div className="flex items-center gap-2">
                   <TrendingDown className="w-4 h-4 text-blue-600" />
                   <p className="text-sm text-slate-500">{t.metabolomics.downregulated}</p>
                 </div>
-                <p className="text-2xl font-bold text-blue-600">{analysis.summary?.downregulated || 0}</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {analysis.summary?.downregulated || 0}
+                </p>
               </div>
               <div className="p-4 bg-emerald-50 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-emerald-600" />
                   <p className="text-sm text-slate-500">{t.metabolomics.normal}</p>
                 </div>
-                <p className="text-2xl font-bold text-emerald-600">{analysis.summary?.normal || 0}</p>
+                <p className="text-2xl font-bold text-emerald-600">
+                  {analysis.summary?.normal || 0}
+                </p>
               </div>
             </div>
 
@@ -268,7 +309,10 @@ function MetabolomicsContent() {
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-slate-700">{t.metabolomics.keyInsights}</h3>
                 {analysis.insights.map((insight, i) => (
-                  <div key={i} className="flex items-start gap-2 p-3 bg-emerald-50 rounded-lg text-sm text-emerald-800">
+                  <div
+                    key={i}
+                    className="flex items-start gap-2 p-3 bg-emerald-50 rounded-lg text-sm text-emerald-800"
+                  >
                     <span className="flex-shrink-0 w-5 h-5 bg-emerald-200 text-emerald-800 rounded-full flex items-center justify-center text-xs font-bold">
                       {i + 1}
                     </span>
@@ -282,15 +326,22 @@ function MetabolomicsContent() {
 
         {analysis?.pathways?.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 p-6 mb-8">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">{t.metabolomics.pathwayEnrichment}</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">
+              {t.metabolomics.pathwayEnrichment}
+            </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ReactECharts option={pathwayOption} style={{ height: 280 }} />
               <div className="space-y-2">
                 {analysis.pathways.slice(0, 5).map((pathway, i) => (
-                  <div key={i} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg text-sm">
+                  <div
+                    key={i}
+                    className="flex justify-between items-center p-3 bg-slate-50 rounded-lg text-sm"
+                  >
                     <span className="font-medium text-slate-700">{pathway.name}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500">{pathway.metabolite_count} metabolites</span>
+                      <span className="text-xs text-slate-500">
+                        {pathway.metabolite_count} metabolites
+                      </span>
                       <span className="text-xs text-emerald-600">p={pathway.p_value}</span>
                     </div>
                   </div>
@@ -301,36 +352,62 @@ function MetabolomicsContent() {
         )}
 
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">{t.metabolomics.yourMetaboliteData} ({data.length})</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">
+            {t.metabolomics.yourMetaboliteData} ({data.length})
+          </h2>
           {data.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-200">
                 <thead>
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.metaboliteName}</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.pathway}</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.concentration}</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.zScore}</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.status}</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t.metabolomics.action}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
+                      {t.metabolomics.metaboliteName}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
+                      {t.metabolomics.pathway}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
+                      {t.metabolomics.concentration}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
+                      {t.metabolomics.zScore}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
+                      {t.metabolomics.status}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
+                      {t.metabolomics.action}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
                   {data.map((item) => (
                     <tr key={item.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 text-sm font-medium text-slate-800">{item.metabolite_name}</td>
-                      <td className="px-4 py-3 text-sm text-slate-600">{item.pathway_name || 'N/A'}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-slate-800">
+                        {item.metabolite_name}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-slate-600">
+                        {item.pathway_name || 'N/A'}
+                      </td>
                       <td className="px-4 py-3 text-sm text-slate-600">
                         {item.concentration} {item.unit}
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">{item.z_score?.toFixed(2) || 'N/A'}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600">
+                        {item.z_score?.toFixed(2) || 'N/A'}
+                      </td>
                       <td className="px-4 py-3">
                         {item.z_score > 1 ? (
-                          <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">{t.metabolomics.upregulated}</span>
+                          <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">
+                            {t.metabolomics.upregulated}
+                          </span>
                         ) : item.z_score < -1 ? (
-                          <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">{t.metabolomics.downregulated}</span>
+                          <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                            {t.metabolomics.downregulated}
+                          </span>
                         ) : (
-                          <span className="px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full">{t.metabolomics.normal}</span>
+                          <span className="px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full">
+                            {t.metabolomics.normal}
+                          </span>
                         )}
                       </td>
                       <td className="px-4 py-3">

@@ -1,10 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { datasetAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useDatasets } from '@/lib/hooks';
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import {
@@ -43,49 +42,48 @@ const statusColors = {
 };
 
 function DatasetsContent() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
   const { t } = useLanguage();
-  const [datasets, setDatasets] = useState([]);
+  const datasetsQuery = useDatasets();
+  const datasets = datasetsQuery.data?.datasets ?? [];
+
   const [stats, setStats] = useState(null);
   const [tianchiDatasets, setTianchiDatasets] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('local');
   const [searchQuery, setSearchQuery] = useState('');
   const [loadingDataset, setLoadingDataset] = useState(null);
 
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-    fetchData();
-  }, [router, isAuthenticated]);
-
-  const fetchData = async () => {
+  const fetchExtras = async () => {
     try {
-      const [datasetsRes, statsRes, tianchiRes] = await Promise.all([
-        datasetAPI.list(),
+      const [statsRes, tianchiRes] = await Promise.all([
         datasetAPI.stats(),
         datasetAPI.tianchiList(),
       ]);
-      setDatasets(datasetsRes.data.datasets);
       setStats(statsRes.data);
       setTianchiDatasets(tianchiRes.data.bioinformatics_datasets || []);
     } catch (err) {
       console.error(err);
       toast.error(err.userMessage || t.datasets.loadFailed);
-    } finally {
-      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchExtras();
+  }, []);
+
+  useEffect(() => {
+    if (datasetsQuery.error) {
+      console.error(datasetsQuery.error);
+      toast.error(datasetsQuery.error.userMessage || t.datasets.loadFailed);
+    }
+  }, [datasetsQuery.error]);
 
   const handleDownload = async (datasetId) => {
     setLoadingDataset(datasetId);
     try {
       await datasetAPI.download(datasetId);
       toast.success(t.datasets.downloadSuccess);
-      fetchData();
+      datasetsQuery.refetch();
+      fetchExtras();
     } catch (err) {
       console.error(err);
       toast.error(err.userMessage || t.datasets.downloadFailed);
@@ -99,7 +97,8 @@ function DatasetsContent() {
     try {
       await datasetAPI.import(datasetId);
       toast.success(t.datasets.importSuccess);
-      fetchData();
+      datasetsQuery.refetch();
+      fetchExtras();
     } catch (err) {
       console.error(err);
       toast.error(err.userMessage || t.datasets.importFailed);
@@ -109,25 +108,24 @@ function DatasetsContent() {
   };
 
   const handleDownloadAll = async () => {
-    setLoading(true);
     try {
       await datasetAPI.downloadAll();
       toast.success(t.datasets.allDownloadSuccess);
-      fetchData();
+      datasetsQuery.refetch();
+      fetchExtras();
     } catch (err) {
       console.error(err);
       toast.error(err.userMessage || t.datasets.allDownloadFailed);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const filteredDatasets = datasets.filter((ds) =>
-    ds.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ds.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredDatasets = datasets.filter(
+    (ds) =>
+      ds.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ds.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loading) {
+  if (datasetsQuery.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
@@ -153,7 +151,9 @@ function DatasetsContent() {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">Food Database</p>
-                  <p className="text-xl font-bold text-slate-900">{stats.database.food_database.total_foods}</p>
+                  <p className="text-xl font-bold text-slate-900">
+                    {stats.database.food_database.total_foods}
+                  </p>
                 </div>
               </div>
             </div>
@@ -164,7 +164,9 @@ function DatasetsContent() {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">Microbiome Taxa</p>
-                  <p className="text-xl font-bold text-slate-900">{stats.database.microbiome.user_taxa_count}</p>
+                  <p className="text-xl font-bold text-slate-900">
+                    {stats.database.microbiome.user_taxa_count}
+                  </p>
                 </div>
               </div>
             </div>
@@ -175,7 +177,9 @@ function DatasetsContent() {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">Metabolites</p>
-                  <p className="text-xl font-bold text-slate-900">{stats.database.metabolomics.user_metabolites_count}</p>
+                  <p className="text-xl font-bold text-slate-900">
+                    {stats.database.metabolomics.user_metabolites_count}
+                  </p>
                 </div>
               </div>
             </div>
@@ -186,7 +190,9 @@ function DatasetsContent() {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">Gene Interactions</p>
-                  <p className="text-xl font-bold text-slate-900">{stats.database.gene_nutrition.interactions_count}</p>
+                  <p className="text-xl font-bold text-slate-900">
+                    {stats.database.gene_nutrition.interactions_count}
+                  </p>
                 </div>
               </div>
             </div>
@@ -254,15 +260,23 @@ function DatasetsContent() {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                          dataset.status === 'available' ? 'bg-emerald-100' : 'bg-slate-100'
-                        }`}>
-                          <Icon className={`w-6 h-6 ${dataset.status === 'available' ? 'text-emerald-600' : 'text-slate-500'}`} />
+                        <div
+                          className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                            dataset.status === 'available' ? 'bg-emerald-100' : 'bg-slate-100'
+                          }`}
+                        >
+                          <Icon
+                            className={`w-6 h-6 ${dataset.status === 'available' ? 'text-emerald-600' : 'text-slate-500'}`}
+                          />
                         </div>
                         <div>
                           <h3 className="font-semibold text-slate-900">{dataset.name}</h3>
-                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[dataset.status]}`}>
-                            {dataset.status === 'available' ? t.datasets.available : t.datasets.notDownloaded}
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[dataset.status]}`}
+                          >
+                            {dataset.status === 'available'
+                              ? t.datasets.available
+                              : t.datasets.notDownloaded}
                           </span>
                         </div>
                       </div>
@@ -283,7 +297,9 @@ function DatasetsContent() {
                         <FileJson className="w-3 h-3" />
                         {dataset.count} {t.datasets.records}
                       </span>
-                      <span>{t.datasets.source}: {dataset.source}</span>
+                      <span>
+                        {t.datasets.source}: {dataset.source}
+                      </span>
                     </div>
                     <div className="flex gap-2">
                       {dataset.status !== 'available' ? (
@@ -329,7 +345,9 @@ function DatasetsContent() {
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900">Alibaba Cloud TianChi Integration</h3>
-                <p className="text-sm text-slate-600">Access public bioinformatics datasets from TianChi</p>
+                <p className="text-sm text-slate-600">
+                  Access public bioinformatics datasets from TianChi
+                </p>
               </div>
             </div>
 
@@ -339,8 +357,9 @@ function DatasetsContent() {
                 <div>
                   <p className="text-sm font-medium text-amber-800">Access Requirements</p>
                   <p className="text-sm text-amber-700 mt-1">
-                    Full access to TianChi datasets requires an Alibaba Cloud account with AK/SK credentials.
-                    Some datasets require student verification or competition registration.
+                    Full access to TianChi datasets requires an Alibaba Cloud account with AK/SK
+                    credentials. Some datasets require student verification or competition
+                    registration.
                   </p>
                   <ul className="mt-3 space-y-1 text-sm text-amber-700">
                     <li>1. Register on TianChi: https://tianchi.aliyun.com</li>
