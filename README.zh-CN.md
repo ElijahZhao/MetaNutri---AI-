@@ -24,7 +24,7 @@
 **[🌐 在线演示](https://meta-nutri-ai.vercel.app/) · [📖 文档](docs/) · [🐛 提交 Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ 功能建议](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-已部署-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
-[![Railway](https://img.shields.io/badge/Railway-已部署-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://metanutri-ai-production.up.railway.app/)
+[![Render](https://img.shields.io/badge/Render-已部署-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-技术支持-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 
 </div>
@@ -103,7 +103,7 @@
                                    │  HTTPS / REST API
                                    ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         Railway（后端部署）                             │
+│                         Render（后端部署）                              │
 │  ┌─────────────────────────────────────────────────────────────┐    │
 │  │                       FastAPI (Python)                        │    │
 │  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │    │
@@ -238,7 +238,7 @@ MetaNutri 采用以下技术栈实现无缝云端部署：
 | 组件 | 平台 | 说明 |
 |------|------|------|
 | 🗄️ 数据库 | [Supabase](https://supabase.com/) | PostgreSQL + 认证一体化 |
-| ⚙️ 后端 API | [Railway](https://railway.app/) | 一键 Python 部署 |
+| ⚙️ 后端 API | [Render](https://render.com/) | 从 GitHub 的 Python 部署 |
 | 🎨 前端 Web | [Vercel](https://vercel.com/) | Next.js 原生平台 |
 
 ### 第一步：Supabase（数据库）
@@ -248,16 +248,14 @@ MetaNutri 采用以下技术栈实现无缝云端部署：
 3. 执行 [`backend/schema.sql`](backend/schema.sql) 中的 SQL 语句
 4. 从 **Settings → Database → Connection string (URI)** 复制连接字符串
 
-### 第二步：Railway（后端）
+### 第二步：Render（后端）
 
-1. 新建项目 → 从 GitHub 部署 → 选择你的仓库
-2. **Settings → Build**：
-   - Dockerfile Path: `backend/Dockerfile`
-3. **Variables → 添加**：
-   - `DATABASE_URL` = 你的 Supabase PostgreSQL 连接字符串
+1. 在 [render.com](https://render.com/) 新建 **Web Service** → **Build & Deploy from a Repository** → 选择你的仓库
+2. 在 **Settings → Docker** 中，将 **Dockerfile 路径** 设为 `backend/Dockerfile`
+3. 在 **Environment** 中添加：
+   - `DATABASE_URL` = 你的 Supabase **连接池** 地址（使用端口 **5432 会话模式**——Render 不支持 IPv6，因此请使用 `*.pooler.supabase.com`，不要用仅 IPv6 的直连地址）
    - `SECRET_KEY` = 一个安全的随机字符串
-4. **Settings → Networking → 开启 Outbound IPv6**（Supabase 需要）
-5. 等待部署完成 → 复制你的 `.up.railway.app` 域名
+4. 等待部署完成 → 复制你的 `https://your-service.onrender.com` 域名
 
 ### 第三步：Vercel（前端）
 
@@ -265,7 +263,7 @@ MetaNutri 采用以下技术栈实现无缝云端部署：
 2. **Root Directory**: `frontend`
 3. **Framework Preset**: Next.js（自动识别）
 4. **Environment Variables**:
-   - `NEXT_PUBLIC_API_URL` = 你的 Railway 后端地址（例如 `https://xxx.up.railway.app`）
+   - `NEXT_PUBLIC_API_URL` = 你的 Render 后端地址（例如 `https://your-service.onrender.com`）
 5. 点击 **Deploy**
 
 ---
@@ -311,7 +309,7 @@ MetaNutri---AI-/
 │   ├── schema.sql                    # PostgreSQL 表定义
 │   ├── requirements.txt              # Python 依赖
 │   ├── Dockerfile                    # 生产容器
-│   ├── railway.json                  # Railway 部署配置
+│   ├── railway.json                  # 旧的 Railway 配置（Render 使用 Dockerfile）
 │   └── .env.example                  # 环境变量模板
 │
 ├── frontend/                         # 🎨 Next.js 前端

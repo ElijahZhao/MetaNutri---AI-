@@ -24,7 +24,7 @@
 **[🌐 Live Demo](https://meta-nutri-ai.vercel.app/) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
-[![Railway](https://img.shields.io/badge/Railway-Deployed-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://metanutri-ai-production.up.railway.app/)
+[![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Powered-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 
 </div>
@@ -103,7 +103,7 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
                                    │  HTTPS / REST API
                                    ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                          Railway (Backend)                            │
+│                          Render (Backend)                             │
 │  ┌─────────────────────────────────────────────────────────────┐    │
 │  │                        FastAPI (Python)                       │    │
 │  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │    │
@@ -238,7 +238,7 @@ MetaNutri is designed for seamless cloud deployment with the following stack:
 | Component | Platform | Guide |
 |-----------|----------|-------|
 | 🗄️ Database | [Supabase](https://supabase.com/) | PostgreSQL + Auth in one |
-| ⚙️ Backend API | [Railway](https://railway.app/) | One-click Python deployment |
+| ⚙️ Backend API | [Render](https://render.com/) | Python deployment from GitHub |
 | 🎨 Frontend Web | [Vercel](https://vercel.com/) | Next.js native platform |
 
 ### Step 1: Supabase (Database)
@@ -248,16 +248,14 @@ MetaNutri is designed for seamless cloud deployment with the following stack:
 3. Run the SQL from [`backend/schema.sql`](backend/schema.sql)
 4. Copy your connection string from **Settings → Database → Connection string (URI)**
 
-### Step 2: Railway (Backend)
+### Step 2: Render (Backend)
 
-1. Create a new project → Deploy from GitHub → select your repo
-2. **Settings → Build**:
-   - Dockerfile Path: `backend/Dockerfile`
-3. **Variables → Add**:
-   - `DATABASE_URL` = your Supabase PostgreSQL connection string
+1. Create a new **Web Service** at [render.com](https://render.com/) → **Build & Deploy from a Repository** → select your repo
+2. In **Settings → Docker**, set the **Dockerfile Path** to `backend/Dockerfile`
+3. In **Environment**, add:
+   - `DATABASE_URL` = your Supabase **connection pooler** URI (port **5432 session mode** — Render has no IPv6, so use `*.pooler.supabase.com`, not the IPv6-only direct host)
    - `SECRET_KEY` = a secure random string
-4. **Settings → Networking → Enable Outbound IPv6** (required for Supabase)
-5. Wait for deployment → copy your `.up.railway.app` domain
+4. Deploy → copy your `https://your-service.onrender.com` domain
 
 ### Step 3: Vercel (Frontend)
 
@@ -265,7 +263,7 @@ MetaNutri is designed for seamless cloud deployment with the following stack:
 2. **Root Directory**: `frontend`
 3. **Framework Preset**: Next.js (auto-detected)
 4. **Environment Variables**:
-   - `NEXT_PUBLIC_API_URL` = your Railway backend URL (e.g. `https://xxx.up.railway.app`)
+   - `NEXT_PUBLIC_API_URL` = your Render backend URL (e.g. `https://your-service.onrender.com`)
 5. Click **Deploy**
 
 ---
@@ -311,7 +309,7 @@ MetaNutri---AI-/
 │   ├── schema.sql                    # PostgreSQL table definitions
 │   ├── requirements.txt              # Python dependencies
 │   ├── Dockerfile                    # Production container
-│   ├── railway.json                  # Railway deployment config
+│   ├── railway.json                  # Legacy Railway config (Render uses Dockerfile)
 │   └── .env.example                  # Environment template
 │
 ├── frontend/                         # 🎨 Next.js frontend
