@@ -7,18 +7,18 @@ export default defineConfig({
       '@': path.resolve(process.cwd(), 'src'),
     },
   },
-  // 项目里部分组件是 .js 后缀但含 JSX（如 Navbar.js / i18n.js）。Next/SWC 默认支持，
-  // 但 Vite 只会把 .jsx 当 JSX，所以这里显式让 src 下的 .js 走 jsx loader。
+  // 源码统一走 `tsx` loader（它是 JS / JSX / TS / TSX 的超集），覆盖 src 与根目录的
+  // setup / 配置文件；node_modules 交给 Vite 预打包处理，不做二次转换。
   esbuild: {
     jsx: 'automatic',
-    loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
-    exclude: [],
+    loader: 'tsx',
+    include: /\.[cm]?[jt]sx?$/,
+    exclude: [/node_modules/],
   },
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./vitest.setup.js'],
+    setupFiles: ['./vitest.setup.ts'],
     include: ['src/**/*.{test,spec}.{js,jsx,ts,tsx}'],
     css: false,
   },
