@@ -1,30 +1,53 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { userAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useProfile, useUpdateProfile } from '@/lib/hooks';
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import { User, Heart, Activity, Scale, Ruler, Calendar, Check, Loader2, Key } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 
+const buildProfileForm = (profile) => ({
+  age: profile?.age || '',
+  gender: profile?.gender || '',
+  height_cm: profile?.height_cm || '',
+  weight_kg: profile?.weight_kg || '',
+  activity_level: profile?.activity_level || '',
+  dietary_goals: profile?.dietary_goals || [],
+  dietary_restrictions: profile?.dietary_restrictions || [],
+});
+
 function ProfileContent() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
   const { t } = useLanguage();
-  const [loading, setLoading] = useState(true);
+  const profileQuery = useProfile();
+  const updateProfile = useUpdateProfile();
   const [saved, setSaved] = useState(false);
 
   const schema = z.object({
-    age: z.coerce.number().min(1, t.validation.age).max(120, t.validation.age).optional().or(z.literal('')),
+    age: z.coerce
+      .number()
+      .min(1, t.validation.age)
+      .max(120, t.validation.age)
+      .optional()
+      .or(z.literal('')),
     gender: z.string().optional(),
-    height_cm: z.coerce.number().min(50, t.validation.height).max(250, t.validation.height).optional().or(z.literal('')),
-    weight_kg: z.coerce.number().min(20, t.validation.weight).max(300, t.validation.weight).optional().or(z.literal('')),
+    height_cm: z.coerce
+      .number()
+      .min(50, t.validation.height)
+      .max(250, t.validation.height)
+      .optional()
+      .or(z.literal('')),
+    weight_kg: z.coerce
+      .number()
+      .min(20, t.validation.weight)
+      .max(300, t.validation.weight)
+      .optional()
+      .or(z.literal('')),
     activity_level: z.string().optional(),
     dietary_goals: z.array(z.string()).default([]),
     dietary_restrictions: z.array(z.string()).default([]),
@@ -54,34 +77,17 @@ function ProfileContent() {
   const formValues = watch();
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/login');
-      return;
+    if (profileQuery.data) {
+      reset(buildProfileForm(profileQuery.data));
     }
-    loadProfile();
-  }, [router, isAuthenticated]);
+  }, [profileQuery.data, reset]);
 
-  const loadProfile = async () => {
-    try {
-      const res = await userAPI.getProfile();
-      if (res.data) {
-        reset({
-          age: res.data.age || '',
-          gender: res.data.gender || '',
-          height_cm: res.data.height_cm || '',
-          weight_kg: res.data.weight_kg || '',
-          activity_level: res.data.activity_level || '',
-          dietary_goals: res.data.dietary_goals || [],
-          dietary_restrictions: res.data.dietary_restrictions || [],
-        });
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(err.userMessage || t.loadFailed);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (profileQuery.error) {
+      console.error(profileQuery.error);
+      toast.error(profileQuery.error.userMessage || t.loadFailed);
     }
-  };
+  }, [profileQuery.error]);
 
   const onSubmit = async (data) => {
     try {
@@ -89,7 +95,7 @@ function ProfileContent() {
       if (submitData.age === '') delete submitData.age;
       if (submitData.height_cm === '') delete submitData.height_cm;
       if (submitData.weight_kg === '') delete submitData.weight_kg;
-      await userAPI.updateProfile(submitData);
+      await updateProfile.mutateAsync(submitData);
       toast.success(t.saveSuccess);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -124,9 +130,7 @@ function ProfileContent() {
 
   const toggleArrayItem = (field, value) => {
     const current = formValues[field] || [];
-    const next = current.includes(value)
-      ? current.filter((v) => v !== value)
-      : [...current, value];
+    const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value];
     setValue(field, next, { shouldDirty: true });
   };
 
@@ -134,7 +138,7 @@ function ProfileContent() {
     const h = parseFloat(formValues.height_cm);
     const w = parseFloat(formValues.weight_kg);
     if (h && w) {
-      return (w / ((h / 100) ** 2)).toFixed(1);
+      return (w / (h / 100) ** 2).toFixed(1);
     }
     return '--';
   }, [formValues.height_cm, formValues.weight_kg]);
@@ -153,7 +157,7 @@ function ProfileContent() {
       hasError ? 'border-red-400 bg-red-50' : 'border-slate-200'
     }`;
 
-  if (loading) {
+  if (profileQuery.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
@@ -210,10 +214,7 @@ function ProfileContent() {
                     <Heart className="w-4 h-4 inline mr-1" />
                     {t.gender}
                   </label>
-                  <select
-                    {...register('gender')}
-                    className={inputClass(!!errors.gender)}
-                  >
+                  <select {...register('gender')} className={inputClass(!!errors.gender)}>
                     <option value="">{t.selectGender}</option>
                     <option value="male">{t.gender.male}</option>
                     <option value="female">{t.gender.female}</option>
@@ -232,7 +233,9 @@ function ProfileContent() {
                     className={inputClass(!!errors.height_cm)}
                     placeholder={t.enterHeight}
                   />
-                  {errors.height_cm && <p className="mt-1 text-xs text-red-500">{errors.height_cm.message}</p>}
+                  {errors.height_cm && (
+                    <p className="mt-1 text-xs text-red-500">{errors.height_cm.message}</p>
+                  )}
                 </div>
 
                 <div>
@@ -246,7 +249,9 @@ function ProfileContent() {
                     className={inputClass(!!errors.weight_kg)}
                     placeholder={t.enterWeight}
                   />
-                  {errors.weight_kg && <p className="mt-1 text-xs text-red-500">{errors.weight_kg.message}</p>}
+                  {errors.weight_kg && (
+                    <p className="mt-1 text-xs text-red-500">{errors.weight_kg.message}</p>
+                  )}
                 </div>
 
                 <div className="md:col-span-2">
@@ -260,7 +265,9 @@ function ProfileContent() {
                   >
                     <option value="">{t.selectActivity}</option>
                     {activityOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -280,7 +287,9 @@ function ProfileContent() {
                           : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-200'
                       }`}
                     >
-                      {(formValues.dietary_goals || []).includes(goal.value) && <Check className="w-4 h-4 inline mr-1" />}
+                      {(formValues.dietary_goals || []).includes(goal.value) && (
+                        <Check className="w-4 h-4 inline mr-1" />
+                      )}
                       {goal.label}
                     </button>
                   ))}
@@ -288,7 +297,9 @@ function ProfileContent() {
               </div>
 
               <div className="pt-4 border-t border-slate-100">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">{t.dietaryRestrictions}</h3>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                  {t.dietaryRestrictions}
+                </h3>
                 <div className="flex flex-wrap gap-3">
                   {restrictionOptions.map((restriction) => (
                     <button
@@ -301,7 +312,9 @@ function ProfileContent() {
                           : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-200'
                       }`}
                     >
-                      {(formValues.dietary_restrictions || []).includes(restriction.value) && <Check className="w-4 h-4 inline mr-1" />}
+                      {(formValues.dietary_restrictions || []).includes(restriction.value) && (
+                        <Check className="w-4 h-4 inline mr-1" />
+                      )}
                       {restriction.label}
                     </button>
                   ))}
@@ -340,7 +353,7 @@ function ProfileContent() {
                 </button>
                 <button
                   type="button"
-                  onClick={loadProfile}
+                  onClick={() => reset(buildProfileForm(profileQuery.data))}
                   className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-all"
                 >
                   {t.reset}
@@ -427,7 +440,9 @@ function ChangePasswordCard() {
             placeholder={t.enterOldPassword}
             className={pwdInputClass(!!pwdErrors.oldPassword)}
           />
-          {pwdErrors.oldPassword && <p className="mt-1 text-xs text-red-500">{pwdErrors.oldPassword.message}</p>}
+          {pwdErrors.oldPassword && (
+            <p className="mt-1 text-xs text-red-500">{pwdErrors.oldPassword.message}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">{t.newPassword}</label>
@@ -437,17 +452,23 @@ function ChangePasswordCard() {
             placeholder={t.enterNewPassword}
             className={pwdInputClass(!!pwdErrors.newPassword)}
           />
-          {pwdErrors.newPassword && <p className="mt-1 text-xs text-red-500">{pwdErrors.newPassword.message}</p>}
+          {pwdErrors.newPassword && (
+            <p className="mt-1 text-xs text-red-500">{pwdErrors.newPassword.message}</p>
+          )}
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">{t.confirmPassword}</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            {t.confirmPassword}
+          </label>
           <input
             type="password"
             {...registerPwd('confirmPassword')}
             placeholder={t.enterConfirmPassword}
             className={pwdInputClass(!!pwdErrors.confirmPassword)}
           />
-          {pwdErrors.confirmPassword && <p className="mt-1 text-xs text-red-500">{pwdErrors.confirmPassword.message}</p>}
+          {pwdErrors.confirmPassword && (
+            <p className="mt-1 text-xs text-red-500">{pwdErrors.confirmPassword.message}</p>
+          )}
         </div>
         <button
           type="submit"
