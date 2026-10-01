@@ -3,14 +3,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from datetime import timedelta
+import secrets
 import time
 
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserLogin, UserResponse, Token
+from app.schemas.user import (
+    UserCreate, UserLogin, UserResponse, Token,
+    ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest,
+)
 from app.core.security import get_password_hash, verify_password, create_access_token, get_current_active_user
 from app.core.config import settings
-from app.core.redis import cache_user_token, get_user_token, invalidate_user_token
+from app.core.redis import (
+    cache_user_token, get_user_token, invalidate_user_token,
+    set_password_reset_token, get_password_reset_user_id, clear_password_reset_token,
+)
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -101,3 +108,70 @@ async def login(user_in: UserLogin, request: Request, db: AsyncSession = Depends
 async def logout(current_user: User = Depends(get_current_active_user)):
     invalidate_user_token(str(current_user.id))
     return {"message": "Successfully logged out"}
+
+
+def _validate_password_strength(password: str):
+    if len(password) < 8:
+        raise HTTPException(status_code=422, detail="New password must be at least 8 characters")
+    has_letter = any(c.isalpha() for c in password)
+    has_digit = any(c.isdigit() for c in password)
+    if not (has_letter and has_digit):
+        raise HTTPException(status_code=422, detail="New password must contain both letters and numbers")
+
+
+def _frontend_base() -> str:
+    import os
+    return os.getenv("FRONTEND_URL", "").rstrip("/")
+
+
+@router.post("/forgot-password", response_model=ForgotPasswordResponse)
+async def forgot_password(
+    req: ForgotPasswordRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    # Reuse the login rate limiter to blunt password-reset spam / email probing.
+    _check_login_rate_limit(request, f"forgot:{req.email}")
+
+    token = secrets.token_urlsafe(32)
+    message = "If an account exists for that email, a password reset token has been issued."
+
+    result = await db.execute(select(User).where(User.email == req.email))
+    user = result.scalar_one_or_none()
+
+    # No-email mode: no mail service configured, so return the reset token to
+    # the caller (typically logged/displayed in dev). Once email is wired in,
+    # send the token via email and stop returning it here.
+    if user:
+        set_password_reset_token(token, str(user.id))
+        base = _frontend_base()
+        reset_url = f"{base}/forgot-password?token={token}" if base else None
+        return ForgotPasswordResponse(message=message, reset_token=token, reset_url=reset_url)
+
+    return ForgotPasswordResponse(message=message)
+
+
+@router.post("/reset-password")
+async def reset_password(
+    req: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    _validate_password_strength(req.new_password)
+
+    user_id = get_password_reset_user_id(req.token)
+    if not user_id:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        clear_password_reset_token(req.token)
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+
+    user.password_hash = get_password_hash(req.new_password)
+    await db.commit()
+
+    # Token is single-use and all existing sessions are invalidated.
+    clear_password_reset_token(req.token)
+    invalidate_user_token(str(user.id))
+    return {"message": "Password has been reset. You can now log in."}

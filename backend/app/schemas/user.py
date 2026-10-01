@@ -32,6 +32,26 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+    reset_token: Optional[str] = None
+    reset_url: Optional[str] = None
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+class ChangePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
+
+
 class UserProfileBase(BaseModel):
     age: Optional[int] = None
     gender: Optional[str] = None
