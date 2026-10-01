@@ -131,6 +131,30 @@ def get_cached_analysis(user_id: str, analysis_type: str) -> str:
     return _mem_get(f"analysis:{user_id}:{analysis_type}")
 
 
+# --- Password reset tokens (stored in cache so no DB schema change is needed) ---
+_PWD_RESET_TTL_SECONDS = 30 * 60  # 30 minutes
+
+
+def set_password_reset_token(token: str, user_id: str, expires_seconds: int = _PWD_RESET_TTL_SECONDS):
+    cache_data(f"pwd_reset:{token}", user_id, expires_seconds)
+
+
+def get_password_reset_user_id(token: str):
+    return get_cached_data(f"pwd_reset:{token}")
+
+
+def clear_password_reset_token(token: str):
+    key = f"data:pwd_reset:{token}"
+    r = _get_redis_client()
+    if r:
+        try:
+            r.delete(key)
+            return
+        except Exception:
+            pass
+    _memory_cache.pop(key, None)
+
+
 def cache_recommendation(user_id: str, result: str, expires_seconds: int = 60 * 60 * 12):
     r = _get_redis_client()
     if r:
