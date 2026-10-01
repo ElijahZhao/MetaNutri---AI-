@@ -4,3 +4,5 @@ out
 build
 package-lock.json
 *.md
+playwright-report
+test-results
