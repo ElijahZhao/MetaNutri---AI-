@@ -52,7 +52,7 @@ class MicrobiomeOptimizer:
         self.model = MicrobiomeVAE().to(self.device)
         self.model.eval()
         if model_path and os.path.exists(model_path):
-            self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+            self.model.load_state_dict(torch.load(model_path, map_location=self.device, weights_only=True))
 
     def encode_profile(self, abundance_vector):
         with torch.no_grad():

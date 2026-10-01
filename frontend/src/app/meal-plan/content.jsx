@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { recommendationAPI, foodAPI } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
 import { Utensils, Coffee, Sunrise, Sunset, Moon, Plus, Check, RefreshCw, Loader2 } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 import dynamic from 'next/dynamic';
@@ -11,9 +12,16 @@ const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
 export default function MealPlanPage() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [mealPlan, setMealPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedMeals, setSelectedMeals] = useState([]);
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.push('/login');
+    }
+  }, [router, isAuthenticated]);
 
   const generateMealPlan = async () => {
     setLoading(true);

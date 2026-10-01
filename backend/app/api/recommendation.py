@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
@@ -92,5 +92,3 @@ async def generate_meal_plan(
     await db.commit()
     await db.refresh(rec)
     return rec
-
-from fastapi import HTTPException
