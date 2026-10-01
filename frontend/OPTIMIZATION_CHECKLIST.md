@@ -15,11 +15,11 @@
 | 状态 | 数量 | 占比 |
 |------|------|------|
 | ✅ 已完整落地 | 17 | 45% |
-| 🟡 部分落地 | 10 | 26% |
-| ❌ 未落地 | 11 | 29% |
-| **合计（第一～九章 38 项）** | **38** | **有进展 71%** |
+| 🟡 部分落地 | 11 | 29% |
+| ❌ 未落地 | 10 | 26% |
+| **合计（第一～九章 38 项）** | **38** | **有进展 74%** |
 
-> 更新记录：按优先级完成第一轮整改后，`2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks` 已由 🟡 转为 ✅，`1.2` 的核心缺口（死代码）已消除。
+> 更新记录：按优先级完成第一轮整改后，`2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks` 已由 🟡 转为 ✅，`1.2` 的核心缺口（死代码）已消除；第二轮引入 Vitest + RTL 测试体系并接入 CI，`7.5` 由 ❌ 转为 🟡。
 
 > 说明：原判断「第 1、2 章基本未落地」不准确。事实是第 1、2 章完成度最高（认证状态、API 拦截、错误边界均已落地），真正的缺口集中在 **TypeScript 迁移、Token 安全、测试/CI、以及若干新增功能**。
 
@@ -74,7 +74,7 @@
 - [x] **7.2 路径别名统一** — 基本统一为 `@/`，仅 `app/layout.js` 与 `components/ClientProvider.jsx` 两处残留相对路径。
 - [ ] 🟡 **7.3 组件拆分** — home/dashboard 已拆（✅）；但 `MetabolicPathway.jsx`(310行)、`app/datasets/content.jsx`(398行)、`app/profile/content.jsx`(463行) 仍偏大。
 - [ ] ❌ **7.4 常量与配置集中** — 无 `constants/` 目录；`goalOptions`/`restrictionOptions`/`activityOptions` 仍硬编码在 `profile/content.jsx`。
-- [ ] ❌ **7.5 单元测试与 E2E 测试** — 无任何测试文件、无测试脚本、无 vitest/playwright。
+- [ ] 🟡 **7.5 单元测试与 E2E 测试** — 已引入 Vitest 2 + React Testing Library + jsdom（`vitest.config.mjs`、`vitest.setup.js`）；5 个测试文件 / 9 个用例覆盖：i18n 标签渲染（回归保护 React #31）、`authStore` 登录 token 落盘顺序（回归保护登录后 401）、Navbar/OmicsCards/BodyMetricsCard 渲染；`npm test` 已接入 CI（lint 与 build 之间）。**仍缺 Playwright E2E**。
 
 ## 八、功能完整性
 
@@ -125,12 +125,16 @@
 - [x] 补 husky + lint-staged + CI workflow
 - [x] React Query 真正接入页面（2.3）
 
+**已完成（第二轮）**
+- [x] 引入 Vitest + React Testing Library 测试体系（7.5，含 CI 接入）
+
 **待办 · 中大型**
 - [ ] TypeScript 迁移（1.1）
 - [ ] Token 迁 httpOnly Cookie + refresh（2.2，跨前后端）
 - [ ] 全站限流（当前仅 auth 端点）
 - [ ] `middleware.ts` 服务端边缘守卫（1.2 收尾）
 - [ ] 通用 `uploadFile(endpoint, file, onProgress)` 封装（2.4）
+- [ ] Playwright E2E（7.5 收尾）
 
 **待办 · 新增功能类**
-- [ ] 头像上传、Dashboard 图表增强、WebSocket 通知、OG 标签、a11y 补齐、constants 集中、测试体系、next/image
+- [ ] 头像上传、Dashboard 图表增强、WebSocket 通知、OG 标签、a11y 补齐、constants 集中、next/image
