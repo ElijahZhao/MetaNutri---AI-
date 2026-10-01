@@ -2,7 +2,7 @@
 
 > 对照 `OPTIMIZATION_PLAN.md` 逐条核查实际代码得出。
 > 核查范围：`frontend/`（Next.js）+ `backend/`（FastAPI）。
-> 核查方式：只读代码审计，未改动任何代码。
+> 核查方式：初版为只读代码审计，之后按优先级逐轮整改并同步回填本清单。
 
 ## 图例
 
@@ -19,7 +19,7 @@
 | ❌ 未落地 | 10 | 26% |
 | **合计（第一～九章 38 项）** | **38** | **有进展 74%** |
 
-> 更新记录：按优先级完成第一轮整改后，`2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks` 已由 🟡 转为 ✅，`1.2` 的核心缺口（死代码）已消除；第二轮引入 Vitest + RTL 测试体系并接入 CI，`7.5` 由 ❌ 转为 🟡。
+> 更新记录：第一轮完成 `2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks`（🟡→✅）并消除 `1.2` 的死代码缺口；第二轮把演示级功能改为真实实现（血糖预测、风险评分、膳食计划、种子数据）；第三轮修复登录链路（CORS 预览域名、token 落盘顺序、超时 60s）与登录后 React #31，并引入 Vitest + RTL 测试体系（`7.5` ❌→🟡）。
 
 > 说明：原判断「第 1、2 章基本未落地」不准确。事实是第 1、2 章完成度最高（认证状态、API 拦截、错误边界均已落地），真正的缺口集中在 **TypeScript 迁移、Token 安全、测试/CI、以及若干新增功能**。
 
@@ -34,7 +34,7 @@
 
 ## 二、API 层优化
 
-- [x] **2.1 统一 API 错误处理与响应拦截** — `lib/api.js` 请求/响应双拦截器、`ERROR_MESSAGES` 归一化、401 统一登出、默认 `timeout:15000`。
+- [x] **2.1 统一 API 错误处理与响应拦截** — `lib/api.js` 请求/响应双拦截器、`ERROR_MESSAGES` 归一化、401 统一登出；`timeout` 已由 15s 提升至 60s，给 Render 免费实例冷启动留出余量。
 - [ ] ❌ **2.2 Token 刷新与无感登录** — 后端 `app/api/auth.py` 无 refresh token 机制，前端无静默刷新逻辑。
 - [x] **2.3 数据缓存与请求去重** — React Query 已接入实际页面：`lib/hooks.js` 的 9 个 hooks 全部被 dashboard/profile/datasets/microbiome/metabolomics/NutritionAlerts 使用；profile 更新走 `useUpdateProfile` 并自动失效缓存；跨页共享 `profile`/`risk` 缓存键。
 - [ ] 🟡 **2.4 上传接口统一封装** — `importExportAPI.importData` 已处理 FormData+60s 超时；但无通用 `uploadFile(endpoint, file, onProgress)`。后端 CORS 已收紧为白名单（✅ 该项已完成）。
@@ -64,13 +64,13 @@
 ## 六、安全优化
 
 - [ ] ❌ **6.1 Token 存储安全** — token 仍存 `localStorage`（`authStore.js` 读写、`api.js` 读取注入 Bearer），未迁 httpOnly Cookie。
-- [ ] 🟡 **6.2 CORS 与 API 安全** — CORS 已白名单（✅）；`auth.py` 有登录/注册/忘记密码的内存限流（✅）；但**全站限流缺失**（仅 auth 端点）。
+- [ ] 🟡 **6.2 CORS 与 API 安全** — CORS 已白名单，并额外放行 `*.vercel.app` 预览/分支域名（避免预览地址登录被 CORS 拦截）；`auth.py` 有登录/注册/忘记密码的内存限流（✅）；但**全站限流缺失**（仅 auth 端点）。
 - [x] **6.3 安全响应头** — `next.config.js` 已配置 CSP、X-Frame-Options、X-Content-Type-Options、Referrer-Policy、Permissions-Policy。
 - [ ] 🟡 **6.4 输入安全** — `MetabolicPathway.jsx` 有 `escapeHtml` 处理 tooltip（✅）；上传文件类型/大小校验仍需确认。
 
 ## 七、代码质量与规范
 
-- [x] **7.1 ESLint + Prettier + Git Hooks + CI** — 补齐依赖（eslint 9 / eslint-config-next 16 / prettier / husky / lint-staged），改用 flat config `eslint.config.mjs`；根目录 `.husky/pre-commit` 跑 lint-staged，`.github/workflows/ci.yml` 跑前端 lint+build 与后端 compileall。`npm run lint` 通过（0 error / 24 warning）。
+- [x] **7.1 ESLint + Prettier + Git Hooks + CI** — 补齐依赖（eslint 9 / eslint-config-next 16 / prettier / husky / lint-staged），改用 flat config `eslint.config.mjs`；根目录 `.husky/pre-commit` 跑 lint-staged，`.github/workflows/ci.yml` 跑前端 lint + test + build 与后端 compileall。`npm run lint` 通过（0 error / 24 warning）。
 - [x] **7.2 路径别名统一** — 基本统一为 `@/`，仅 `app/layout.js` 与 `components/ClientProvider.jsx` 两处残留相对路径。
 - [ ] 🟡 **7.3 组件拆分** — home/dashboard 已拆（✅）；但 `MetabolicPathway.jsx`(310行)、`app/datasets/content.jsx`(398行)、`app/profile/content.jsx`(463行) 仍偏大。
 - [ ] ❌ **7.4 常量与配置集中** — 无 `constants/` 目录；`goalOptions`/`restrictionOptions`/`activityOptions` 仍硬编码在 `profile/content.jsx`。
@@ -96,7 +96,7 @@
 
 | 状态 | 问题 | 结论 |
 |------|------|------|
-| [x] | `lib/api.js` 无响应拦截/超时 | 已加拦截器 + timeout 15s |
+| [x] | `lib/api.js` 无响应拦截/超时 | 已加拦截器；超时由 15s 提升至 60s（冷启动不再误报超时） |
 | [x] | `app/page.js` 单文件过大 | 已拆 `components/home/*` |
 | [x] | `app/page.js` BioCanvas 始终挂载 | 已 `dynamic` + 条件渲染 |
 | [x] | `TypeWriter.js` 用 `em` 估算宽度 | 已改为不可见撑宽容器，按最宽文案的真实宽度撑开 |
@@ -107,7 +107,7 @@
 | [ ] | `dashboard/page.js` 无错误边界/整页 loading | 🟡 有 ErrorBoundary；仍页面级 loading |
 | [x] | `profile/page.js` BMI 渲染中计算 | 已 `useMemo` |
 | [x] | 其他页重复 token 检查 | 已统一到 store |
-| [x] | `backend/main.py` CORS `*` | 已收紧白名单 |
+| [x] | `backend/main.py` CORS `*` | 已收紧白名单，并放行 `*.vercel.app` 预览域名 |
 
 ## 十一、盘点中额外发现的问题
 
@@ -125,7 +125,15 @@
 - [x] 补 husky + lint-staged + CI workflow
 - [x] React Query 真正接入页面（2.3）
 
-**已完成（第二轮）**
+**已完成（第二轮：演示级功能改为真实实现）**
+- [x] 血糖预测改为确定性计算（真实食物特征 + 用户画像），并修复 `peak_glucose` 与曲线峰值不一致
+- [x] 种子数据在应用启动时幂等灌入
+- [x] 风险评分去随机（由年龄 / BMI / 活动水平推导）
+- [x] 膳食计划确定性生成（热量目标 + 低 GI 优先，保证蛋白质来源）
+
+**已完成（第三轮：登录链路与稳定性）**
+- [x] 修复登录失败：CORS 放行 `*.vercel.app`、token 先落盘再调 `/me`、axios 超时 15s→60s
+- [x] 修复登录成功后白屏（React #31）：i18n 键名对象/字符串冲突，字符串键改名为 `*Label`
 - [x] 引入 Vitest + React Testing Library 测试体系（7.5，含 CI 接入）
 
 **待办 · 中大型**
