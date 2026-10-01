@@ -1,6 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import MetabolicPathway from '@/components/MetabolicPathway';
@@ -10,53 +9,39 @@ import RiskRadarCard from '@/components/dashboard/RiskRadarCard';
 import BodyMetricsCard from '@/components/dashboard/BodyMetricsCard';
 import RecommendationsCard from '@/components/dashboard/RecommendationsCard';
 import { GenomicCard, MicrobiomeCard, MetabolomicsCard } from '@/components/dashboard/OmicsCards';
-import { userAPI, predictAPI, recommendationAPI, genomicAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useProfile, useRiskAssessment, useRecommendations, useGenomicData } from '@/lib/hooks';
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import { SkeletonDashboard } from '@/components/Skeleton';
 
 function DashboardContent() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
   const { t } = useLanguage();
-  const [profile, setProfile] = useState(null);
-  const [risk, setRisk] = useState(null);
-  const [recommendations, setRecommendations] = useState([]);
-  const [genomicData, setGenomicData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const profileQuery = useProfile();
+  const riskQuery = useRiskAssessment();
+  const recommendationsQuery = useRecommendations();
+  const genomicQuery = useGenomicData();
+
+  const isLoading =
+    profileQuery.isLoading ||
+    riskQuery.isLoading ||
+    recommendationsQuery.isLoading ||
+    genomicQuery.isLoading;
+  const error =
+    profileQuery.error || riskQuery.error || recommendationsQuery.error || genomicQuery.error;
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/login');
-      return;
+    if (error) {
+      toast.error(error.userMessage || t.error || 'Failed to load data');
     }
-    fetchData();
-  }, [router, isAuthenticated]);
+  }, [error, t]);
 
-  const fetchData = async () => {
-    try {
-      const [profileRes, riskRes, recRes, genomicRes] = await Promise.all([
-        userAPI.getProfile().catch(() => ({ data: null })),
-        predictAPI.riskAssessment(),
-        recommendationAPI.getPersonalized(),
-        genomicAPI.getUserData().catch(() => ({ data: [] })),
-      ]);
-      setProfile(profileRes.data);
-      setRisk(riskRes.data);
-      setRecommendations(recRes.data);
-      setGenomicData(genomicRes.data || []);
-    } catch (err) {
-      console.error(err);
-      toast.error(err.userMessage || t.error || 'Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const profile = profileQuery.data ?? null;
+  const risk = riskQuery.data ?? null;
+  const recommendations = recommendationsQuery.data ?? [];
+  const genomicData = genomicQuery.data ?? [];
+  const userGenes = genomicData.map((d) => d.gene_name).filter(Boolean);
 
-  const userGenes = genomicData.map(d => d.gene_name).filter(Boolean);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50">
         <Navbar />

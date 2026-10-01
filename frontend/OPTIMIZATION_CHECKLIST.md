@@ -14,10 +14,12 @@
 
 | 状态 | 数量 | 占比 |
 |------|------|------|
-| ✅ 已完整落地 | 15 | 39% |
-| 🟡 部分落地 | 12 | 32% |
+| ✅ 已完整落地 | 17 | 45% |
+| 🟡 部分落地 | 10 | 26% |
 | ❌ 未落地 | 11 | 29% |
 | **合计（第一～九章 38 项）** | **38** | **有进展 71%** |
+
+> 更新记录：按优先级完成第一轮整改后，`2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks` 已由 🟡 转为 ✅，`1.2` 的核心缺口（死代码）已消除。
 
 > 说明：原判断「第 1、2 章基本未落地」不准确。事实是第 1、2 章完成度最高（认证状态、API 拦截、错误边界均已落地），真正的缺口集中在 **TypeScript 迁移、Token 安全、测试/CI、以及若干新增功能**。
 
@@ -26,7 +28,7 @@
 ## 一、架构与工程化
 
 - [ ] ❌ **1.1 TypeScript 类型体系** — `tsconfig.json` 为 `strict:false` + `allowJs:true`，源码全为 `.js/.jsx`，无 `types/` 目录。需迁移核心文件、补 `types/auth|profile|api|recommendation.ts`、开 `strict`。
-- [ ] 🟡 **1.2 统一路由守卫与认证状态** — `src/lib/store/authStore.js`（Zustand+persist）已就绪；但 `src/components/ProtectedRoute.jsx` **全项目无人引用（死代码）**，且无 `middleware.ts` 服务端边缘拦截，仍是客户端 `useEffect` 跳转（有闪烁）。
+- [ ] 🟡 **1.2 统一路由守卫与认证状态** — `src/lib/store/authStore.js`（Zustand+persist）已就绪；`ProtectedRoute` 已修复并接入全部 10 个受保护页面（原为死代码：把 `isAuthenticated` 当布尔值用导致永不生效）；**仍缺 `middleware.ts` 服务端边缘拦截**，跳转仍发生在客户端。
 - [ ] 🟡 **1.3 全局布局统一化** — 首页已拆分为 `components/home/`（SiteHeader/HeroSection/FeatureGrid/CTASection）；但未建 `(app)`/`(auth)` 路由组，各页仍各自 `import Navbar`。
 - [x] **1.4 统一错误边界** — `components/ErrorBoundary.jsx` + `app/error.js`，全局（ClientProvider 内）与 dashboard 局部均已包裹。
 
@@ -34,7 +36,7 @@
 
 - [x] **2.1 统一 API 错误处理与响应拦截** — `lib/api.js` 请求/响应双拦截器、`ERROR_MESSAGES` 归一化、401 统一登出、默认 `timeout:15000`。
 - [ ] ❌ **2.2 Token 刷新与无感登录** — 后端 `app/api/auth.py` 无 refresh token 机制，前端无静默刷新逻辑。
-- [ ] 🟡 **2.3 数据缓存与请求去重** — React Query 已安装且 `ClientProvider` 已配 `QueryClientProvider`；但 `lib/hooks.js` 里写好的 `useQuery/useMutation` hooks **无人引用（死代码）**，Dashboard 仍用 `useEffect` + 直连 API。
+- [x] **2.3 数据缓存与请求去重** — React Query 已接入实际页面：`lib/hooks.js` 的 9 个 hooks 全部被 dashboard/profile/datasets/microbiome/metabolomics/NutritionAlerts 使用；profile 更新走 `useUpdateProfile` 并自动失效缓存；跨页共享 `profile`/`risk` 缓存键。
 - [ ] 🟡 **2.4 上传接口统一封装** — `importExportAPI.importData` 已处理 FormData+60s 超时；但无通用 `uploadFile(endpoint, file, onProgress)`。后端 CORS 已收紧为白名单（✅ 该项已完成）。
 
 ## 三、状态管理
@@ -68,7 +70,7 @@
 
 ## 七、代码质量与规范
 
-- [ ] 🟡 **7.1 ESLint + Prettier + Git Hooks** — `.eslintrc.json`、`.prettierrc` 已有；但**无 husky/lint-staged**，`.github/workflows` 不存在（**无 CI**）。
+- [x] **7.1 ESLint + Prettier + Git Hooks + CI** — 补齐依赖（eslint 9 / eslint-config-next 16 / prettier / husky / lint-staged），改用 flat config `eslint.config.mjs`；根目录 `.husky/pre-commit` 跑 lint-staged，`.github/workflows/ci.yml` 跑前端 lint+build 与后端 compileall。`npm run lint` 通过（0 error / 24 warning）。
 - [x] **7.2 路径别名统一** — 基本统一为 `@/`，仅 `app/layout.js` 与 `components/ClientProvider.jsx` 两处残留相对路径。
 - [ ] 🟡 **7.3 组件拆分** — home/dashboard 已拆（✅）；但 `MetabolicPathway.jsx`(310行)、`app/datasets/content.jsx`(398行)、`app/profile/content.jsx`(463行) 仍偏大。
 - [ ] ❌ **7.4 常量与配置集中** — 无 `constants/` 目录；`goalOptions`/`restrictionOptions`/`activityOptions` 仍硬编码在 `profile/content.jsx`。
@@ -97,7 +99,7 @@
 | [x] | `lib/api.js` 无响应拦截/超时 | 已加拦截器 + timeout 15s |
 | [x] | `app/page.js` 单文件过大 | 已拆 `components/home/*` |
 | [x] | `app/page.js` BioCanvas 始终挂载 | 已 `dynamic` + 条件渲染 |
-| [ ] | `TypeWriter.js` 用 `em` 估算宽度 | ❌ **未修**，仍为 `minWidth: ${maxTextLength*0.8}em` |
+| [x] | `TypeWriter.js` 用 `em` 估算宽度 | 已改为不可见撑宽容器，按最宽文案的真实宽度撑开 |
 | [x] | `BioCanvas.jsx` 未监听 reduced-motion | 已监听 |
 | [x] | `lib/i18n.js` 语言不持久化 | 已持久化 |
 | [x] | `Navbar.js` 每次 parse localStorage | 已改用 store |
@@ -109,24 +111,26 @@
 
 ## 十一、盘点中额外发现的问题
 
-- [ ] **死代码：`ProtectedRoute.jsx` 无人引用** — 定义了却从未被使用，实际跳转逻辑分散在各页。建议接入或删除。
-- [ ] **死代码：`lib/hooks.js` 无人引用** — React Query hooks 全部写好却未在任何页面使用。这是「2.3 缓存」迟迟未生效的根因。
-- [ ] **无 CI** — `.github/` 下只有 Issue/PR 模板，无 workflows，`npm run lint`/`build` 未在提交时校验。
+- [x] **死代码：`ProtectedRoute.jsx` 无人引用** — 已修复（原把 `isAuthenticated` 当布尔值用，导致永不生效）并接入全部 10 个受保护页面。
+- [x] **死代码：`lib/hooks.js` 无人引用** — 9 个 hooks 已全部接入实际页面。
+- [x] **无 CI** — 已补 `.github/workflows/ci.yml`，并在提交前通过 husky + lint-staged 校验。
 
 ---
 
-## 缺口优先级建议（仅供参考，未执行）
+## 缺口优先级建议
 
-**高价值 · 见效快**
-1. 清理/接入死代码：`ProtectedRoute`、`lib/hooks.js`（决定"接线"还是"删除"）
-2. TypeWriter 宽度估算改为真实测量
-3. 补 husky + lint-staged + CI workflow
+**已完成（第一轮）**
+- [x] 清理/接入死代码：`ProtectedRoute`、`lib/hooks.js`
+- [x] TypeWriter 宽度估算改为真实测量
+- [x] 补 husky + lint-staged + CI workflow
+- [x] React Query 真正接入页面（2.3）
 
-**中大型**
-4. TypeScript 迁移（1.1）
-5. React Query 真正接入页面（2.3 收尾）
-6. Token 迁 httpOnly Cookie + refresh（2.2，跨前后端）
-7. 全站限流
+**待办 · 中大型**
+- [ ] TypeScript 迁移（1.1）
+- [ ] Token 迁 httpOnly Cookie + refresh（2.2，跨前后端）
+- [ ] 全站限流（当前仅 auth 端点）
+- [ ] `middleware.ts` 服务端边缘守卫（1.2 收尾）
+- [ ] 通用 `uploadFile(endpoint, file, onProgress)` 封装（2.4）
 
-**新增功能类**
-8. 头像上传、Dashboard 图表增强、WebSocket 通知、OG 标签、a11y 补齐、constants 集中、测试体系、next/image
+**待办 · 新增功能类**
+- [ ] 头像上传、Dashboard 图表增强、WebSocket 通知、OG 标签、a11y 补齐、constants 集中、测试体系、next/image

@@ -49,3 +49,6 @@ docker-compose.override.yml
 # Local secrets checklist (NEVER commit)
 SECRETS.local.md
 SECRETS.md
+
+# Husky generated hooks
+.husky/_/

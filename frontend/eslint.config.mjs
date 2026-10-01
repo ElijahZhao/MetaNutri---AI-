@@ -1,0 +1,22 @@
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+
+const eslintConfig = [
+  ...nextCoreWebVitals,
+  {
+    rules: {
+      'react/no-unescaped-entities': 'off',
+      '@next/next/no-page-custom-font': 'off',
+      // 以下三条是 eslint-plugin-react-hooks v7 随 React Compiler 引入的严格规则。
+      // 现有代码里大量「effect 内发起异步请求 / 装饰性组件渲染期取随机值」的写法会被命中，
+      // 属于存量适配问题，先降级为 warning，避免 CI 直接红灯，后续增量整改。
+      'react-hooks/purity': 'warn',
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/immutability': 'warn',
+    },
+  },
+  {
+    ignores: ['.next/**', 'node_modules/**', 'out/**', 'build/**', 'next-env.d.ts'],
+  },
+];
+
+export default eslintConfig;

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   userAPI,
@@ -92,7 +92,7 @@ export function useDatasets(options = {}) {
 export function useNutritionAlerts(options = {}) {
   return useQuery({
     queryKey: queryKeys.alerts,
-    queryFn: () => nutritionAlertAPI.getSummary().then((res) => res.data),
+    queryFn: () => nutritionAlertAPI.getDeficiencies().then((res) => res.data),
     ...options,
   });
 }
