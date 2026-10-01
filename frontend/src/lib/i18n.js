@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const LanguageContext = createContext(null);
@@ -17,7 +17,8 @@ const getStoredLanguage = () => {
 const translations = {
   en: {
     title: 'Build Your Metabolic Digital Twin',
-    subtitle: 'Integrate genomic, microbiome, and metabolomic data to unlock personalized nutrition insights. Powered by deep learning for accurate metabolic response predictions.',
+    subtitle:
+      'Integrate genomic, microbiome, and metabolomic data to unlock personalized nutrition insights. Powered by deep learning for accurate metabolic response predictions.',
     tagline: 'AI Precision Nutrition',
     tagline2: 'Metabolic Digital Twin',
     tagline3: 'Multi-Omics Integration',
@@ -26,19 +27,26 @@ const translations = {
     whyTitle: 'Why MetaNutri',
     whySubtitle: 'Cutting-edge technology meets personalized nutrition for optimal health outcomes',
     feature1Title: 'Multi-Omics Integration',
-    feature1Desc: 'Combine genomic, microbiome, and metabolic data for a holistic view of your nutrition needs.',
+    feature1Desc:
+      'Combine genomic, microbiome, and metabolic data for a holistic view of your nutrition needs.',
     feature2Title: 'Deep Learning Models',
-    feature2Desc: 'Predict metabolic responses to foods using state-of-the-art neural networks and attention mechanisms.',
+    feature2Desc:
+      'Predict metabolic responses to foods using state-of-the-art neural networks and attention mechanisms.',
     feature3Title: 'Precision Recommendations',
-    feature3Desc: 'Receive tailored dietary suggestions backed by scientific evidence and your unique biology.',
+    feature3Desc:
+      'Receive tailored dietary suggestions backed by scientific evidence and your unique biology.',
     feature4Title: 'Privacy & Security',
-    feature4Desc: 'Your health data is encrypted and stored securely. Complete control over your personal information.',
+    feature4Desc:
+      'Your health data is encrypted and stored securely. Complete control over your personal information.',
     feature5Title: 'Real-Time Analysis',
-    feature5Desc: 'Get instant insights from your data with optimized AI models and cached results.',
+    feature5Desc:
+      'Get instant insights from your data with optimized AI models and cached results.',
     feature6Title: 'Continuous Learning',
-    feature6Desc: 'The AI models continuously improve with new data, adapting to your evolving health needs.',
+    feature6Desc:
+      'The AI models continuously improve with new data, adapting to your evolving health needs.',
     ctaSectionTitle: 'Ready to Transform Your Nutrition?',
-    ctaSectionSubtitle: 'Join thousands of users who are using AI to optimize their health through personalized nutrition',
+    ctaSectionSubtitle:
+      'Join thousands of users who are using AI to optimize their health through personalized nutrition',
     ctaFree: 'Get Started Free',
     ctaExplore: 'Explore Datasets',
     getStarted: 'Get Started',
@@ -64,12 +72,12 @@ const translations = {
     height: 'Height',
     weight: 'Weight',
     bmi: 'BMI',
-    activity: 'Activity',
+    activityLabel: 'Activity',
     completeProfile: 'Complete your profile to see metrics.',
     noRecommendations: 'No recommendations yet. Generate a meal plan to get started.',
     genomicData: 'Genomic Data',
-    microbiome: 'Microbiome',
-    metabolomics: 'Metabolomics',
+    microbiomeLabel: 'Microbiome',
+    metabolomicsLabel: 'Metabolomics',
     diversityIndex: 'Diversity Index',
     activePathways: 'Active Pathways',
     addData: 'Add data to see analysis',
@@ -330,7 +338,8 @@ const translations = {
   },
   zh: {
     title: '构建您的代谢数字孪生',
-    subtitle: '整合基因组、微生物组和代谢组数据，解锁个性化营养洞察。基于深度学习实现精准的代谢反应预测。',
+    subtitle:
+      '整合基因组、微生物组和代谢组数据，解锁个性化营养洞察。基于深度学习实现精准的代谢反应预测。',
     tagline: 'AI 精准营养',
     tagline2: '代谢数字孪生',
     tagline3: '多组学整合',
@@ -377,12 +386,12 @@ const translations = {
     height: '身高',
     weight: '体重',
     bmi: 'BMI',
-    activity: '活动量',
+    activityLabel: '活动量',
     completeProfile: '完成个人资料以查看指标。',
     noRecommendations: '暂无推荐。生成膳食计划开始使用。',
     genomicData: '基因组数据',
-    microbiome: '微生物组',
-    metabolomics: '代谢组',
+    microbiomeLabel: '微生物组',
+    metabolomicsLabel: '代谢组',
     diversityIndex: '多样性指数',
     activePathways: '活性通路',
     addData: '添加数据以查看分析',
@@ -667,7 +676,9 @@ export function LanguageProvider({ children }) {
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t: translations[language] }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage, toggleLanguage, t: translations[language] }}
+    >
       {children}
     </LanguageContext.Provider>
   );
