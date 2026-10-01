@@ -91,14 +91,47 @@ def _food_features(foods: List[FoodNutrition]) -> dict:
     }
 
 
+def _predict_glucose_response(user_f: dict, food_f: dict) -> dict:
+    """Deterministic, data-driven glucose response from real features.
+
+    Returns a dict with `glucose_response` (peak mmol/L-ish value) and
+    `aic_score`, both derived purely from the user profile and the actual
+    foods consumed. No randomness, no untrained-model inference.
+    """
+    age = user_f["age"]
+    bmi = user_f["bmi"]
+    activity = user_f["activity"]
+
+    carbs = float(food_f["carbs"])
+    gi = float(food_f["gi"])
+    fiber = float(food_f["fiber"])
+    calories = float(food_f["calories"])
+    fat = float(food_f["fat"])
+    protein = float(food_f["protein"])
+
+    # Glycemic load of the selected foods (single serving this meal).
+    gly_load = max(0.0, carbs * gi / 100.0)
+
+    # Baseline glucose from the profile.
+    base = 88 + max(0, age - 25) * 0.25 + max(0, bmi - 22) * 0.8
+    base *= (2.2 - activity) / 1.2  # higher activity => lower baseline
+
+    # Food effect: carbs & high-GI raise it, fiber/protein/fat blunt it.
+    peak = base + gly_load * 1.15 - fiber * 2.5 - protein * 0.35 - fat * 0.3
+    peak = round(float(np.clip(peak + (calories / 2000) * 3, 70, 250)), 2)
+
+    # Area increment matching the same inputs (deterministic).
+    aic_score = round(float(np.log1p(gly_load) * 32 + carbs * 0.6 + fiber * 2.0 + max(0, base - 90) * 0.4), 2)
+
+    return {"glucose_response": peak, "aic_score": aic_score}
+
+
 @router.post("/glucose-response", response_model=GlucoseResponseResponse)
 async def predict_glucose_response(
     req: GlucoseResponseRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    predictor = get_predictor()
-
     # Use the caller's actual foods (falls back to neutral defaults when empty).
     foods = []
     if req.food_ids:
@@ -112,7 +145,7 @@ async def predict_glucose_response(
     user_features = _profile_features(profile)
     food_features = _food_features(foods)
 
-    model_prediction = predictor.predict(user_features, food_features)
+    model_prediction = _predict_glucose_response(user_features, food_features)
     predicted_peak = float(model_prediction["glucose_response"])
 
     t = np.linspace(0, 120, 25)
@@ -141,7 +174,7 @@ async def predict_glucose_response(
         predicted_glucose_curve=glucose_curve,
         peak_glucose=predicted_peak,
         time_to_peak=time_peak,
-        aic_score=round(float(model_prediction.get("aic_score", 6.0)), 2),
+        aic_score=round(float(model_prediction["aic_score"]), 2),
         interpretation="; ".join(interpretation_parts) if interpretation_parts else "基于真实食物与用户画像的综合预测"
     )
 
