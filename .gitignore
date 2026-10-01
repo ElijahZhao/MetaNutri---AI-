@@ -45,3 +45,7 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+
+# Local secrets checklist (NEVER commit)
+SECRETS.local.md
+SECRETS.md
