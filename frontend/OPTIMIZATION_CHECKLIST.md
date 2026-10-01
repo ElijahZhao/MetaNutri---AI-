@@ -14,12 +14,12 @@
 
 | 状态 | 数量 | 占比 |
 |------|------|------|
-| ✅ 已完整落地 | 17 | 45% |
-| 🟡 部分落地 | 11 | 29% |
+| ✅ 已完整落地 | 18 | 47% |
+| 🟡 部分落地 | 10 | 26% |
 | ❌ 未落地 | 10 | 26% |
 | **合计（第一～九章 38 项）** | **38** | **有进展 74%** |
 
-> 更新记录：第一轮完成 `2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks`（🟡→✅）并消除 `1.2` 的死代码缺口；第二轮把演示级功能改为真实实现（血糖预测、风险评分、膳食计划、种子数据）；第三轮修复登录链路（CORS 预览域名、token 落盘顺序、超时 60s）与登录后 React #31，并引入 Vitest + RTL 测试体系（`7.5` ❌→🟡）。
+> 更新记录：第一轮完成 `2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks`（🟡→✅）并消除 `1.2` 的死代码缺口；第二轮把演示级功能改为真实实现（血糖预测、风险评分、膳食计划、种子数据）；第三轮修复登录链路（CORS 预览域名、token 落盘顺序、超时 60s）与登录后 React #31，并引入 Vitest + RTL 测试体系（`7.5` ❌→🟡）；第四轮补齐 Playwright E2E（`7.5` 🟡→✅，`e2e` job 接入 CI），并修正 E2E 打桩中 nutrition-alerts 响应形状错误。
 
 > 说明：原判断「第 1、2 章基本未落地」不准确。事实是第 1、2 章完成度最高（认证状态、API 拦截、错误边界均已落地），真正的缺口集中在 **TypeScript 迁移、Token 安全、测试/CI、以及若干新增功能**。
 
@@ -74,7 +74,7 @@
 - [x] **7.2 路径别名统一** — 基本统一为 `@/`，仅 `app/layout.js` 与 `components/ClientProvider.jsx` 两处残留相对路径。
 - [ ] 🟡 **7.3 组件拆分** — home/dashboard 已拆（✅）；但 `MetabolicPathway.jsx`(310行)、`app/datasets/content.jsx`(398行)、`app/profile/content.jsx`(463行) 仍偏大。
 - [ ] ❌ **7.4 常量与配置集中** — 无 `constants/` 目录；`goalOptions`/`restrictionOptions`/`activityOptions` 仍硬编码在 `profile/content.jsx`。
-- [ ] 🟡 **7.5 单元测试与 E2E 测试** — 已引入 Vitest 2 + React Testing Library + jsdom（`vitest.config.mjs`、`vitest.setup.js`）；5 个测试文件 / 9 个用例覆盖：i18n 标签渲染（回归保护 React #31）、`authStore` 登录 token 落盘顺序（回归保护登录后 401）、Navbar/OmicsCards/BodyMetricsCard 渲染；`npm test` 已接入 CI（lint 与 build 之间）。**仍缺 Playwright E2E**。
+- [x] **7.5 单元测试与 E2E 测试** — 单元测试：Vitest 2 + React Testing Library + jsdom（`vitest.config.mjs`、`vitest.setup.js`），5 个测试文件 / 9 个用例覆盖 i18n 标签渲染（回归保护 React #31）、`authStore` 登录 token 落盘顺序（回归保护登录后 401）、Navbar/OmicsCards/BodyMetricsCard 渲染。E2E：Playwright（`playwright.config.js`、`tests/e2e/smoke.spec.js`），覆盖落地页渲染、未登录访问 `/dashboard` 重定向登录、登录后进入 Dashboard 且无白屏（回归保护 i18n 键冲突），全程 `page.route` 打桩后端、不依赖生产。`npm test` 与 `npm run test:e2e` 均已接入 CI（`frontend` 与新增 `e2e` job）。
 
 ## 八、功能完整性
 
@@ -136,13 +136,17 @@
 - [x] 修复登录成功后白屏（React #31）：i18n 键名对象/字符串冲突，字符串键改名为 `*Label`
 - [x] 引入 Vitest + React Testing Library 测试体系（7.5，含 CI 接入）
 
+**已完成（第四轮：端到端测试）**
+- [x] 补齐 Playwright E2E（`playwright.config.js` + `tests/e2e/smoke.spec.js`），并将 `e2e` job 接入 CI
+- [x] 修正 E2E 打桩里 nutrition-alerts 响应形状（对象 → 原误写成数组，会导致 Dashboard 渲染崩溃）
+- [x] ESLint 忽略 Playwright 产物目录（`playwright-report/`、`test-results/`），避免 lint 误扫生成文件报错
+
 **待办 · 中大型**
 - [ ] TypeScript 迁移（1.1）
 - [ ] Token 迁 httpOnly Cookie + refresh（2.2，跨前后端）
 - [ ] 全站限流（当前仅 auth 端点）
 - [ ] `middleware.ts` 服务端边缘守卫（1.2 收尾）
 - [ ] 通用 `uploadFile(endpoint, file, onProgress)` 封装（2.4）
-- [ ] Playwright E2E（7.5 收尾）
 
 **待办 · 新增功能类**
 - [ ] 头像上传、Dashboard 图表增强、WebSocket 通知、OG 标签、a11y 补齐、constants 集中、next/image
