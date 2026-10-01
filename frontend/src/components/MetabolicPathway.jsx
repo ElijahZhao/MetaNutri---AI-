@@ -3,6 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts';
 import { Dna, ArrowRight, Leaf } from 'lucide-react';
 
+const escapeHtml = (str) =>
+  String(str ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+
 export default function MetabolicPathway({ selectedPathway = 'glycolysis', userGenes = [] }) {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
@@ -157,11 +162,11 @@ export default function MetabolicPathway({ selectedPathway = 'glycolysis', userG
         formatter: (params) => {
           if (params.dataType === 'node') {
             const nodeData = pathway.nodes.find(n => n.id === params.data.id);
-            return `<strong>${params.name}</strong><br/>类别: ${nodeData?.category === 'substrate' ? '底物' : nodeData?.category === 'product' ? '产物' : '中间产物'}`;
+            return `<strong>${escapeHtml(params.name)}</strong><br/>类别: ${nodeData?.category === 'substrate' ? '底物' : nodeData?.category === 'product' ? '产物' : '中间产物'}`;
           } else if (params.dataType === 'edge') {
             const edgeData = params.data.data;
             const highlighted = isUserGene(edgeData.gene) ? '<br/><span style="color:#f59e0b">★ 用户基因相关</span>' : '';
-            return `<strong>${edgeData.enzyme}</strong><br/>基因: ${edgeData.gene}${highlighted}`;
+            return `<strong>${escapeHtml(edgeData.enzyme)}</strong><br/>基因: ${escapeHtml(edgeData.gene)}${highlighted}`;
           }
           return '';
         },
