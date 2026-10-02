@@ -77,7 +77,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 text-emerald-600 font-bold text-2xl mb-2">
-            <Activity className="w-7 h-7" />
+            <Activity className="w-7 h-7" aria-hidden="true" />
             MetaNutri
           </div>
           <p className="text-slate-600">AI Precision Nutrition Platform</p>
@@ -88,41 +88,68 @@ export default function LoginPage() {
           </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">{t.username}</label>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-slate-700 mb-1.5"
+              >
+                {t.username}
+              </label>
               <input
+                id="username"
                 type="text"
+                autoComplete="username"
                 {...registerField('username')}
                 placeholder="Enter your username"
+                aria-invalid={!!errors.username}
+                aria-describedby={errors.username ? 'username-error' : undefined}
                 className={inputClass(!!errors.username)}
               />
               {errors.username && (
-                <p className="mt-1 text-xs text-red-500">{errors.username.message}</p>
+                <p id="username-error" role="alert" className="mt-1 text-xs text-red-500">
+                  {errors.username.message}
+                </p>
               )}
             </div>
             {!isLogin && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">{t.email}</label>
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
+                  {t.email}
+                </label>
                 <input
+                  id="email"
                   type="email"
+                  autoComplete="email"
                   {...registerField('email')}
                   placeholder="Enter your email"
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                   className={inputClass(!!errors.email)}
                 />
                 {errors.email && (
-                  <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
+                  <p id="email-error" role="alert" className="mt-1 text-xs text-red-500">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">{t.password}</label>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1.5">
+                {t.password}
+              </label>
               <input
+                id="password"
                 type="password"
+                autoComplete={isLogin ? 'current-password' : 'new-password'}
                 {...registerField('password')}
                 placeholder="Enter your password"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : undefined}
                 className={inputClass(!!errors.password)}
               />
               {errors.password && (
-                <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
+                <p id="password-error" role="alert" className="mt-1 text-xs text-red-500">
+                  {errors.password.message}
+                </p>
               )}
             </div>
             {isLogin && (
@@ -137,7 +164,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full py-3 text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-all font-medium flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-emerald-200 mt-2"
             >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
               {isLogin ? t.signIn : t.signUp}
             </button>
           </form>

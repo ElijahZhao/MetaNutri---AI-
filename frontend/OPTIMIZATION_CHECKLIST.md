@@ -14,12 +14,12 @@
 
 | 状态 | 数量 | 占比 |
 |------|------|------|
-| ✅ 已完整落地 | 19 | 50% |
-| 🟡 部分落地 | 10 | 26% |
-| ❌ 未落地 | 9 | 24% |
-| **合计（第一～九章 38 项）** | **38** | **有进展 76%** |
+| ✅ 已完整落地 | 24 | 63% |
+| 🟡 部分落地 | 8 | 21% |
+| ❌ 未落地 | 6 | 16% |
+| **合计（第一～九章 38 项）** | **38** | **有进展 84%** |
 
-> 更新记录：第一轮完成 `2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks`（🟡→✅）并消除 `1.2` 的死代码缺口；第二轮把演示级功能改为真实实现（血糖预测、风险评分、膳食计划、种子数据）；第三轮修复登录链路（CORS 预览域名、token 落盘顺序、超时 60s）与登录后 React #31，并引入 Vitest + RTL 测试体系（`7.5` ❌→🟡）；第四轮补齐 Playwright E2E（`7.5` 🟡→✅，`e2e` job 接入 CI），并修正 E2E 打桩中 nutrition-alerts 响应形状错误；第五轮启动 TypeScript 迁移（`1.1` ❌→🟡）：新增 `src/types/`、核心逻辑层迁 `.ts`、开启 `strict`；第六轮完成 `1.1`（🟡→✅）：`src/` 全部 `.js/.jsx` 迁为 `.ts/.tsx`，并收尾 `next.config`、`playwright.config`、`vitest.setup`、E2E spec 的 TS 化。
+> 更新记录：第一轮完成 `2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks`（🟡→✅）并消除 `1.2` 的死代码缺口；第二轮把演示级功能改为真实实现（血糖预测、风险评分、膳食计划、种子数据）；第三轮修复登录链路（CORS 预览域名、token 落盘顺序、超时 60s）与登录后 React #31，并引入 Vitest + RTL 测试体系（`7.5` ❌→🟡）；第四轮补齐 Playwright E2E（`7.5` 🟡→✅，`e2e` job 接入 CI），并修正 E2E 打桩中 nutrition-alerts 响应形状错误；第五轮启动 TypeScript 迁移（`1.1` ❌→🟡）：新增 `src/types/`、核心逻辑层迁 `.ts`、开启 `strict`；第六轮完成 `1.1`（🟡→✅）：`src/` 全部 `.js/.jsx` 迁为 `.ts/.tsx`，并收尾 `next.config`、`playwright.config`、`vitest.setup`、E2E spec 的 TS 化；第七轮「快赢一批」：`4.4 减少重渲染`（🟡→✅，`React.memo` 包装 `ScrollReveal`/`FeatureCard`）、`5.1 Loading 与骨架屏`（🟡→✅，根级 + 各路由 `loading.tsx` + Dashboard 卡片级骨架屏）、`7.4 常量集中`（❌→✅，新增 `src/constants/`）、`9.2 OG/Twitter`（❌→✅，`metadataBase` + `openGraph`/`twitter` + `opengraph-image`/`twitter-image`）、`9.3 a11y`（❌→✅，全局 `focus-visible` + reduced-motion、Navbar ARIA、skip link、登录/资料表单 `aria-invalid`/`aria-describedby`）。
 
 > 说明：原判断「第 1、2 章基本未落地」不准确。事实是第 1、2 章完成度最高（认证状态、API 拦截、错误边界均已落地），真正的缺口集中在 **TypeScript 迁移、Token 安全、测试/CI、以及若干新增功能**。
 
@@ -49,11 +49,11 @@
 - [x] **4.1 组件懒加载与代码分割** — `BioCanvas` 用 `dynamic(...,{ssr:false})` 且 `{isCanvasMode && <BioCanvas/>}` 条件渲染；首页拆区块；Dashboard 拆卡片。
 - [x] **4.2 Canvas 动画性能** — `BioCanvas.jsx` 已监听 `prefers-reduced-motion` 降帧、`devicePixelRatio` 缩放、`document.hidden` 暂停。
 - [ ] ❌ **4.3 图片与资源优化** — 全项目无 `next/image`；`next.config.js` 无 `images` 配置。
-- [ ] 🟡 **4.4 减少不必要的重渲染** — `Navbar.js` 已改用 store，不再每次 `JSON.parse(localStorage)`（✅）；但未见 `React.memo` 包装 `ScrollReveal`/`FeatureCard`。
+- [x] **4.4 减少不必要的重渲染** — `Navbar.tsx` 已改用 store，不再每次 `JSON.parse(localStorage)`；`ScrollReveal`、首页 `FeatureCard` 已用 `React.memo` 包装（`FEATURES` 为模块级常量、`feature` 引用稳定，memo 生效）；`profile` 选项生成用 `useMemo` 缓存。
 
 ## 五、用户体验优化
 
-- [ ] 🟡 **5.1 全局 Loading 与骨架屏** — `components/Skeleton.js` 提供 SkeletonCard/Chart/Table 等，Dashboard 用页面级 `SkeletonDashboard`；但无 `loading.tsx`，未见各卡片独立骨架屏。
+- [x] **5.1 全局 Loading 与骨架屏** — `components/Skeleton.tsx` 提供 SkeletonCard/Chart/Table；已补根级 `app/loading.tsx`（品牌化居中提示）与路由级 `loading.tsx`（dashboard/profile/datasets，复用 `RouteLoading` 外壳）；Dashboard 取消整页 loading，改为按 `profileQuery`/`riskQuery`/`recommendationsQuery` 各自 `isLoading` 显示卡片级骨架屏。
 - [x] **5.2 Toast 通知系统** — `react-hot-toast` + `ClientProvider` 内全局 `<Toaster>`。
 - [x] **5.3 表单验证与错误提示** — login/profile 均有 zod schema（用户名/邮箱/密码强度/数值范围）与字段级错误提示。
 - [x] **5.4 404 与错误页面** — 自定义 `app/not-found.js` 与 `app/error.js`。
@@ -73,7 +73,7 @@
 - [x] **7.1 ESLint + Prettier + Git Hooks + CI** — 补齐依赖（eslint 9 / eslint-config-next 16 / prettier / husky / lint-staged），改用 flat config `eslint.config.mjs`；根目录 `.husky/pre-commit` 跑 lint-staged，`.github/workflows/ci.yml` 跑前端 lint + test + build 与后端 compileall。`npm run lint` 通过（0 error / 24 warning）。
 - [x] **7.2 路径别名统一** — 基本统一为 `@/`，仅 `app/layout.js` 与 `components/ClientProvider.jsx` 两处残留相对路径。
 - [ ] 🟡 **7.3 组件拆分** — home/dashboard 已拆（✅）；但 `MetabolicPathway.jsx`(310行)、`app/datasets/content.jsx`(398行)、`app/profile/content.jsx`(463行) 仍偏大。
-- [ ] ❌ **7.4 常量与配置集中** — 无 `constants/` 目录；`goalOptions`/`restrictionOptions`/`activityOptions` 仍硬编码在 `profile/content.jsx`。
+- [x] **7.4 常量与配置集中** — 新增 `src/constants/`（`profile.ts` + `index.ts` 统一导出）：`GENDER_VALUES`/`ACTIVITY_VALUES`/`GOAL_VALUES`/`BMI_THRESHOLDS` 与 `buildProfileOptions(t)`；`profile/content.tsx` 已改为消费该模块（原硬编码选项移除）。
 - [x] **7.5 单元测试与 E2E 测试** — 单元测试：Vitest 2 + React Testing Library + jsdom（`vitest.config.mjs`、`vitest.setup.js`），5 个测试文件 / 9 个用例覆盖 i18n 标签渲染（回归保护 React #31）、`authStore` 登录 token 落盘顺序（回归保护登录后 401）、Navbar/OmicsCards/BodyMetricsCard 渲染。E2E：Playwright（`playwright.config.js`、`tests/e2e/smoke.spec.js`），覆盖落地页渲染、未登录访问 `/dashboard` 重定向登录、登录后进入 Dashboard 且无白屏（回归保护 i18n 键冲突），全程 `page.route` 打桩后端、不依赖生产。`npm test` 与 `npm run test:e2e` 均已接入 CI（`frontend` 与新增 `e2e` job）。
 
 ## 八、功能完整性
@@ -87,8 +87,8 @@
 ## 九、SEO 与可访问性
 
 - [x] **9.1 页面级 Metadata** — 14 个页面均 `export const metadata`。
-- [ ] ❌ **9.2 Open Graph 与社交分享** — 无 `openGraph`/`twitter:card`。
-- [ ] ❌ **9.3 可访问性（a11y）** — 全站仅 1 处 `aria-label`（Navbar）；无 `focus-visible`/`aria-*` 系统补齐。
+- [x] **9.2 Open Graph 与社交分享** — 根 `layout.tsx` 配置 `metadataBase`（`NEXT_PUBLIC_SITE_URL` → `VERCEL_*` → localhost 回退）+ `openGraph`（type/siteName/locale/url）+ `twitter: summary_large_image`；新增动态生成的 `app/opengraph-image.tsx` 与 `app/twitter-image.tsx`（`next/og`，1200×630，构建产物路由 `/opengraph-image`、`/twitter-image`）。
+- [x] **9.3 可访问性（a11y）** — 全局 `:focus-visible` 焦点环 + `prefers-reduced-motion` 降级（`globals.css`）；根布局 skip link（跳转 `#main-content`，各页 `<main>` 已带 `id`/`tabIndex={-1}`）；Navbar 加 `aria-label`/`aria-current`/`aria-expanded`/`aria-controls`，装饰性图标 `aria-hidden`；登录页与资料页表单补齐 `id`/`htmlFor`/`aria-invalid`/`aria-describedby`（错误提示 `role="alert"`）。
 
 ---
 
@@ -104,7 +104,7 @@
 | [x] | `lib/i18n.js` 语言不持久化 | 已持久化 |
 | [x] | `Navbar.js` 每次 parse localStorage | 已改用 store |
 | [x] | `login/page.js` 无表单验证 | 已 rhf+zod |
-| [ ] | `dashboard/page.js` 无错误边界/整页 loading | 🟡 有 ErrorBoundary；仍页面级 loading |
+| [x] | `dashboard/page.js` 无错误边界/整页 loading | 有 ErrorBoundary；已加路由级 `loading.tsx` + 卡片级独立骨架屏 |
 | [x] | `profile/page.js` BMI 渲染中计算 | 已 `useMemo` |
 | [x] | 其他页重复 token 检查 | 已统一到 store |
 | [x] | `backend/main.py` CORS `*` | 已收紧白名单，并放行 `*.vercel.app` 预览域名 |
@@ -154,6 +154,14 @@
 - [x] `.gitignore` 忽略 `*.tsbuildinfo` 增量构建缓存
 - [x] 全量验证：`typecheck` / `lint`（0 error）/ `test`（9）/ `build` 全绿
 
+**已完成（第七轮：快赢一批）**
+- [x] `4.4` 减少重渲染：`React.memo` 包装 `ScrollReveal` / `FeatureCard`
+- [x] `5.1` Loading 与骨架屏：根级 + 路由级 `loading.tsx` + Dashboard 卡片级骨架屏
+- [x] `7.4` 常量集中：新增 `src/constants/`，Profile 选项/BMI 阈值统一维护并本地化
+- [x] `9.2` OG/Twitter：`metadataBase` + `openGraph`/`twitter` + 动态 `opengraph-image`/`twitter-image`
+- [x] `9.3` a11y：`focus-visible` + reduced-motion、Navbar ARIA、skip link、表单 `aria-invalid`/`aria-describedby`
+- [x] 全量验证：`typecheck` / `lint`（0 error）/ `test`（9）/ `build` 全绿（含 `/opengraph-image`、`/twitter-image` 静态产物）
+
 **待办 · 中大型**
 - [ ] Token 迁 httpOnly Cookie + refresh（2.2，跨前后端）
 - [ ] 全站限流（当前仅 auth 端点）
@@ -161,4 +169,4 @@
 - [ ] 通用 `uploadFile(endpoint, file, onProgress)` 封装（2.4）
 
 **待办 · 新增功能类**
-- [ ] 头像上传、Dashboard 图表增强、WebSocket 通知、OG 标签、a11y 补齐、constants 集中、next/image
+- [ ] 头像上传、Dashboard 图表增强、WebSocket 通知、next/image
