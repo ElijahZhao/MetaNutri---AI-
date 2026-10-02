@@ -36,6 +36,7 @@
 ## 📑 Table of Contents
 
 - [About the Project](#-about-the-project)
+- [📸 Screenshots](#-screenshots)
 - [✨ Key Features](#-key-features)
 - [🏗️ Architecture](#️-architecture)
 - [🛠️ Tech Stack](#️-tech-stack)
@@ -65,6 +66,20 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | 📊 Scattered health data across apps | Unified dashboard for genomics, microbiome, metabolomics |
 | 🤖 "Black box" AI recommendations | SHAP/LIME explainability shows *why* each suggestion |
 | ⚠️ Reactive healthcare | Early nutritional deficiency detection and risk alerts |
+
+---
+
+## 📸 Screenshots
+
+| Landing page | Sign in |
+|:---:|:---:|
+| ![Landing page](docs/assets/screenshots/01-landing.png) | ![Sign in page](docs/assets/screenshots/02-login.png) |
+
+<p align="center">
+  <img src="docs/assets/screenshots/01b-landing-full.png" alt="Landing page — full scroll" width="240" />
+  <br />
+  <sub>Landing page — full scroll</sub>
+</p>
 
 ---
 
