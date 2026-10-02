@@ -56,3 +56,8 @@ SECRETS.md
 
 # Husky generated hooks
 .husky/_/
+
+# Local runtime artifacts (screenshots, logs, temporary uploads produced by
+# dev/CI tooling; these are never part of a production build)
+.uploads/
+.trae-html-share-packages/
