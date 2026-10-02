@@ -10,7 +10,13 @@ name: Backend Keep-alive
 # cold-start UX (see frontend/src/lib/backendWarmup.ts) covers the gaps.
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    # Minutes deliberately off the hour: GitHub's scheduler is most congested at
+    # :00 and drops runs there, which is exactly where a plain */10 lands.
+    - cron: '3,13,23,33,43,53 * * * *'
+  # Also runs on every deploy to main, so a broken health path shows up in CI
+  # instead of waiting for the next tick.
+  push:
+    branches: [main]
   workflow_dispatch:
 
 # Only one keep-alive ping needs to be in flight at a time.
