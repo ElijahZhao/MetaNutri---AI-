@@ -2,6 +2,7 @@ from app.models.user import User
 from app.models.profile import UserProfile
 from app.models.genomic import GenomicData
 from app.models.microbiome import MicrobiomeData
+from app.models.metabolomics import MetabolomicsData, MetabolomicsPathway
 from app.models.food import FoodNutrition
 from app.models.recommendation import NutritionRecommendation
 
@@ -10,6 +11,8 @@ __all__ = [
     "UserProfile",
     "GenomicData",
     "MicrobiomeData",
+    "MetabolomicsData",
+    "MetabolomicsPathway",
     "FoodNutrition",
     "NutritionRecommendation",
 ]

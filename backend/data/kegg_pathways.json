@@ -1,50 +1,34 @@
 [
   {
-    "pathway_id": "map01100",
-    "pathway_name": "Metabolic Pathways",
-    "category": "Metabolic",
-    "description": "KEGG Metabolic Pathways pathway"
+    "name": "Metabolic Pathways",
+    "prefix": "map01100"
   },
   {
-    "pathway_id": "map00010",
-    "pathway_name": "Glycolysis",
-    "category": "Glycolysis",
-    "description": "KEGG Glycolysis pathway"
+    "name": "Glycolysis",
+    "prefix": "map00010"
   },
   {
-    "pathway_id": "map00020",
-    "pathway_name": "Citrate Cycle",
-    "category": "Citrate",
-    "description": "KEGG Citrate Cycle pathway"
+    "name": "Citrate Cycle",
+    "prefix": "map00020"
   },
   {
-    "pathway_id": "map00071",
-    "pathway_name": "Fatty Acid Metabolism",
-    "category": "Fatty",
-    "description": "KEGG Fatty Acid Metabolism pathway"
+    "name": "Fatty Acid Metabolism",
+    "prefix": "map00071"
   },
   {
-    "pathway_id": "map01230",
-    "pathway_name": "Amino Acid Metabolism",
-    "category": "Amino",
-    "description": "KEGG Amino Acid Metabolism pathway"
+    "name": "Amino Acid Metabolism",
+    "prefix": "map01230"
   },
   {
-    "pathway_id": "map00051",
-    "pathway_name": "Carbohydrate Metabolism",
-    "category": "Carbohydrate",
-    "description": "KEGG Carbohydrate Metabolism pathway"
+    "name": "Carbohydrate Metabolism",
+    "prefix": "map00051"
   },
   {
-    "pathway_id": "map01200",
-    "pathway_name": "Energy Metabolism",
-    "category": "Energy",
-    "description": "KEGG Energy Metabolism pathway"
+    "name": "Energy Metabolism",
+    "prefix": "map01200"
   },
   {
-    "pathway_id": "map01060",
-    "pathway_name": "Lipid Metabolism",
-    "category": "Lipid",
-    "description": "KEGG Lipid Metabolism pathway"
+    "name": "Lipid Metabolism",
+    "prefix": "map01060"
   }
 ]

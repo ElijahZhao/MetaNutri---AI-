@@ -71,11 +71,11 @@
 | | 功能 | 描述 |
 |---|------|------|
 | 🧬 | **三重组学整合** | 基因组 + 微生物组 + 代谢组数据统一分析流程 |
-| 🤖 | **深度学习模型** | Transformer、GNN 和 VAE 架构用于代谢响应预测 |
+| 🤖 | **深度学习模型** | 代谢响应、基因-营养（GNN）与微生物组（VAE）的 PyTorch 模型代码——研究代码；线上 API 目前采用确定性启发式 |
 | 🔍 | **可解释 AI** | 每条建议都附带 SHAP 和 LIME 特征重要性分析 |
 | 🚨 | **健康预警** | 实时营养缺乏检测与健康风险评估 |
 | 📊 | **交互式可视化** | 代谢路径图、ECharts 仪表盘、雷达图 |
-| 👤 | **用户档案** | 个人健康指标、目标管理以及 RBAC 权限系统 |
+| 👤 | **用户档案** | 个人健康指标与饮食目标 |
 | 🍽️ | **膳食计划** | 基于个体生理特征的 AI 个性化膳食方案 |
 | 🌐 | **国际化支持** | 完整的英/中双语界面 |
 | 📱 | **响应式设计** | 桌面、平板、移动端完美适配 |
@@ -121,11 +121,10 @@
                                    │
                                    ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                       Supabase（数据库服务）                           │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  │
-│  │  PostgreSQL      │  │  身份认证         │  │  对象存储        │  │
-│  │  (用户 + 组学数据)│  │  (httpOnly Cookie)│  │ (数据集存储)    │  │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘  │
+│                   Supabase（PostgreSQL 数据库）                       │
+│  存储用户、组学与数据集表。                                            │
+│  认证由 FastAPI 通过 httpOnly Cookie 处理；                           │
+│  未使用 Supabase Auth 与 Storage。                                    │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -146,7 +145,7 @@
 | [Zustand](https://zustand-demo.pmnd.rs/) | 5 | 客户端状态管理 |
 | [React Hook Form](https://react-hook-form.com/) | 7 | 表单验证 |
 | [Zod](https://zod.dev/) | 4 | Schema 验证 |
-| [i18next](https://www.i18next.com/) | - | 国际化 |
+| Custom i18n | - | 轻量英/中翻译（`src/lib/i18n.tsx`；不依赖 i18next） |
 
 ### ⚙️ 后端
 
@@ -156,11 +155,10 @@
 | [Python](https://www.python.org/) | 3.11 | 运行时 |
 | [SQLAlchemy](https://www.sqlalchemy.org/) | 2.0 | 异步 ORM |
 | [PostgreSQL](https://www.postgresql.org/) | - | 主数据库 |
-| [Redis](https://redis.io/) | 7 | 缓存（可选） |
+| [Redis](https://redis.io/) | 5 | 缓存与限流（可选，内存回退） |
 | [Pydantic](https://docs.pydantic.dev/) | 2 | 数据验证 |
-| [python-jose](https://github.com/mpdavis/python-jose) | 3.3 | JWT（签发进 httpOnly Cookie） |
+| [python-jose](https://github.com/mpdavis/python-jose) | 3.5 | JWT（签发进 httpOnly Cookie） |
 | [Passlib](https://passlib.readthedocs.io/) | 1.7 | 密码哈希（bcrypt） |
-| [Redis](https://redis.io/) | 5 | 限流（可选/回退） |
 
 ### 🧠 AI / 机器学习
 
@@ -171,7 +169,8 @@
 | [SHAP](https://shap.readthedocs.io/) | 0.46 | 模型可解释性 |
 | [NumPy](https://numpy.org/) | 1.26 | 数值计算 |
 | [Pandas](https://pandas.pydata.org/) | 2.2 | 数据处理 |
-| [requests](https://docs.python-requests.org/) | 2.32 | 公共数据集下载 |
+| [scikit-learn](https://scikit-learn.org/) | 1.5 | 特征缩放与基线模型（SHAP 可解释性） |
+| [requests](https://docs.python-requests.org/) | 2.32 | HTTP 客户端（参考数据由本地生成，非下载） |
 
 ---
 
@@ -180,7 +179,7 @@
 ### 前置条件
 
 - **Python** ≥ 3.11
-- **Node.js** ≥ 18
+- **Node.js** ≥ 20.19
 - **npm** ≥ 9 或 **pnpm** ≥ 8
 - **PostgreSQL** ≥ 14（或使用 [Supabase](https://supabase.com/) 云端数据库）
 
@@ -275,7 +274,6 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
 | `ml/metabolic_response_model.py` | 血糖响应 / 营养吸收预测器 |
 | `ml/gene_nutrition_model.py` | 基因-营养关联（GNN） |
 | `ml/microbiome_vae.py` | 微生物组健康（VAE） |
-| `ml/microbiome_analysis.py` | 多样性分析 |
 | `ml/explainability.py` | SHAP + 自定义 LIME 可解释性 |
 | `ml/train_models.py` | 模型训练脚本 |
 | `ml/weights/` | 预训练权重 |
@@ -288,7 +286,7 @@ MetaNutri 采用以下技术栈实现无缝云端部署：
 
 | 组件 | 平台 | 说明 |
 |------|------|------|
-| 🗄️ 数据库 | [Supabase](https://supabase.com/) | PostgreSQL + 认证一体化 |
+| 🗄️ 数据库 | [Supabase](https://supabase.com/) | 托管 PostgreSQL |
 | ⚙️ 后端 API | [Render](https://render.com/) | 从 GitHub 的 Python 部署 |
 | 🎨 前端 Web | [Vercel](https://vercel.com/) | Next.js 原生平台 |
 
@@ -349,7 +347,6 @@ MetaNutri---AI-/
 │   │   │   ├── gene_nutrition_model.py       # GNN 基因-营养
 │   │   │   ├── microbiome_vae.py             # VAE 微生物健康
 │   │   │   ├── explainability.py              # SHAP/LIME 解释器
-│   │   │   ├── microbiome_analysis.py         # 多样性分析
 │   │   │   ├── dataset_downloader.py           # 公开数据集下载器
 │   │   │   ├── train_models.py                 # 训练脚本
 │   │   │   └── weights/                        # 预训练模型权重
@@ -366,7 +363,7 @@ MetaNutri---AI-/
 ├── frontend/                         # 🎨 Next.js 前端
 │   ├── src/
 │   │   ├── app/                      # Next.js App Router 页面（TSX）
-│   │   │   ├── (login)               # 公开登录组
+│   │   │   ├── (auth)                # 公开认证组
 │   │   │   ├── (app)                 # 受保护应用组（需鉴权)
 │   │   │   │   ├── dashboard/        # 分析仪表盘
 │   │   │   │   ├── profile/          # 用户档案
@@ -392,13 +389,13 @@ MetaNutri---AI-/
 │   │   │   ├── BioCanvas.tsx         # 动画 DNA 背景
 │   │   │   └── MetabolicPathway.tsx  # 交互式路径查看器
 │   │   └── lib/                      # 工具与服务
-│   │       ├── api.ts                # Cookie 认证的 Fetch 客户端
+│   │       ├── api.ts                # Axios 客户端（同源、Cookie 认证）
 │   │       ├── i18n.tsx              # 国际化（英/中）
 │   │       ├── hooks.ts              # 自定义 React Hooks
 │   │       └── store/
 │   │           └── authStore.ts      # Zustand 认证状态
 │   ├── public/                       # 静态资源
-│   ├── proxy.ts                      # Next.js 边缘中间件（鉴权守卫）
+│   ├── src/proxy.ts                  # Next.js 边缘鉴权守卫
 │   ├── next.config.ts                # Next.js 配置
 │   ├── tailwind.config.js            # Tailwind 主题
 │   ├── vercel.json                   # Vercel 部署配置

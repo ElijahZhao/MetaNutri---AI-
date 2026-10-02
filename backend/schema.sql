@@ -142,47 +142,6 @@ CREATE TABLE IF NOT EXISTS nutrition_recommendations (
 CREATE INDEX IF NOT EXISTS idx_nutrition_recommendations_user_id ON nutrition_recommendations(user_id);
 
 -- ============================================
--- RBAC: Roles Table
--- ============================================
-CREATE TABLE IF NOT EXISTS roles (
-    id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid()::text,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- ============================================
--- RBAC: Permissions Table
--- ============================================
-CREATE TABLE IF NOT EXISTS permissions (
-    id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid()::text,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
-    resource VARCHAR(50) NOT NULL,
-    action VARCHAR(50) NOT NULL
-);
-
--- ============================================
--- RBAC: Role Permissions Table
--- ============================================
-CREATE TABLE IF NOT EXISTS role_permissions (
-    role_id VARCHAR(36) NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
-    permission_id VARCHAR(36) NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
-    PRIMARY KEY (role_id, permission_id)
-);
-
--- ============================================
--- RBAC: User Roles Table
--- ============================================
-CREATE TABLE IF NOT EXISTS user_roles (
-    user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    role_id VARCHAR(36) NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
-    assigned_at TIMESTAMPTZ DEFAULT NOW(),
-    PRIMARY KEY (user_id, role_id)
-);
-
--- ============================================
 -- Updated_at triggers
 -- ============================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -204,11 +163,3 @@ CREATE TRIGGER update_user_profiles_updated_at
     BEFORE UPDATE ON user_profiles
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
-
--- ============================================
--- Seed default roles
--- ============================================
-INSERT INTO roles (name, description) VALUES
-    ('admin', 'Full system access'),
-    ('user', 'Standard registered user')
-ON CONFLICT (name) DO NOTHING;

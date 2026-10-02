@@ -37,7 +37,7 @@ Describe how you tested your changes:
 
 ## Checklist
 
-- [ ] I have read the [contributing guidelines](CONTRIBUTING.md)
+- [ ] I have read the [contributing guidelines](../../CONTRIBUTING.md)
 - [ ] My code follows the project's code style
 - [ ] All tests pass
 - [ ] I have updated the documentation if needed
