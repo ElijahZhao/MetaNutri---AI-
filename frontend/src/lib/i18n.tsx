@@ -118,6 +118,8 @@ const en = {
   switchToEnglish: 'Switch to English',
   loading: 'Loading...',
   error: 'An error occurred',
+  serverWaking:
+    'Waking the server… free-tier instances sleep when idle, so the first request can take up to a minute.',
   forgotPassword: 'Forgot Password?',
   forgotPasswordTitle: 'Reset Your Password',
   forgotPasswordSubtitle: 'Enter your email and we will send you a reset link',
@@ -313,6 +315,8 @@ const en = {
     allDownloadSuccess: 'All datasets downloaded successfully!',
     allDownloadFailed: 'Failed to download all datasets',
     loadFailed: 'Failed to load datasets',
+    sampleNotice:
+      'Bundled sample data — records below are built-in examples for demonstration, not live downloads.',
   },
   goals: {
     weightLoss: 'Weight Loss',
@@ -436,6 +440,7 @@ const zh: Translations = {
   switchToEnglish: '切换到英文',
   loading: '加载中...',
   error: '发生错误',
+  serverWaking: '正在唤醒后端服务…免费实例闲时会休眠，首次请求可能需要约一分钟。',
   forgotPassword: '忘记密码？',
   forgotPasswordTitle: '重置密码',
   forgotPasswordSubtitle: '输入您的邮箱，我们将发送重置链接',
@@ -631,6 +636,7 @@ const zh: Translations = {
     allDownloadSuccess: '所有数据集下载成功！',
     allDownloadFailed: '下载所有数据集失败',
     loadFailed: '加载数据集失败',
+    sampleNotice: '内置示例数据 —— 以下记录为演示用样例，并非实时下载的真实数据。',
   },
   goals: {
     weightLoss: '减重',

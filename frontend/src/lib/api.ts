@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from './store/authStore';
+import { isBackendWarm } from './backendWarmup';
 import type {
   ApiErrorLike,
   Dataset,
@@ -98,6 +99,10 @@ const ERROR_MESSAGES: Record<string, string> = {
   unknown: '发生未知错误',
 };
 
+// Shown instead of a bare timeout/network error while the free-tier backend is
+// still waking: the request likely failed because the container was booting.
+const COLD_START_MESSAGE = '后端服务正在启动（免费实例冷启动，通常需要 30–60 秒），请稍候重试。';
+
 const getErrorMessage = (error: ApiErrorLike): string => {
   const status = error.response?.status;
 
@@ -107,11 +112,11 @@ const getErrorMessage = (error: ApiErrorLike): string => {
   }
 
   if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-    return ERROR_MESSAGES.timeout;
+    return isBackendWarm() ? ERROR_MESSAGES.timeout : COLD_START_MESSAGE;
   }
 
   if (!error.response) {
-    return ERROR_MESSAGES.network;
+    return isBackendWarm() ? ERROR_MESSAGES.network : COLD_START_MESSAGE;
   }
 
   return (

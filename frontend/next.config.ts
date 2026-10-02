@@ -52,6 +52,13 @@ const nextConfig: NextConfig = {
         source: '/api/:path*',
         destination: `${API_URL}/api/:path*`,
       },
+      {
+        // Proxied so the client can prewarm the backend from its own origin
+        // (same-origin keeps it inside the CSP connect-src 'self'). The backend
+        // health route lives at the root, not under /api.
+        source: '/health',
+        destination: `${API_URL}/health`,
+      },
     ];
   },
 };

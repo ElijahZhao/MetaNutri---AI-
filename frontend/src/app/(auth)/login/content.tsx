@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm, type Resolver } from 'react-hook-form';
@@ -14,9 +14,18 @@ import type { ApiErrorLike, AuthResult } from '@/types';
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  // True only once a submit has been pending long enough to look like a cold
+  // start rather than normal latency, so we do not flash the hint on every login.
+  const [slowLoading, setSlowLoading] = useState(false);
   const router = useRouter();
   const { login, register } = useAuthStore();
   const { t } = useLanguage();
+
+  useEffect(() => {
+    if (!loading) return;
+    const timer = setTimeout(() => setSlowLoading(true), 4000);
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   const loginSchema = z.object({
     username: z.string().min(3, t.validation.username).max(20, t.validation.username),
@@ -63,6 +72,7 @@ export default function LoginPage() {
       toast.error((err as ApiErrorLike).userMessage || t.error);
     } finally {
       setLoading(false);
+      setSlowLoading(false);
     }
   };
 
@@ -165,6 +175,11 @@ export default function LoginPage() {
             {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             {isLogin ? t.signIn : t.signUp}
           </button>
+          {slowLoading && (
+            <p role="status" aria-live="polite" className="mt-3 text-center text-xs text-slate-500">
+              {t.serverWaking}
+            </p>
+          )}
         </form>
         <div className="mt-5 text-center text-sm text-slate-600">
           {isLogin ? t.dontHaveAccount : t.alreadyHaveAccount}
