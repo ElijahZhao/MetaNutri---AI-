@@ -141,7 +141,7 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | [React](https://react.dev/) | 19 | UI component library |
 | [TypeScript](https://www.typescriptlang.org/) | 5 | Type safety |
 | [Tailwind CSS](https://tailwindcss.com/) | 3 | Utility-first CSS |
-| [ECharts](https://echarts.apache.org/) | 5 | Data visualization |
+| [ECharts](https://echarts.apache.org/) | 6 | Data visualization |
 | [TanStack Query](https://tanstack.com/query) | 5 | Server state & caching |
 | [Zustand](https://zustand-demo.pmnd.rs/) | 5 | Client state management |
 | [React Hook Form](https://react-hook-form.com/) | 7 | Form validation |
@@ -167,11 +167,11 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | [PyTorch](https://pytorch.org/) | 2.x | Deep learning framework |
-| [scikit-learn](https://scikit-learn.org/) | 1.5 | Classical ML |
+| [scipy](https://scipy.org/) | 1.14 | Scientific / statistical computing |
 | [SHAP](https://shap.readthedocs.io/) | 0.46 | Model explainability |
 | [NumPy](https://numpy.org/) | 1.26 | Numerical computing |
 | [Pandas](https://pandas.pydata.org/) | 2.2 | Data processing |
-| [BioPython](https://biopython.org/) | 1.84 | Bioinformatics |
+| [requests](https://docs.python-requests.org/) | 2.32 | Public dataset downloads |
 
 ---
 
@@ -232,6 +232,56 @@ docker-compose down
 
 ---
 
+## 🔌 API & AI/ML 实战
+
+完整的接口清单见 [📘 API 参考](docs/API.md)。后端交互式文档在 `<BASE>/docs`（Swagger）与 `<BASE>/redoc`。
+
+### 认证（httpOnly Cookie）
+
+登录后令牌通过 httpOnly Cookie 下发，前端无需手动附加 `Authorization` 头：
+
+```http
+POST /api/auth/login          # {username, password}
+Set-Cookie: metanutri_access=...; HttpOnly; SameSite=Lax
+Set-Cookie: metanutri_refresh=...; HttpOnly; SameSite=Lax
+```
+
+### 一条完整的 AI 调用链路
+
+1. **登录**获取会话 → 之后请求自动带 Cookie。
+2. **上传组学数据**：`POST /api/genomic/upload`、`/api/microbiome/upload`、`/api/metabolomics/upload`。
+3. **跑预测**：`POST /api/predict/glucose-response` 或 `GET /api/predict/risk-assessment`。
+4. **拿推荐/饮食计划**：`POST /api/recommendations/meal-plan`。
+5. **获取个性化解释**：预测返回里含营养解读与 `feature_contributions`（SHAP）。
+
+```bash
+BASE=https://metanutri-backend.onrender.com
+
+# 登录并保存 Cookie
+curl -c cookies.txt -X POST "$BASE/api/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"you","password":"secret123"}'
+
+# 生成饮食计划（需登录）
+curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
+  -H 'Content-Type: application/json' \
+  -d '{"calorie_target":2000}'
+```
+
+### AI/ML 模块（后端）
+
+| 模块 | 能力 |
+|------|------|
+| `ml/metabolic_response_model.py` | 血糖响应 / 营养吸收预测器 |
+| `ml/gene_nutrition_model.py` | 基因-营养关联（GNN） |
+| `ml/microbiome_vae.py` | 微生物组健康（VAE） |
+| `ml/microbiome_analysis.py` | 多样性分析 |
+| `ml/explainability.py` | SHAP + 自定义 LIME 可解释性 |
+| `ml/train_models.py` | 模型训练脚本 |
+| `ml/weights/` | 预训练权重 |
+
+---
+
 ## ☁️ Cloud Deployment
 
 MetaNutri is designed for seamless cloud deployment with the following stack:
@@ -289,7 +339,8 @@ MetaNutri---AI-/
 │   │   │   └── nutrition_alerts.py   # Health alert system
 │   │   ├── core/                     # Core infrastructure
 │   │   │   ├── config.py             # Settings & env vars
-│   │   │   ├── security.py           # JWT auth & password hashing
+│   │   │   ├── security.py           # JWT + httpOnly cookie auth, password hashing
+│   │   │   ├── rate_limit.py         # In-memory rate limiter
 │   │   │   └── redis.py              # Redis cache (graceful fallback)
 │   │   ├── db/                       # Database layer
 │   │   │   └── session.py            # SQLAlchemy async engine
@@ -314,44 +365,48 @@ MetaNutri---AI-/
 │
 ├── frontend/                         # 🎨 Next.js frontend
 │   ├── src/
-│   │   ├── app/                      # Next.js App Router pages
-│   │   │   ├── page.js               # Landing page
-│   │   │   ├── dashboard/            # Analytics dashboard
-│   │   │   ├── login/                # Sign in
-│   │   │   ├── forgot-password/      # Password recovery
-│   │   │   ├── profile/              # User profile
-│   │   │   ├── genomic/              # Genomics analysis
-│   │   │   ├── microbiome/           # Microbiome analysis
-│   │   │   ├── metabolomics/         # Metabolomics data
-│   │   │   ├── predict/              # AI prediction tools
-│   │   │   ├── recommendations/      # Personalized advice
-│   │   │   ├── meal-plan/            # AI meal planner
-│   │   │   ├── explore/              # Food exploration
-│   │   │   ├── datasets/             # Dataset browser
-│   │   │   ├── error.js              # Global error boundary
-│   │   │   ├── not-found.js          # Custom 404 page
-│   │   │   └── layout.js             # Root layout (metadata, i18n)
+│   │   ├── app/                      # Next.js App Router pages (TSX)
+│   │   │   ├── (auth)                # Public auth group
+│   │   │   │   ├── login/            # Sign in
+│   │   │   │   └── forgot-password/  # Password recovery
+│   │   │   ├── (app)                 # Protected app group (auth guarded)
+│   │   │   │   ├── dashboard/        # Analytics dashboard
+│   │   │   │   ├── profile/          # User profile
+│   │   │   │   ├── genomic/          # Genomics analysis
+│   │   │   │   ├── microbiome/       # Microbiome analysis
+│   │   │   │   ├── metabolomics/     # Metabolomics data
+│   │   │   │   ├── predict/          # AI prediction tools
+│   │   │   │   ├── recommendations/  # Personalized advice
+│   │   │   │   ├── meal-plan/        # AI meal planner
+│   │   │   │   ├── explore/          # Food exploration
+│   │   │   │   └── datasets/         # Dataset browser
+│   │   │   ├── page.tsx              # Landing page
+│   │   │   ├── layout.tsx            # Root layout (metadata, i18n)
+│   │   │   ├── error.tsx             # Global error boundary
+│   │   │   └── not-found.tsx         # Custom 404 page
 │   │   ├── components/               # Reusable UI components
 │   │   │   ├── home/                 # Landing page sections
 │   │   │   ├── dashboard/            # Dashboard widgets & cards
-│   │   │   ├── Navbar.js             # Navigation bar
-│   │   │   ├── ProtectedRoute.jsx    # Auth route guard
-│   │   │   ├── ErrorBoundary.jsx     # React error boundary
-│   │   │   ├── Skeleton.js           # Loading skeletons
-│   │   │   ├── BioCanvas.jsx         # Animated DNA background
-│   │   │   ├── MetabolicPathway.jsx  # Interactive pathway viewer
-│   │   │   └── ...
+│   │   │   ├── Navbar.tsx            # Navigation bar
+│   │   │   ├── ProtectedRoute.tsx    # Auth route guard
+│   │   │   ├── ErrorBoundary.tsx     # React error boundary
+│   │   │   ├── Skeleton.tsx          # Loading skeletons
+│   │   │   ├── BioCanvas.tsx         # Animated DNA background
+│   │   │   └── MetabolicPathway.tsx  # Interactive pathway viewer
 │   │   └── lib/                      # Utilities & services
-│   │       ├── api.js                # Axios client with interceptors
-│   │       ├── i18n.js               # Internationalization (EN/ZH)
-│   │       ├── hooks.js              # Custom React hooks
+│   │       ├── api.ts                # Fetch client with cookie auth
+│   │       ├── i18n.tsx              # Internationalization (EN/ZH)
+│   │       ├── hooks.ts              # Custom React hooks
 │   │       └── store/
-│   │           └── authStore.js      # Zustand auth state
+│   │           └── authStore.ts      # Zustand auth state
 │   ├── public/                       # Static assets
-│   ├── next.config.js                # Next.js config (security headers)
+│   ├── proxy.ts                      # Next.js edge middleware (auth guard)
+│   ├── next.config.ts                # Next.js config
 │   ├── tailwind.config.js            # Tailwind theme
 │   ├── vercel.json                   # Vercel deployment config
-│   ├── .eslintrc.json                # ESLint rules
+│   ├── eslint.config.mjs             # ESLint flat config
+│   ├── vitest.config.mjs             # Vitest config
+│   ├── playwright.config.ts          # E2E test config
 │   ├── .prettierrc                   # Prettier formatting
 │   ├── package.json                  # Dependencies
 │   └── Dockerfile                    # Production container
@@ -360,7 +415,6 @@ MetaNutri---AI-/
 │   ├── assets/                       # Images & diagrams
 │   ├── API.md                        # API reference
 │   ├── DEPLOYMENT.md                 # Deployment guide
-│   ├── MODELS.md                     # AI model documentation
 │   └── DATASETS.md                   # Dataset references
 │
 ├── .github/                          # GitHub config

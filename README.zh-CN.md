@@ -124,7 +124,7 @@
 │                       Supabase（数据库服务）                           │
 │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  │
 │  │  PostgreSQL      │  │  身份认证         │  │  对象存储        │  │
-│  │  (用户 + 组学数据)│  │  (JWT + OAuth)   │  │  (数据集存储)    │  │
+│  │  (用户 + 组学数据)│  │  (httpOnly Cookie)│  │ (数据集存储)    │  │
 │  └──────────────────┘  └──────────────────┘  └──────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -141,7 +141,7 @@
 | [React](https://react.dev/) | 19 | UI 组件库 |
 | [TypeScript](https://www.typescriptlang.org/) | 5 | 类型安全 |
 | [Tailwind CSS](https://tailwindcss.com/) | 3 | 原子化 CSS 框架 |
-| [ECharts](https://echarts.apache.org/) | 5 | 数据可视化 |
+| [ECharts](https://echarts.apache.org/) | 6 | 数据可视化 |
 | [TanStack Query](https://tanstack.com/query) | 5 | 服务端状态管理与缓存 |
 | [Zustand](https://zustand-demo.pmnd.rs/) | 5 | 客户端状态管理 |
 | [React Hook Form](https://react-hook-form.com/) | 7 | 表单验证 |
@@ -158,19 +158,20 @@
 | [PostgreSQL](https://www.postgresql.org/) | - | 主数据库 |
 | [Redis](https://redis.io/) | 7 | 缓存（可选） |
 | [Pydantic](https://docs.pydantic.dev/) | 2 | 数据验证 |
-| [JWT](https://jwt.io/) | - | 身份认证 |
-| [Passlib](https://passlib.readthedocs.io/) | - | 密码哈希 |
+| [python-jose](https://github.com/mpdavis/python-jose) | 3.3 | JWT（签发进 httpOnly Cookie） |
+| [Passlib](https://passlib.readthedocs.io/) | 1.7 | 密码哈希（bcrypt） |
+| [Redis](https://redis.io/) | 5 | 限流（可选/回退） |
 
 ### 🧠 AI / 机器学习
 
 | 技术 | 版本 | 用途 |
 |------|------|------|
 | [PyTorch](https://pytorch.org/) | 2.x | 深度学习框架 |
-| [scikit-learn](https://scikit-learn.org/) | 1.5 | 传统机器学习 |
+| [scipy](https://scipy.org/) | 1.14 | 科学 / 统计计算 |
 | [SHAP](https://shap.readthedocs.io/) | 0.46 | 模型可解释性 |
 | [NumPy](https://numpy.org/) | 1.26 | 数值计算 |
 | [Pandas](https://pandas.pydata.org/) | 2.2 | 数据处理 |
-| [BioPython](https://biopython.org/) | 1.84 | 生物信息学 |
+| [requests](https://docs.python-requests.org/) | 2.32 | 公共数据集下载 |
 
 ---
 
@@ -231,6 +232,56 @@ docker-compose down
 
 ---
 
+## 🔌 API 与 AI/ML 实战
+
+完整的接口清单见 [📘 API 参考](docs/API.md)。后端交互式文档在 `<BASE>/docs`（Swagger）与 `<BASE>/redoc`。
+
+### 认证（httpOnly Cookie）
+
+登录后令牌通过 httpOnly Cookie 下发，前端无需手动附加 `Authorization` 头：
+
+```http
+POST /api/auth/login          # {username, password}
+Set-Cookie: metanutri_access=...; HttpOnly; SameSite=Lax
+Set-Cookie: metanutri_refresh=...; HttpOnly; SameSite=Lax
+```
+
+### 一条完整的 AI 调用链路
+
+1. **登录** 获取会话 → 之后请求自动带 Cookie。
+2. **上传组学数据**：`POST /api/genomic/upload`、`/api/microbiome/upload`、`/api/metabolomics/upload`。
+3. **跑预测**：`POST /api/predict/glucose-response` 或 `GET /api/predict/risk-assessment`。
+4. **拿推荐/饮食计划**：`POST /api/recommendations/meal-plan`。
+5. **获取可解释性**：预测返回里含营养解读与 `feature_contributions`（SHAP）。
+
+```bash
+BASE=https://metanutri-backend.onrender.com
+
+# 登录并保存 Cookie
+curl -c cookies.txt -X POST "$BASE/api/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"you","password":"secret123"}'
+
+# 生成饮食计划（需登录）
+curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
+  -H 'Content-Type: application/json' \
+  -d '{"calorie_target":2000}'
+```
+
+### AI/ML 模块（后端）
+
+| 模块 | 能力 |
+|------|------|
+| `ml/metabolic_response_model.py` | 血糖响应 / 营养吸收预测器 |
+| `ml/gene_nutrition_model.py` | 基因-营养关联（GNN） |
+| `ml/microbiome_vae.py` | 微生物组健康（VAE） |
+| `ml/microbiome_analysis.py` | 多样性分析 |
+| `ml/explainability.py` | SHAP + 自定义 LIME 可解释性 |
+| `ml/train_models.py` | 模型训练脚本 |
+| `ml/weights/` | 预训练权重 |
+
+---
+
 ## ☁️ 云端部署
 
 MetaNutri 采用以下技术栈实现无缝云端部署：
@@ -288,7 +339,8 @@ MetaNutri---AI-/
 │   │   │   └── nutrition_alerts.py   # 健康预警系统
 │   │   ├── core/                     # 核心基础设施
 │   │   │   ├── config.py             # 配置与环境变量
-│   │   │   ├── security.py           # JWT 认证与密码哈希
+│   │   │   ├── security.py           # JWT + httpOnly Cookie 认证、密码哈希
+│   │   │   ├── rate_limit.py         # 内存限流
 │   │   │   └── redis.py              # Redis 缓存（优雅降级）
 │   │   ├── db/                       # 数据库层
 │   │   │   └── session.py            # SQLAlchemy 异步引擎
@@ -313,44 +365,46 @@ MetaNutri---AI-/
 │
 ├── frontend/                         # 🎨 Next.js 前端
 │   ├── src/
-│   │   ├── app/                      # Next.js App Router 页面
-│   │   │   ├── page.js               # 首页
-│   │   │   ├── dashboard/            # 分析仪表盘
-│   │   │   ├── login/                # 登录
-│   │   │   ├── forgot-password/      # 找回密码
-│   │   │   ├── profile/              # 用户档案
-│   │   │   ├── genomic/              # 基因组分析
-│   │   │   ├── microbiome/           # 微生物组分析
-│   │   │   ├── metabolomics/         # 代谢组数据
-│   │   │   ├── predict/              # AI 预测工具
-│   │   │   ├── recommendations/      # 个性化建议
-│   │   │   ├── meal-plan/            # AI 膳食计划
-│   │   │   ├── explore/              # 食物探索
-│   │   │   ├── datasets/             # 数据集浏览
-│   │   │   ├── error.js              # 全局错误边界
-│   │   │   ├── not-found.js          # 自定义 404 页面
-│   │   │   └── layout.js             # 根布局（metadata、i18n）
+│   │   ├── app/                      # Next.js App Router 页面（TSX）
+│   │   │   ├── (login)               # 公开登录组
+│   │   │   ├── (app)                 # 受保护应用组（需鉴权)
+│   │   │   │   ├── dashboard/        # 分析仪表盘
+│   │   │   │   ├── profile/          # 用户档案
+│   │   │   │   ├── genomic/          # 基因组分析
+│   │   │   │   ├── microbiome/       # 微生物组分析
+│   │   │   │   ├── metabolomics/     # 代谢组数据
+│   │   │   │   ├── predict/          # AI 预测工具
+│   │   │   │   ├── recommendations/  # 个性化建议
+│   │   │   │   ├── meal-plan/        # AI 膳食计划
+│   │   │   │   ├── explore/          # 食物探索
+│   │   │   │   └── datasets/         # 数据集浏览
+│   │   │   ├── page.tsx              # 首页
+│   │   │   ├── error.tsx             # 全局错误边界
+│   │   │   ├── not-found.tsx         # 自定义 404 页面
+│   │   │   └── layout.tsx            # 根布局（metadata、i18n）
 │   │   ├── components/               # 可复用 UI 组件
 │   │   │   ├── home/                 # 首页区块
 │   │   │   ├── dashboard/            # 仪表盘小部件与卡片
-│   │   │   ├── Navbar.js             # 导航栏
-│   │   │   ├── ProtectedRoute.jsx    # 认证路由守卫
-│   │   │   ├── ErrorBoundary.jsx     # React 错误边界
-│   │   │   ├── Skeleton.js           # 加载骨架屏
-│   │   │   ├── BioCanvas.jsx         # 动画 DNA 背景
-│   │   │   ├── MetabolicPathway.jsx  # 交互式路径查看器
-│   │   │   └── ...
+│   │   │   ├── Navbar.tsx            # 导航栏
+│   │   │   ├── ProtectedRoute.tsx    # 认证路由守卫
+│   │   │   ├── ErrorBoundary.tsx     # React 错误边界
+│   │   │   ├── Skeleton.tsx          # 加载骨架屏
+│   │   │   ├── BioCanvas.tsx         # 动画 DNA 背景
+│   │   │   └── MetabolicPathway.tsx  # 交互式路径查看器
 │   │   └── lib/                      # 工具与服务
-│   │       ├── api.js                # 带拦截器的 Axios 客户端
-│   │       ├── i18n.js               # 国际化（英/中）
-│   │       ├── hooks.js              # 自定义 React Hooks
+│   │       ├── api.ts                # Cookie 认证的 Fetch 客户端
+│   │       ├── i18n.tsx              # 国际化（英/中）
+│   │       ├── hooks.ts              # 自定义 React Hooks
 │   │       └── store/
-│   │           └── authStore.js      # Zustand 认证状态
+│   │           └── authStore.ts      # Zustand 认证状态
 │   ├── public/                       # 静态资源
-│   ├── next.config.js                # Next.js 配置（安全响应头）
+│   ├── proxy.ts                      # Next.js 边缘中间件（鉴权守卫）
+│   ├── next.config.ts                # Next.js 配置
 │   ├── tailwind.config.js            # Tailwind 主题
 │   ├── vercel.json                   # Vercel 部署配置
-│   ├── .eslintrc.json                # ESLint 规则
+│   ├── eslint.config.mjs             # ESLint 扁平配置
+│   ├── vitest.config.mjs             # Vitest 配置
+│   ├── playwright.config.ts          # 端到端测试配置
 │   ├── .prettierrc                   # Prettier 格式化
 │   ├── package.json                  # 依赖
 │   └── Dockerfile                    # 生产容器
@@ -359,7 +413,6 @@ MetaNutri---AI-/
 │   ├── assets/                       # 图片与图表
 │   ├── API.md                        # API 参考
 │   ├── DEPLOYMENT.md                 # 部署指南
-│   ├── MODELS.md                     # AI 模型文档
 │   └── DATASETS.md                   # 数据集参考
 │
 ├── .github/                          # GitHub 配置
