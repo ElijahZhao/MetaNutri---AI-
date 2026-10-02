@@ -139,7 +139,7 @@ function DatasetsContent() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900">{t.datasets.title}</h1>
           <p className="text-slate-600">{t.datasets.subtitle}</p>

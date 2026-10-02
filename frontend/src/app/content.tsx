@@ -49,7 +49,7 @@ export default function Home() {
     <>
       <div className={`min-h-screen transition-opacity duration-500 ${isCanvasMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <SiteHeader onEnterCanvas={enterCanvasMode} />
-        <main>
+        <main id="main-content" tabIndex={-1}>
           <HeroSection />
           <FeatureGrid />
           <CTASection />

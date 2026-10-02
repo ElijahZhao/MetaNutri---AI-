@@ -13,7 +13,7 @@ import { useProfile, useRiskAssessment, useRecommendations, useGenomicData } fro
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import type { ApiErrorLike } from '@/types';
-import { SkeletonDashboard } from '@/components/Skeleton';
+import { SkeletonCard, SkeletonChart } from '@/components/Skeleton';
 
 function DashboardContent() {
   const { t } = useLanguage();
@@ -22,11 +22,6 @@ function DashboardContent() {
   const recommendationsQuery = useRecommendations();
   const genomicQuery = useGenomicData();
 
-  const isLoading =
-    profileQuery.isLoading ||
-    riskQuery.isLoading ||
-    recommendationsQuery.isLoading ||
-    genomicQuery.isLoading;
   const error =
     profileQuery.error || riskQuery.error || recommendationsQuery.error || genomicQuery.error;
 
@@ -42,44 +37,37 @@ function DashboardContent() {
   const genomicData = genomicQuery.data ?? [];
   const userGenes: string[] = genomicData.map((d) => d.gene_name).filter(Boolean);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50">
-        <Navbar />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <SkeletonDashboard />
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900">{t.nutritionDashboard}</h1>
           <p className="text-slate-600">{t.personalizedOverview}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <HealthScoreCard risk={risk} />
-          <RiskRadarCard risk={risk} />
-          <BodyMetricsCard profile={profile} />
+          {riskQuery.isLoading ? <SkeletonChart /> : <HealthScoreCard risk={risk} />}
+          {riskQuery.isLoading ? <SkeletonChart /> : <RiskRadarCard risk={risk} />}
+          {profileQuery.isLoading ? <SkeletonCard /> : <BodyMetricsCard profile={profile} />}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <RecommendationsCard recommendations={recommendations} />
+          {recommendationsQuery.isLoading ? (
+            <SkeletonCard />
+          ) : (
+            <RecommendationsCard recommendations={recommendations} />
+          )}
           <NutritionAlerts />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <GenomicCard genomicData={genomicData} />
+          {genomicQuery.isLoading ? <SkeletonCard /> : <GenomicCard genomicData={genomicData} />}
           <MicrobiomeCard />
           <MetabolomicsCard />
         </div>
 
-        <MetabolicPathway userGenes={userGenes} />
+        {genomicQuery.isLoading ? <SkeletonChart /> : <MetabolicPathway userGenes={userGenes} />}
       </main>
     </div>
   );
