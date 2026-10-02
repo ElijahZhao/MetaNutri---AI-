@@ -1,8 +1,8 @@
 # MetaNutri 审查发现汇总
 
 > 审查日期：2026-10-02 ｜ 方式：只读审查（未改动任何项目源文件）+ 线上只读实测
-> 范围：仓库全量文件、依赖声明、后端路由与源码、前端组件与工程配置、CI/构建/部署配置、认证与限流逻辑、版本库卫生、部署与贡献文档、i18n 与 schema 对齐、数据文件与生成器一致性、前后端接口对账、容器构建上下文与镜像卫生
-> 结论：十二轮审查结果一致，未互相推翻。以下为合并去重后的完整清单，按优先级排列。
+> 范围：仓库全量文件、依赖声明、后端路由与源码、前端组件与工程配置、CI/构建/部署配置、认证与限流逻辑、版本库卫生、部署与贡献文档、i18n 与 schema 对齐、数据文件与生成器一致性、前后端接口对账、容器构建上下文与镜像卫生、文档内相对链接与 SEO 静态资产
+> 结论：十三轮审查结果一致，未互相推翻。以下为合并去重后的完整清单，按优先级排列。
 
 ---
 
@@ -225,6 +225,27 @@
 - **影响**：死导入；且引入 PostgreSQL 方言依赖，语义上误导（并未使用 UUID 列类型）。因后端未配置 flake8/ruff，CI 不会报错。
 - **建议**：删除这 5 行导入（`rbac.py:1` 的 `UUID` 亦在同列，但随第 14 条 RBAC 死代码一并处理）。
 
+### 25. PR 模板中的「贡献指南」相对链接失效（低优先级）
+
+- **证据**：`.github/PULL_REQUEST_TEMPLATE/pull_request_template.md:40` 写作 `[contributing guidelines](CONTRIBUTING.md)`。该文件位于 `.github/PULL_REQUEST_TEMPLATE/` 目录内，GitHub 按**文件所在目录**解析相对链接，因此会指向 `.github/PULL_REQUEST_TEMPLATE/CONTRIBUTING.md`（`ls` 确认该目录下只有 `pull_request_template.md`，不存在 `CONTRIBUTING.md`）。
+- **影响**：新建 PR 时清单里的贡献指南链接 404。
+- **建议**：改为 `../../CONTRIBUTING.md`。
+- **对比**：两份 README、`docs/*.md`、`CODE_OF_CONDUCT.md` 的相对链接经逐条核对**全部有效**（见「已确认健康」）。
+
+### 26. 缺少 favicon / robots / sitemap 等 SEO 静态资产（低优先级）
+
+- **证据**
+  - `frontend/src/app/` 下无 `favicon.ico`、`icon.*`、`apple-icon.*`；`frontend/public/` 仅有 `.gitkeep`，无 `robots.txt` / `sitemap.xml`。
+  - 应用**只**提供了 `opengraph-image.tsx` 与 `twitter-image.tsx`；`frontend/src/app/layout.tsx:17-36` 的 `metadata` 未声明 `icons`。
+- **影响**：浏览器请求 `/favicon.ico` 落空；搜索引擎无 robots/sitemap 指引。README 技术栈自述「SSR & SEO」，但 SEO 资产不完整（属增强项，非故障）。
+- **建议**：按需补 `app/icon.svg`（或 `favicon.ico`）与 `app/robots.ts`、`app/sitemap.ts`。
+
+### 27. `vercel.json` 部署区域与文档中的 Supabase 区域不一致（低优先级 · 待确认）
+
+- **证据**：`frontend/vercel.json:8` 设为 `"regions": ["iad1"]`（US East · Washington）；而 `backend/.env.example:4` 与 `docs/DEPLOYMENT.md:44` 给出的 Supabase 连接池主机为 `aws-0-ap-southeast-2.pooler.supabase.com`（**ap-southeast-2 · 悉尼**）。
+- **影响**：前端同源代理（`frontend/next.config.ts` 的 rewrites）在 Vercel 边缘/函数内执行，若 Vercel 函数在 iad1 而数据库在悉尼，跨区往返会增加延迟。仅影响性能，不影响正确性；Render 实际区域未知，故列为**待确认**。
+- **建议**：确认后端实际区域后统一（例如把前端 region 调到离 Render/Supabase 更近的区域），或在部署文档中说明区域选择理由。
+
 ---
 
 ## 四、已确认健康（无需处理）
@@ -232,6 +253,10 @@
 - `backend/Dockerfile`、`frontend/Dockerfile`：动态端口 / standalone 入口与配置一致（生产运行路径正确；本地开发路径的问题另见第 22、23 条）。
 - **`backend/schema.sql` 与模型一致（第 12 轮复核）**：手动建表脚本中 7 张在用表（users / user_profiles / genomic_data / microbiome_data / metabolomics_data / metabolomics_pathways / food_nutrition / nutrition_recommendations）的列名、类型、可空性、索引与 `backend/app/models/` 下的 SQLAlchemy 定义逐列吻合；仅其 `roles` / `permissions` / `role_permissions` / `user_roles` 四表对应 RBAC 死架构（见第 14 条）。
 - **仓库根无游离的未跟踪文件（第 12 轮复核）**：`.uploads/` 已被 `.gitignore:62` 忽略；`.screenshots/.tmp/` 为空目录（故 `git status` 干净），其忽略缺口已并入第 21 条。
+- **文档相对链接有效（第 13 轮复核）**：`README.md` / `README.zh-CN.md`、`docs/API.md`、`docs/DATASETS.md`、`CODE_OF_CONDUCT.md` 的相对链接全部指向存在的文件（唯一失效项为 PR 模板，见第 25 条）。
+- **无硬编码凭据（第 13 轮复核）**：全仓库扫描未发现 `sk-*` / `AKID*` / `BEGIN ... PRIVATE KEY` 等密钥；出现的 `metanutri-backend.onrender.com`、`*.supabase.com` 均为部署文档与 `keepalive.yml` 中的公开地址，非凭据。
+- **静态资源引用有效（第 13 轮复核）**：`frontend/public/.gitkeep` 已被跟踪，故 `frontend/Dockerfile:29` 的 `COPY /app/public` 在干净检出下不会失败；`frontend/scripts/start-standalone.mjs` 由 `package.json` 的 `start:standalone` 引用、`docs/assets/banner.jpg` 被两份 README 引用，均非死文件。
+- **受保护路由为双层**：`(app)/layout.tsx` 挂客户端 `ProtectedRoute` 守卫 + 后端 Cookie 鉴权（数据接口），职责清晰，无 middleware 亦无泄露（页面本身不含敏感数据）。
 - `.github/workflows/ci.yml`：前端 typecheck+lint+test+build、e2e、后端 compileall+import 冒烟，覆盖充分。
 - `frontend/playwright.config.ts`、`frontend/vitest.config.mjs`：与 standalone 输出匹配。
 - `.github/workflows/keepalive.yml`：已从定时保活重构为 push/dispatch 健康检查，保活交由外部 cron。
@@ -268,10 +293,11 @@
 7. 对齐 KEGG 数据：更新 `DATASETS.md:88` 或重跑下载器覆盖 `kegg_pathways.json`（第 10 条）。
 8. 清理：删除孤立设计文档；整理 `.gitignore`（第 18、21 条）；补全 `models/__init__.py`（第 19 条）；评估清理 RBAC 三处残留、Bearer 遗留命名、未加载权重与权重加载函数。
 9. 容器/镜像卫生：新增根级与 `frontend/` 的 `.dockerignore`（第 22 条）；删除 5 个模型文件的未使用 `UUID` 导入（第 24 条）。
+10. 文档与 SEO 小修：修正 PR 模板链接为 `../../CONTRIBUTING.md`（第 25 条）；按需补 favicon / `robots.ts` / `sitemap.ts`（第 26 条）；确认并对齐 Vercel 与后端/Supabase 的区域（第 27 条）。
 
 ---
 
-## 附：十二轮审查覆盖维度
+## 附：十三轮审查覆盖维度
 
 | 轮次 | 维度 | 新增结论 |
 |------|------|----------|
@@ -287,6 +313,7 @@
 | 10 | 数据文件与生成器一致性、启动脚本 | KEGG 数据/文档/生成器三方漂移；`.gitignore` 未忽略 `.pid` 文件 |
 | 11 | 前后端接口对账 + 线上只读实测 | `/api/datasets/categories` 未鉴权（实测 200）；`/api/datasets` 尾斜杠 307 到绝对后端地址 |
 | 12 | 容器构建上下文 / 镜像卫生 / 模型与建表脚本对齐 | 无 `.dockerignore`（上下文膨胀、`.env` 泄漏、依赖覆盖风险）；compose 用生产镜像跑 `npm run dev` 缺 devDeps；5 个模型文件未使用的 `UUID` 导入；`.screenshots/` 忽略缺口；`schema.sql` 与模型一致（复核通过） |
+| 13 | 文档相对链接 / SEO 静态资产 / 硬编码凭据扫描 | PR 模板贡献指南链接失效；缺 favicon/robots/sitemap；Vercel `iad1` 与文档中 Supabase 悉尼区域不一致（待确认）；无硬编码密钥、其余相对链接与静态资源引用均有效（复核通过） |
 
 ---
 
