@@ -38,7 +38,7 @@
 | 24 | 5 个模型文件未使用 `UUID` 导入 | 低 | ✅ 已删除 5 行导入 |
 | 25 | PR 模板贡献指南链接失效 | 低 | ✅ 改为 `../../CONTRIBUTING.md` |
 | 26 | 缺 favicon/robots/sitemap | 低 | ✅ 新增 `app/icon.svg`、`app/robots.ts`、`app/sitemap.ts` |
-| 27 | Vercel 区域不一致 | 低 | ✅ 已在 `DEPLOYMENT.md` 说明区域对齐建议（未擅自改 `regions`，后端实际区域待确认） |
+| 27 | Vercel 区域不一致 | 低 | ✅ 已确认 Render 后端在 Singapore；`vercel.json` 的 `regions` 由 `iad1` 改为 `sin1`，`DEPLOYMENT.md` 同步 |
 
 **验证**（本沙箱实测）：
 - 后端：`python -m compileall -q app` 通过；`backend/data/kegg_pathways.json` JSON 解析通过（8 条、键 `name`/`prefix`）。
@@ -292,6 +292,7 @@
 - **证据**：`frontend/vercel.json:8` 设为 `"regions": ["iad1"]`（US East · Washington）；而 `backend/.env.example:4` 与 `docs/DEPLOYMENT.md:44` 给出的 Supabase 连接池主机为 `aws-0-ap-southeast-2.pooler.supabase.com`（**ap-southeast-2 · 悉尼**）。
 - **影响**：前端同源代理（`frontend/next.config.ts` 的 rewrites）在 Vercel 边缘/函数内执行，若 Vercel 函数在 iad1 而数据库在悉尼，跨区往返会增加延迟。仅影响性能，不影响正确性；Render 实际区域未知，故列为**待确认**。
 - **建议**：确认后端实际区域后统一（例如把前端 region 调到离 Render/Supabase 更近的区域），或在部署文档中说明区域选择理由。
+- **已处理（2026-10-02）**：Render 控制台确认后端位于 **Singapore（东南亚）**。Supabase 在悉尼 `ap-southeast-2`、后端在新加坡，均属亚太；前端 `frontend/vercel.json` 的 `regions` 由 `iad1`（US East）改为 **`sin1`（Singapore）**，与后端就近，`DEPLOYMENT.md` 第 4 节同步说明。补充：本前端为**全静态 + Edge Middleware**，`regions` 对现有运行时影响本就很小，此改动属未雨绸缪的低风险对齐。
 
 ---
 
