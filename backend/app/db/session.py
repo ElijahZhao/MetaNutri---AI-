@@ -10,15 +10,26 @@ if "prepared_statement_cache_size=" not in _db_url:
     sep = "&" if "?" in _db_url else "?"
     _db_url = f"{_db_url}{sep}prepared_statement_cache_size=0"
 
+_is_sqlite = _db_url.startswith("sqlite") or _db_url.startswith("sqlite+")
+
 engine = create_async_engine(
     _db_url,
     echo=False,
     future=True,
-    pool_pre_ping=True,
-    connect_args={"server_settings": {"jit": "off"}},
-    pool_size=5,
-    max_overflow=10,
-    pool_recycle=1800,
+    # pool_size / pool_recycle / server_settings are asyncpg (PostgreSQL)
+    # concerns. SQLite uses NullPool and rejects these kwargs, so only pass
+    # them for a PostgreSQL backend.
+    **(
+        {}
+        if _is_sqlite
+        else {
+            "pool_pre_ping": True,
+            "connect_args": {"server_settings": {"jit": "off"}},
+            "pool_size": 5,
+            "max_overflow": 10,
+            "pool_recycle": 1800,
+        }
+    )
 )
 
 AsyncSessionLocal = async_sessionmaker(
