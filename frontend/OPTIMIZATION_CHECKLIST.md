@@ -29,7 +29,7 @@
 
 - [x] **1.1 TypeScript 类型体系** — `src/types/`（`auth` / `profile` / `risk` / `omics` / `nutrition` / `dataset` / `api`）形状对齐后端 pydantic；核心逻辑层（`lib/api.ts`、`lib/hooks.ts`、`lib/store/authStore.ts`、`lib/i18n.tsx`）与全部 50+ 展示组件/页面 content 均已迁 `.ts/.tsx`；`tsconfig.json` 开启 `strict: true`，新增 `npm run typecheck`（`tsc --noEmit`）；配置与测试（`next.config.ts`、`playwright.config.ts`、`vitest.setup.ts`、`tests/e2e/smoke.spec.ts`）同步 TS 化。`typecheck` / `lint`（0 error）/ `test`（9）/ `build` 全绿。
 - [x] **1.2 统一路由守卫与认证状态** — `src/lib/store/authStore.ts`（Zustand）承载认证状态（用户对象，令牌在 httpOnly Cookie 中，前端不可读）；`ProtectedRoute` 已接入全部 10 个受保护页面（原为死代码：把 `isAuthenticated` 当布尔值用导致永不生效）；新增 `src/middleware.ts` 服务端边缘守卫：无会话 Cookie 访问受保护路由直接 302 到 `/login`，已登录访问 `/login` 反向跳 `/dashboard`（只校验 Cookie 存在性，真正鉴权仍在 API 侧）。
-- [ ] 🟡 **1.3 全局布局统一化** — 首页已拆分为 `components/home/`（SiteHeader/HeroSection/FeatureGrid/CTASection）；但未建 `(app)`/`(auth)` 路由组，各页仍各自 `import Navbar`。
+- [x] **1.3 全局布局统一化** — 首页已拆分为 `components/home/`（SiteHeader/HeroSection/FeatureGrid/CTASection）；新增 `(app)`/`(auth)` 路由组：`(app)/layout.tsx` 统一挂载 `Navbar`+`ProtectedRoute`，`(auth)/layout.tsx` 统一居中渐变外壳，10 个受保护页与登录/找回密码页不再各自包裹；`RouteLoading` 退化为纯内容骨架，E2E 新增「每个受保护路由恰好渲染一次共享外壳」回归用例。
 - [x] **1.4 统一错误边界** — `components/ErrorBoundary.jsx` + `app/error.js`，全局（ClientProvider 内）与 dashboard 局部均已包裹。
 
 ## 二、API 层优化
@@ -170,9 +170,17 @@
 - [x] 同步更新 E2E（打桩后手动种会话 Cookie）与单测（断言 localStorage 不再存令牌）
 - [x] 已用最小 FastAPI 应用做功能自测：读/写分档生效、`/health` 豁免、其他 IP 不受影响、429 带 CORS 头
 
+**已完成（第九轮：工程化收尾）**
+- [x] `1.3` `(app)`/`(auth)` 路由组统一布局，消除各页重复的 `Navbar`/外壳包裹
+- [x] 受保护页 loading 分支补 `main#main-content`，四种「无主区」早退状态不再破坏外壳与 a11y 结构
+- [x] 修复 `authStore` 双份存储竞态：此前用户同时写在 `metanutri-user`（同步读）与 `metanutri-auth`（persist 异步水合）两处，直接打开受保护页时首帧 `user=null` 会把已登录用户弹回 `/login`（经中间件又落到 `/dashboard`）。改为单一 `persist` 源 + `hydrated` 标志，`ProtectedRoute` 等待水合后再判定；同时移除 5 个页面里与布局重复的 `isAuthenticated()` 守卫（竞态来源）
+- [x] 修复 `next.config.ts` CSP 的 `upgrade-insecure-requests`：它把 App Router 同源 RSC 请求从 http 升级为 https，任何 HTTP 部署（本地 `next start`、E2E、无 TLS 自托管）都会 `ERR_SSL_PROTOCOL_ERROR` → 回退整页导航 → 夹具 `ERR_ABORTED`。已移除（HTTPS 部署由 HSTS 保障）
+- [x] 修复 `metabolomics` 页 `analysis.pathways.length` 无空值保护导致整页被 `ErrorBoundary` 接管（与同文件 144 行的写法保持一致）
+- [x] E2E 打桩补全 `datasets/stats`、`datasets/tianchi`、`metabolomics/analysis` 等真实信封形状，并修正 `startsWith('/api/datasets')` 吞掉子路由、`/api/users/profile` 尾部斜杠不匹配两处打桩缺陷
+- [x] 全量验证：`typecheck` / `lint`（0 error）/ `test`（10）/ `build` / `playwright`（4 passed）全绿
+
 **待办 · 中大型**
 - [ ] 通用 `uploadFile(endpoint, file, onProgress)` 封装（2.4）
-- [ ] `(app)`/`(auth)` 路由组统一布局（1.3）
 
 **待办 · 新增功能类**
 - [ ] 头像上传、Dashboard 图表增强、WebSocket 通知、next/image

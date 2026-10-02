@@ -1,0 +1,274 @@
+'use client';
+import { useEffect, useState } from 'react';
+import type React from 'react';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { genomicAPI } from '@/lib/api';
+import { useLanguage } from '@/lib/i18n';
+import { toast } from 'react-hot-toast';
+import type { ApiErrorLike, GenomicAnalysis, GenomicEntry, GenomicEntryInput } from '@/types';
+import { Dna, Upload, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
+
+interface GenomicForm {
+  gene_name: string;
+  snp_id: string;
+  genotype: string;
+  effect_score: string;
+  trait_description: string;
+}
+
+function GenomicContent() {
+  const { t } = useLanguage();
+  const [data, setData] = useState<GenomicEntry[]>([]);
+  const [analysis, setAnalysis] = useState<GenomicAnalysis | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [form, setForm] = useState<GenomicForm>({
+    gene_name: '',
+    snp_id: '',
+    genotype: '',
+    effect_score: '',
+    trait_description: '',
+  });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await genomicAPI.getUserData();
+      setData(res.data);
+    } catch (e) {
+      console.error(e);
+      toast.error((e as ApiErrorLike).userMessage || t.genomic.loadFailed);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploading(true);
+    try {
+      const payload: GenomicEntryInput[] = [
+        {
+          gene_name: form.gene_name,
+          snp_id: form.snp_id || null,
+          genotype: form.genotype || null,
+          effect_score: form.effect_score ? parseFloat(form.effect_score) : null,
+          trait_description: form.trait_description || null,
+        },
+      ];
+      await genomicAPI.upload(payload);
+      toast.success(t.genomic.addSuccess);
+      setForm({ gene_name: '', snp_id: '', genotype: '', effect_score: '', trait_description: '' });
+      fetchData();
+    } catch (e) {
+      console.error(e);
+      toast.error((e as ApiErrorLike).userMessage || t.genomic.addFailed);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleAnalyze = async () => {
+    setLoading(true);
+    try {
+      const res = await genomicAPI.analyze();
+      setAnalysis(res.data);
+      toast.success(t.genomic.analysisSuccess);
+    } catch (e) {
+      console.error(e);
+      toast.error((e as ApiErrorLike).userMessage || t.genomic.analysisFailed);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <Dna className="w-6 h-6 text-emerald-600" />
+            {t.genomic.title}
+          </h1>
+          <p className="text-slate-600">{t.genomic.subtitle}</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <Upload className="w-5 h-5" />
+              {t.genomic.addEntry}
+            </h2>
+            <form onSubmit={handleAdd} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.genomic.geneName}
+                  </label>
+                  <input
+                    required
+                    value={form.gene_name}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setForm({ ...form, gene_name: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.genomic.snpId}
+                  </label>
+                  <input
+                    value={form.snp_id}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setForm({ ...form, snp_id: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.genomic.genotype}
+                  </label>
+                  <input
+                    value={form.genotype}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setForm({ ...form, genotype: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t.genomic.effectScore}
+                  </label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    value={form.effect_score}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setForm({ ...form, effect_score: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  {t.genomic.traitDescription}
+                </label>
+                <textarea
+                  value={form.trait_description}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setForm({ ...form, trait_description: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  rows={2}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={uploading}
+                className="w-full py-2.5 text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {uploading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {t.add}
+              </button>
+            </form>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900">
+                {t.genomic.yourVariants} ({data.length})
+              </h2>
+              <button
+                onClick={handleAnalyze}
+                className="px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-md hover:bg-emerald-100 transition-colors"
+              >
+                {t.genomic.runAnalysis}
+              </button>
+            </div>
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
+              </div>
+            ) : data.length > 0 ? (
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {data.map((d) => (
+                  <div
+                    key={d.id}
+                    className="p-3 rounded-lg bg-slate-50 border border-slate-100 text-sm"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium text-slate-800">{d.gene_name}</span>
+                      <span className="text-xs text-slate-500">{d.snp_id}</span>
+                    </div>
+                    <div className="text-slate-600 mt-1">
+                      Genotype: {d.genotype || 'N/A'} | Score: {d.effect_score}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 py-8 text-center">{t.genomic.noData}</p>
+            )}
+          </div>
+        </div>
+
+        {analysis && (
+          <div className="mt-6 bg-white rounded-xl border border-slate-200 p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">
+              {t.genomic.analysisResults}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <p className="text-sm text-slate-500">{t.genomic.totalSnps}</p>
+                <p className="text-2xl font-bold text-slate-900">{analysis.total_snps}</p>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <p className="text-sm text-slate-500">{t.genomic.keyGenes}</p>
+                <p className="text-lg font-medium text-slate-900">
+                  {analysis.key_genes.join(', ')}
+                </p>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <p className="text-sm text-slate-500">{t.genomic.nutritionRisks}</p>
+                <p className="text-2xl font-bold text-red-600">{analysis.nutrition_risks.length}</p>
+              </div>
+            </div>
+            {analysis.nutrition_risks.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {analysis.nutrition_risks.map((r, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-2 p-3 bg-red-50 rounded-lg text-sm text-red-800"
+                  >
+                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <span className="font-medium">
+                        {String(r.gene ?? '')} ({String(r.snp ?? '')})
+                      </span>
+                      : {String(r.description ?? '')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+    </>
+  );
+}
+
+export default function GenomicPage() {
+  return (
+    <ErrorBoundary>
+      <GenomicContent />
+    </ErrorBoundary>
+  );
+}
