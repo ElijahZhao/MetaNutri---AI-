@@ -71,15 +71,13 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 
 ## 📸 Screenshots
 
-| Landing page | Sign in |
+| Landing page | Dashboard |
 |:---:|:---:|
-| ![Landing page](docs/assets/screenshots/01-landing.png) | ![Sign in page](docs/assets/screenshots/02-login.png) |
+| ![Landing page](docs/assets/screenshots/01-landing.png) | ![Nutrition dashboard](docs/assets/screenshots/02-dashboard.png) |
 
-<p align="center">
-  <img src="docs/assets/screenshots/01b-landing-full.png" alt="Landing page — full scroll" width="240" />
-  <br />
-  <sub>Landing page — full scroll</sub>
-</p>
+| Dataset management | Sign in |
+|:---:|:---:|
+| ![Dataset management](docs/assets/screenshots/03-datasets.png) | ![Sign in page](docs/assets/screenshots/04-login.png) |
 
 ---
 
