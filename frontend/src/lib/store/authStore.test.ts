@@ -69,6 +69,8 @@ describe('authStore.logout', () => {
     useAuthStore.getState().logout();
 
     expect(useAuthStore.getState().user).toBeNull();
-    expect(localStorage.getItem('metanutri-user')).toBeNull();
+    // The display object is persisted under `metanutri-auth`; logout stores null there.
+    const persisted = JSON.parse(localStorage.getItem('metanutri-auth') ?? '{}');
+    expect(persisted.state?.user ?? null).toBeNull();
   });
 });
