@@ -13,7 +13,9 @@
 [![GitHub Stars](https://img.shields.io/github/stars/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=10b981)](https://github.com/ElijahZhao/MetaNutri---AI-/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=3b82f6)](https://github.com/ElijahZhao/MetaNutri---AI-/network/members)
 [![License](https://img.shields.io/github/license/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=8b5cf6)](LICENSE)
+[![CI](https://github.com/ElijahZhao/MetaNutri---AI-/actions/workflows/ci.yml/badge.svg)](https://github.com/ElijahZhao/MetaNutri---AI-/actions/workflows/ci.yml)
 [![Issues](https://img.shields.io/github/issues/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=f59e0b)](https://github.com/ElijahZhao/MetaNutri---AI-/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981?style=for-the-badge)](CONTRIBUTING.md)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -38,6 +40,8 @@
 - [🏗️ Architecture](#️-architecture)
 - [🛠️ Tech Stack](#️-tech-stack)
 - [🚀 Getting Started](#-getting-started)
+- [🔌 API & AI/ML](#-api--aiml)
+- [🧪 Testing & CI](#-testing--ci)
 - [☁️ Cloud Deployment](#️-cloud-deployment)
 - [📁 Project Structure](#-project-structure)
 - [🤝 Contributing](#-contributing)
@@ -73,12 +77,15 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | 🧬 | **Tri-Omics Integration** | Genomics + Microbiome + Metabolomics data analysis in a unified pipeline |
 | 🤖 | **Deep Learning Models** | PyTorch model code for metabolic response, gene-nutrition (GNN) and microbiome (VAE) — research code; the live API currently serves deterministic heuristics |
 | 🔍 | **Explainable AI** | SHAP and LIME feature importance for every recommendation |
+| 📊 | **Interactive Dashboards** | Health score, body-metrics and risk-radar cards backed by ECharts visualizations |
 | 🚨 | **Health Alerts** | Real-time nutritional deficiency detection and health risk assessment |
-| 📊 | **Interactive Visualization** | Metabolic pathway maps, ECharts dashboards, and radar charts |
-| 👤 | **User Profiles** | Personal health metrics and dietary goals |
-| 🍽️ | **Meal Planning** | AI-generated personalized meal plans based on your biology |
-| 🌐 | **i18n Support** | Full English / Chinese bilingual interface |
-| 📱 | **Responsive Design** | Works beautifully on desktop, tablet, and mobile |
+| 🍎 | **Food & Nutrition Explorer** | Searchable food database with per-user food scoring |
+| 🍽️ | **AI Meal Planning** | AI-generated personalized meal plans based on your biology |
+| 📁 | **Dataset Browser** | Explore the curated reference datasets shipped with the platform |
+| 📥 | **Import / Export** | Bring your own omics and food data in, and take your results out |
+| 🔐 | **Secure by Default** | httpOnly-cookie sessions, bcrypt hashing and request rate limiting |
+| 🌐 | **Bilingual UI** | Full English / Chinese interface on a lightweight custom i18n layer |
+| 📱 | **Polished & Responsive** | DNA / particle animations and layouts that adapt to desktop, tablet and mobile |
 
 </div>
 
@@ -88,43 +95,39 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                              Users                                    │
-│                         (Browser / Mobile)                           │
+│                       Users (Browser / Mobile)                      │
+└──────────────────────────────────┬──────────────────────────────────┘
+                                   │  HTTPS
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Vercel (Frontend)                            │
+│    Next.js 16 App Router — statically prerendered pages             │
+│  ┌───────────────┐┌────────────────┐┌───────────────────────────┐   │
+│  │ Static Pages  ││ Edge Middleware││ ECharts + custom i18n      │   │
+│  │ (App Router)  ││  (proxy.ts)    ││ (charts, EN / ZH)          │   │
+│  └───────────────┘└────────────────┘└───────────────────────────┘   │
+│    rewrites  /api/*  →  same-origin proxy (keeps cookies 1st-party) │
+└──────────────────────────────────┬──────────────────────────────────┘
+                                   │  HTTPS / REST
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Render (Backend)                            │
+│                       FastAPI (Python 3.11)                         │
+│  ┌────────┐┌────────┐┌────────┐┌────────┐┌──────────┐              │
+│  │  Auth  ││ Users  ││ Foods  ││ Omics  ││ Predict  │              │
+│  └────────┘└────────┘└────────┘└────────┘└──────────┘              │
+│  ┌────────┐┌──────────┐┌────────┐┌──────────────┐                  │
+│  │ Alerts ││ Datasets ││ Import ││ ML (PyTorch) │                  │
+│  └────────┘└──────────┘└────────┘└──────────────┘                  │
+│   SQLAlchemy 2.0 async ORM · SHAP / LIME · optional Redis cache     │
 └──────────────────────────────────┬──────────────────────────────────┘
                                    │
                                    ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                           Vercel (Frontend)                          │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐              │
-│  │ Next.js  │ │  React   │ │  ECharts │ │ i18n     │              │
-│  │  (SSR)   │ │  (UI)    │ │ (Charts) │ │ (l10n)   │              │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘              │
-└──────────────────────────────────┬──────────────────────────────────┘
-                                   │  HTTPS / REST API
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                          Render (Backend)                             │
-│  ┌─────────────────────────────────────────────────────────────┐    │
-│  │                        FastAPI (Python)                       │    │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │    │
-│  │  │  Auth   │ │  Users  │ │  Foods  │ │  Omics  │          │    │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘          │    │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │    │
-│  │  │  Predict│ │  Alerts │ │  Datasets│ │ Import  │          │    │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘          │    │
-│  └─────────────────────────────────────────────────────────────┘    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
-│  │  PyTorch     │  │  SQLAlchemy  │  │  Redis (opt) │             │
-│  │  (ML Models) │  │   (ORM)      │  │   (Cache)    │             │
-│  └──────────────┘  └──────────────┘  └──────────────┘             │
-└──────────────────────────────────┬──────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                   Supabase (PostgreSQL Database)                    │
-│  Stores user, omics and dataset tables.                             │
-│  Auth is handled by the FastAPI API via httpOnly cookies;           │
-│  Supabase Auth and Storage are NOT used.                            │
+│                   Supabase (Managed PostgreSQL)                     │
+│   Stores user, profile, food, omics and dataset tables.             │
+│   Auth is handled by the FastAPI API via httpOnly cookies;          │
+│   Supabase Auth and Storage are NOT used.                           │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -231,13 +234,13 @@ docker-compose down
 
 ---
 
-## 🔌 API & AI/ML 实战
+## 🔌 API & AI/ML
 
-完整的接口清单见 [📘 API 参考](docs/API.md)。后端交互式文档在 `<BASE>/docs`（Swagger）与 `<BASE>/redoc`。
+The full endpoint list lives in the [📘 API Reference](docs/API.md). The backend also exposes interactive docs at `<BASE>/docs` (Swagger) and `<BASE>/redoc`.
 
-### 认证（httpOnly Cookie）
+### Authentication (httpOnly cookies)
 
-登录后令牌通过 httpOnly Cookie 下发，前端无需手动附加 `Authorization` 头：
+Tokens are delivered as httpOnly cookies at login; the frontend never has to attach an `Authorization` header manually:
 
 ```http
 POST /api/auth/login          # {username, password}
@@ -245,38 +248,52 @@ Set-Cookie: metanutri_access=...; HttpOnly; SameSite=Lax
 Set-Cookie: metanutri_refresh=...; HttpOnly; SameSite=Lax
 ```
 
-### 一条完整的 AI 调用链路
+### A complete AI call path
 
-1. **登录**获取会话 → 之后请求自动带 Cookie。
-2. **上传组学数据**：`POST /api/genomic/upload`、`/api/microbiome/upload`、`/api/metabolomics/upload`。
-3. **跑预测**：`POST /api/predict/glucose-response` 或 `GET /api/predict/risk-assessment`。
-4. **拿推荐/饮食计划**：`POST /api/recommendations/meal-plan`。
-5. **获取个性化解释**：预测返回里含营养解读与 `feature_contributions`（SHAP）。
+1. **Log in** to obtain a session — later requests carry the cookie automatically.
+2. **Upload omics data**: `POST /api/genomic/upload`, `/api/microbiome/upload`, `/api/metabolomics/upload`.
+3. **Run predictions**: `POST /api/predict/glucose-response` or `GET /api/predict/risk-assessment`.
+4. **Get recommendations / meal plans**: `POST /api/recommendations/meal-plan`.
+5. **Read the explanation**: prediction responses include a nutritional interpretation and `feature_contributions` (SHAP).
 
 ```bash
 BASE=https://metanutri-backend.onrender.com
 
-# 登录并保存 Cookie
+# Log in and persist the cookies
 curl -c cookies.txt -X POST "$BASE/api/auth/login" \
   -H 'Content-Type: application/json' \
   -d '{"username":"you","password":"secret123"}'
 
-# 生成饮食计划（需登录）
+# Generate a meal plan (auth required)
 curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
   -H 'Content-Type: application/json' \
   -d '{"calorie_target":2000}'
 ```
 
-### AI/ML 模块（后端）
+### AI/ML modules (backend)
 
-| 模块 | 能力 |
-|------|------|
-| `ml/metabolic_response_model.py` | 血糖响应 / 营养吸收预测器 |
-| `ml/gene_nutrition_model.py` | 基因-营养关联（GNN） |
-| `ml/microbiome_vae.py` | 微生物组健康（VAE） |
-| `ml/explainability.py` | SHAP + 自定义 LIME 可解释性 |
-| `ml/train_models.py` | 模型训练脚本 |
-| `ml/weights/` | 预训练权重 |
+| Module | Capability |
+|--------|------------|
+| `ml/metabolic_response_model.py` | Glucose response / nutrient absorption predictor |
+| `ml/gene_nutrition_model.py` | Gene–nutrition association (GNN) |
+| `ml/microbiome_vae.py` | Microbiome health (VAE) |
+| `ml/explainability.py` | SHAP + custom LIME explainability |
+| `ml/train_models.py` | Model training scripts |
+| `ml/weights/` | Pre-trained model weights |
+
+---
+
+## 🧪 Testing & CI
+
+| Check | Tooling | Command |
+|-------|---------|---------|
+| Type safety | TypeScript (`tsc --noEmit`) | `npm run typecheck` |
+| Lint | ESLint (flat config) | `npm run lint` |
+| Unit / component tests | Vitest + Testing Library | `npm test` |
+| End-to-end tests | Playwright (Chromium) | `npm run test:e2e` |
+| Backend syntax + import smoke test | `compileall` + FastAPI import | `python -m compileall -q app` |
+
+Every push and pull request runs all of the above through [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ---
 
@@ -324,37 +341,37 @@ MetaNutri---AI-/
 ├── backend/                          # ⚙️ FastAPI backend
 │   ├── app/
 │   │   ├── api/                      # API route handlers
-│   │   │   ├── auth.py               # Authentication (register/login)
+│   │   │   ├── auth.py               # Authentication (register / login / refresh)
 │   │   │   ├── users.py              # User profile management
-│   │   │   ├── food.py               # Food logs & nutrition
+│   │   │   ├── food.py               # Food search, logging & nutrition
 │   │   │   ├── genomic.py            # Genomics data analysis
 │   │   │   ├── microbiome.py         # Microbiome analysis
 │   │   │   ├── metabolomics.py       # Metabolomics data
 │   │   │   ├── predict.py            # AI prediction endpoints
-│   │   │   ├── recommendation.py     # Nutrition recommendations
+│   │   │   ├── recommendation.py     # Nutrition recommendations & meal plans
 │   │   │   ├── datasets.py           # Dataset management
-│   │   │   ├── import_export.py      # Data import/export
+│   │   │   ├── import_export.py      # Data import / export
 │   │   │   └── nutrition_alerts.py   # Health alert system
 │   │   ├── core/                     # Core infrastructure
 │   │   │   ├── config.py             # Settings & env vars
 │   │   │   ├── security.py           # JWT + httpOnly cookie auth, password hashing
 │   │   │   ├── rate_limit.py         # In-memory rate limiter
 │   │   │   └── redis.py              # Redis cache (graceful fallback)
-│   │   ├── db/                       # Database layer
+│   │   ├── db/
 │   │   │   └── session.py            # SQLAlchemy async engine
 │   │   ├── ml/                       # 🧠 Machine learning models
 │   │   │   ├── metabolic_response_model.py   # Transformer predictor
 │   │   │   ├── gene_nutrition_model.py       # GNN gene-nutrition
 │   │   │   ├── microbiome_vae.py             # VAE microbiome health
-│   │   │   ├── explainability.py              # SHAP/LIME explainer
-│   │   │   ├── dataset_downloader.py           # Public dataset fetcher
-│   │   │   ├── train_models.py                 # Training scripts
-│   │   │   └── weights/                        # Pre-trained model weights
+│   │   │   ├── explainability.py             # SHAP / LIME explainer
+│   │   │   ├── dataset_downloader.py         # Reference dataset fetcher
+│   │   │   ├── train_models.py               # Training scripts
+│   │   │   └── weights/                      # Pre-trained model weights
 │   │   ├── models/                   # SQLAlchemy ORM models
-│   │   ├── schemas/                  # Pydantic request/response schemas
-│   │   ├── services/                 # Business logic layer
+│   │   ├── schemas/                  # Pydantic request / response schemas
+│   │   ├── services/                 # Business logic (seed data, import / export)
 │   │   └── main.py                   # FastAPI application entry
-│   ├── data/                         # Seed & reference data
+│   ├── data/                         # Seed & reference datasets (JSON)
 │   ├── schema.sql                    # PostgreSQL table definitions
 │   ├── requirements.txt              # Python dependencies
 │   ├── Dockerfile                    # Production container
@@ -362,12 +379,12 @@ MetaNutri---AI-/
 │
 ├── frontend/                         # 🎨 Next.js frontend
 │   ├── src/
-│   │   ├── app/                      # Next.js App Router pages (TSX)
-│   │   │   ├── (auth)                # Public auth group
+│   │   ├── app/                      # Next.js App Router
+│   │   │   ├── (auth)/               # Public auth group
 │   │   │   │   ├── login/            # Sign in
 │   │   │   │   └── forgot-password/  # Password recovery
-│   │   │   ├── (app)                 # Protected app group (auth guarded)
-│   │   │   │   ├── dashboard/        # Analytics dashboard
+│   │   │   ├── (app)/                # Protected group (auth guarded)
+│   │   │   │   ├── dashboard/        # Analytics & health score
 │   │   │   │   ├── profile/          # User profile
 │   │   │   │   ├── genomic/          # Genomics analysis
 │   │   │   │   ├── microbiome/       # Microbiome analysis
@@ -378,43 +395,61 @@ MetaNutri---AI-/
 │   │   │   │   ├── explore/          # Food exploration
 │   │   │   │   └── datasets/         # Dataset browser
 │   │   │   ├── page.tsx              # Landing page
+│   │   │   ├── content.tsx           # Landing page content
 │   │   │   ├── layout.tsx            # Root layout (metadata, i18n)
+│   │   │   ├── loading.tsx           # Route loading UI
 │   │   │   ├── error.tsx             # Global error boundary
-│   │   │   └── not-found.tsx         # Custom 404 page
+│   │   │   ├── not-found.tsx         # Custom 404 page
+│   │   │   ├── icon.svg              # Favicon
+│   │   │   ├── opengraph-image.tsx   # Dynamic Open Graph image
+│   │   │   ├── twitter-image.tsx     # Dynamic Twitter card
+│   │   │   ├── robots.ts             # robots.txt
+│   │   │   └── sitemap.ts            # sitemap.xml
 │   │   ├── components/               # Reusable UI components
-│   │   │   ├── home/                 # Landing page sections
+│   │   │   ├── home/                 # Landing sections (hero, features, CTA)
 │   │   │   ├── dashboard/            # Dashboard widgets & cards
 │   │   │   ├── Navbar.tsx            # Navigation bar
 │   │   │   ├── ProtectedRoute.tsx    # Auth route guard
 │   │   │   ├── ErrorBoundary.tsx     # React error boundary
 │   │   │   ├── Skeleton.tsx          # Loading skeletons
+│   │   │   ├── MetabolicPathway.tsx  # Interactive pathway viewer
+│   │   │   ├── NutritionAlerts.tsx   # Health alert toasts
 │   │   │   ├── BioCanvas.tsx         # Animated DNA background
-│   │   │   └── MetabolicPathway.tsx  # Interactive pathway viewer
+│   │   │   ├── BioBackground.tsx     # Bio-themed page background
+│   │   │   ├── ParticleBackground.tsx# Particle field animation
+│   │   │   ├── ScrollReveal.tsx      # Scroll-triggered reveal
+│   │   │   ├── SpotlightTitle.tsx    # Animated hero title
+│   │   │   └── TypeWriter.tsx        # Typewriter text effect
+│   │   ├── constants/                # Shared constants (profile options, BMI)
 │   │   ├── lib/                      # Utilities & services
 │   │   │   ├── api.ts                # Axios client (same-origin, cookie auth)
-│   │   │   ├── i18n.tsx              # Internationalization (EN/ZH)
+│   │   │   ├── backendWarmup.ts      # Cold-start warm-up helper
 │   │   │   ├── hooks.ts              # Custom React hooks
-│   │   │   └── store/
-│   │   │       └── authStore.ts      # Zustand auth state
-│   │   └── proxy.ts                  # Next.js 16 edge auth guard
+│   │   │   ├── i18n.tsx              # Internationalization (EN / ZH)
+│   │   │   └── store/authStore.ts    # Zustand auth state
+│   │   ├── types/                    # Shared TypeScript types
+│   │   └── proxy.ts                  # Next.js edge auth guard
+│   ├── tests/e2e/                    # Playwright end-to-end specs
+│   ├── scripts/start-standalone.mjs  # Standalone server launcher
 │   ├── public/                       # Static assets
-│   ├── next.config.ts                # Next.js config
+│   ├── next.config.ts                # Next.js config (same-origin /api rewrites)
 │   ├── tailwind.config.js            # Tailwind theme
 │   ├── vercel.json                   # Vercel deployment config
 │   ├── eslint.config.mjs             # ESLint flat config
 │   ├── vitest.config.mjs             # Vitest config
 │   ├── playwright.config.ts          # E2E test config
-│   ├── .prettierrc                   # Prettier formatting
-│   ├── package.json                  # Dependencies
-│   └── Dockerfile                    # Production container
+│   ├── Dockerfile / Dockerfile.dev   # Production / dev containers
+│   └── package.json                  # Dependencies & scripts
 │
 ├── docs/                             # 📚 Documentation & assets
-│   ├── assets/                       # Images & diagrams
+│   ├── assets/                       # Banner & screenshots
 │   ├── API.md                        # API reference
 │   ├── DEPLOYMENT.md                 # Deployment guide
-│   └── DATASETS.md                   # Dataset references
+│   ├── DATASETS.md                   # Dataset references
+│   └── AUDIT-FINDINGS.md             # Repository audit log
 │
 ├── .github/                          # GitHub config
+│   ├── workflows/                    # CI & keep-alive workflows
 │   ├── ISSUE_TEMPLATE/               # Bug & feature templates
 │   └── PULL_REQUEST_TEMPLATE/        # PR template
 │
