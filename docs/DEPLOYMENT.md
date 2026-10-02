@@ -11,7 +11,7 @@ MetaNutri 采用三端分离的云原生架构。本文档说明**三者在生�
 | 数据库 | PostgreSQL | Supabase (DB + 连接池) | 见下 |
 
 ```
-┌─────────────┐   HTTPS/JWT   ┌──────────────────┐   Pooler(PG，IPv4)   ┌──────────────┐
+┌─────────────┐   HTTPS/Cookies ┌──────────────────┐   Pooler(PG，IPv4)   ┌──────────────┐
 │  浏览器用户   │ ─────────────►│  Vercel 前端       │                      │   Supabase    │
 │ (Vercel 页面) │              │  NEXT_PUBLIC_API_URL │                      │   PostgreSQL   │
 └─────────────┘              │      ▼          │                      └──────────────┘
@@ -28,7 +28,8 @@ MetaNutri 采用三端分离的云原生架构。本文档说明**三者在生�
 - **后端通过 `DATABASE_URL` 连 Supabase PostgreSQL**：走 **连接池（pooler）**，端口 **5432（会话模式 Session）**。
   - 为什么必须用 pooler：Render 服务器**没有 IPv6**，而 Supabase 直连主机名（`db.xxxx.supabase.co`）只解析 IPv6，无法直连。
   - 为什么用 5432 会话模式而不是 6543 事务模式：事务池（pgbouncer 串行复用连接）会与 asyncpg 的预编译语句缓存冲突，导致偶发 `prepared statement already exists` 500 错误。会话模式下后端已通过 `?prepared_statement_cache_size=0` 进一步规避。
-- **认证采用 JWT**：登录成功后前段拿到 `access_token`，之后每次请求带 `Authorization: Bearer <token>`。后端 CORS 已开启 `allow_origins=["*"]`（接口为纯 Bearer 鉴权、不依赖 Cookie，因此公网开放安全）。
+- **认证采用 httpOnly Cookie**：登录成功后后端通过 `Set-Cookie` 下发 `metanutri_access` / `metanutri_refresh` 两个 **httpOnly Cookie**，浏览器自动随请求携带，无需在 JS 里手动附加 `Authorization` 头。刷新令牌每次使用都会轮换，且与 Redis 缓存校验，防重放。
+- **CORS 明确白名单**：后端启用了 `allow_credentials=True`（Cookie 必须），并对 `*.vercel.app` 用 `allow_origin_regex` 放行（覆盖 Vercel 的生产/预览/分支域名），其余来源走 `allow_origins` 精确列表。**不是** 以前的 `allow_origins=["*"]`（通配符与 `allow_credentials=True` 互斥）。
 
 ---
 
@@ -105,7 +106,7 @@ docker-compose up -d
 
 - **登录偶发 500 / `prepared statement already exists`**：`DATABASE_URL` 用错了 pooler——确认端口是 **5432 会话模式**，且连接串含 `prepared_statement_cache_size=0`。
 - **后端与数据库连不上 / `password authentication failed`**：检查 `DATABASE_URL` 的密码与 Supabase 重置后的密码是否一致。
-- **浏览器跨域失败**：后端返回 `access-control-allow-origin: *`；若改了 credentials 相关配置需同步调整 CORS。
+- **浏览器跨域失败 / 登录后立即循环跳登录页**：后端必须返回正确的 `access-control-allow-origin`（因 `allow_credentials=True`，**不允许** 为 `*`）。若你看到 CORS 报错或 cookie 未被保存，检查请求源是否命中 `allow_origin_regex` 的 `*.vercel.app` 规则。另注意无效 session 时后端会主动清除 cookie，浏览器端需处理 `401` 并重定向。
 - **前端 404 5xx / 接口无响应**：核对 `NEXT_PUBLIC_API_URL` 是否指向 Render 根地址（不要带 `/api`），并访问 `/health` 后端是否存活。
 
 ---

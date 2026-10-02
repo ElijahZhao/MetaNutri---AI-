@@ -1,290 +1,99 @@
-# 数据集文档
+# 数据集文档（MetaNutri）
 
-## 概述
+MetaNutri 使用多种公共数据集来支持精准营养代谢预测。数据集的实际管理入口是后端 `/api/datasets/*` 路由（对应 [`backend/app/api/datasets.py`](../backend/app/api/datasets.py)）、底层下载器（[`backend/app/ml/dataset_downloader.py`](../backend/app/ml/dataset_downloader.py)）。下载后的 JSON 落在 [`backend/data/`](../backend/data/) 目录，典型样例已随仓库提交。
 
-MetaNutri 使用多种公共数据集来支持精准营养代谢预测，包括食物营养数据、代谢组学数据、微生物组数据和基因-营养关联数据。
+> 所有 datasets 接口都需要**登录认证**（httpOnly Cookie），公有数据集本身是只读的参考数据，下载和导入会被记录为请求。
 
-## 数据集列表
+## 1. 数据集清单（PUBLIC_DATASETS）
 
-### 1. USDA食物营养数据库
+定义在 `dataset_downloader.py` 中的 `PUBLIC_DATASETS`，共 8 个：
 
-**来源**: USDA National Nutrient Database for Standard Reference
+| key | 名称 | 分类 | 来源 |
+|-----|------|------|------|
+| `usda` | USDA Food Database | nutrition | USDA FoodData Central |
+| `kegg` | KEGG Pathways | metabolic | KEGG |
+| `hmp` | HMP Microbiome Reference | microbiome | Human Microbiome Project |
+| `metabolomics` | Metabolomics Reference | metabolomics | HMDB |
+| `gene_nutrition` | Gene-Nutrition Interactions | genetics | SNPedia, GWAS Catalog |
+| `microbiome_samples` | Microbiome Sample Data | microbiome | MetaNutri Demo |
+| `dietary_guidelines` | Dietary Guidelines | nutrition | WHO, USDA |
+| `disease_markers` | Disease Biomarkers | clinical | MetaNutri Research |
 
-**描述**: 包含各种食物的营养成分信息
+对应落地文件（`backend/data/*.json`）：`usda_food_database.json`、`kegg_pathways.json`、`hmp_reference.json`、`metabolomics_reference.json`、`gene_nutrition_interactions.json`、`microbiome_samples.json`、`dietary_guidelines.json`、`disease_markers.json`。
 
-**数据内容**:
+> 这些参考数据由脚本生成/下载得到，真实训练所用权重位于 `backend/app/ml/weights/`。详情见 [API.md](./API.md)。
 
-| 字段 | 描述 | 示例 |
-|------|------|------|
-| food_name | 食物名称 | Apple |
-| calories | 热量 (kcal) | 95 |
-| protein | 蛋白质 (g) | 0.5 |
-| carbohydrates | 碳水化合物 (g) | 25 |
-| fat | 脂肪 (g) | 0.3 |
-| fiber | 膳食纤维 (g) | 4.4 |
-| vitamin_a | 维生素A (IU) | 98 |
-| vitamin_c | 维生素C (mg) | 8.4 |
-| calcium | 钙 (mg) | 10 |
-| iron | 铁 (mg) | 0.3 |
+## 2. API 入口
 
-**数据量**: ~30,000 条记录
+以下接口均有鉴权，`BASE` 为后端根地址（如 `https://metanutri-backend.onrender.com`）。
 
-**获取方式**:
-
-```bash
-python -m app.scripts.dataset_downloader --dataset usda
-```
-
-### 2. KEGG代谢通路数据
-
-**来源**: KEGG (Kyoto Encyclopedia of Genes and Genomes)
-
-**描述**: 包含代谢通路、酶、基因和化合物的信息
-
-**数据内容**:
-
-| 字段 | 描述 | 示例 |
-|------|------|------|
-| pathway_id | 通路ID | ko00010 |
-| pathway_name | 通路名称 | Glycolysis |
-| enzyme_id | 酶ID | EC:2.7.1.1 |
-| gene_id | 基因ID | hsa:3098 |
-| compound_id | 化合物ID | C00031 |
-
-**数据量**: ~1,000 条通路记录
-
-**获取方式**:
+### GET `/api/datasets/`
+列出所有数据集及其状态（`available` / `not_downloaded` / `error`）与记录条数。
 
 ```bash
-python -m app.scripts.dataset_downloader --dataset kegg
+curl -b cookies.txt "$BASE/api/datasets/"
 ```
 
-### 3. 人类微生物组计划(HMP)数据
+### GET `/api/datasets/categories`
+按分类归组返回数据集。
 
-**来源**: Human Microbiome Project
-
-**描述**: 包含健康人群的微生物组参考数据
-
-**数据内容**:
-
-| 字段 | 描述 | 示例 |
-|------|------|------|
-| sample_id | 样本ID | HMP001 |
-| taxon_id | 分类单元ID | OTU001 |
-| taxon_name | 分类单元名称 | Bacteroides |
-| abundance | 相对丰度 | 0.15 |
-| body_site | 身体部位 | gut |
-
-**数据量**: ~5,000 条样本记录
-
-**获取方式**:
+### POST `/api/datasets/download` · POST `/api/datasets/download/{dataset_id}`
+下载全部 / 指定数据集（写入 `backend/data/*.json`）。`dataset_id` 为上表 key。
 
 ```bash
-python -m app.scripts.dataset_downloader --dataset hmp
+curl -b cookies.txt -X POST "$BASE/api/datasets/download/usda"
+# => {"status": "success", "dataset": "usda"}
 ```
 
-### 4. 代谢组学参考数据
+### POST `/api/datasets/import/{dataset_id}`
+将已下载的 JSON 导入数据库（如 `usda` 食物写入 `FoodNutrition` 表），幂等（按名称去重）。
 
-**来源**: MetaboLights
+### GET `/api/datasets/stats`
+返回每一数据集的记录数、文件大小（KB）等统计信息。
 
-**描述**: 包含代谢物浓度参考数据
+### TianChi 集成（天池）
+- `GET /api/datasets/tianchi` — 列出可用的生物信息学数据集
+- `GET /api/datasets/tianchi/search?keyword=...` — 搜索
+- `GET /api/datasets/tianchi/{dataset_id}` — 详情
+- `POST /api/datasets/tianchi/download/{dataset_id}` — 下载
 
-**数据内容**:
+> 说明：TianChi 客户端为接入框架（映射 [`TianChiDatasetClient`](../backend/app/ml/dataset_downloader.py)）。真实下载需要阿里云 AK/SK + 数据授权，未配置时会返回 mock 数据提示。
 
-| 字段 | 描述 | 示例 |
-|------|------|------|
-| metabolite_id | 代谢物ID | HMDB0001 |
-| metabolite_name | 代谢物名称 | Glucose |
-| concentration | 浓度 (μM) | 5.2 |
-| unit | 单位 | μM |
-| reference_range | 参考范围 | 3.9-6.1 |
+## 3. 直接运行下载器（本地/非 HTTP）
 
-**数据量**: ~10,000 条代谢物记录
+作为参考，也可以在服务端进程内调用，而不走 HTTP：
 
-**获取方式**:
+```python
+from app.ml.dataset_downloader import (
+    DatasetDownloader,
+    get_available_datasets,
+    get_dataset_stats,
+)
 
-```bash
-python -m app.scripts.dataset_downloader --dataset metabolomics
+DatasetDownloader.download_all_datasets()   # 下载全部到 backend/data/
+print(get_available_datasets())            # key -> 元数据 + available
+print(get_dataset_stats())                 # 记录数 / 大小
 ```
 
-### 5. 基因-营养相互作用数据
+## 4. 数据导入到业务表
 
-**来源**: GWAS Catalog
+- 食物：`/api/datasets/import/usda` 把 `usda_food_database.json` 的 `foods` 写入 `FoodNutrition`。
+- 微生物组 / 代谢组学：推荐使用 `/api/import-export` 的用户数据导入（上传 CSV/JSON），或通过对应 `analysis` 分析；公有参考数据供分析时比对（如 HMP 参考、代谢物参考范围）。
 
-**描述**: 包含基因与营养相关性状的关联数据
+## 5. 维护与更新
 
-**数据内容**:
+- 更新参考数据：重新运行下载器即可覆盖 `backend/data/*.json`；再次 `/api/datasets/import/{id}` 会按名称去重。
+- 数据集 JSON 结构（例）：
+  - usda：`{"description": ..., "version": ..., "foods": [{"name","category","calories","protein","carbs","fat","fiber","sugar"}, ...]}`
+  - kegg：`[{"name","prefix"}, ...]`（数组，非对象）
+  - hmp：`{"taxa": [{"phylum","genus","relative_abundance","health_role"}, ...]}`
+  - metabolomics：`{"metabolites": [{"name","hmdb_id","pathway","unit"}, ...]}`
+  - gene_nutrition：`{"genes": [{"gene","rsid","trait","effect","nutrition_interaction","recommendation"}, ...]}`
+  - microbiome_samples：`{"studies": [{"study_name","sample_count","population","geographic_region","taxa":[...]}, ...]}`
+  - dietary_guidelines：`{"recommendations": {...}}`
+  - disease_markers：`{"markers": [{"disease","risk_factors":[{"biomarker","threshold","unit","direction"}],"microbiome_signature":{...}}, ...]}`
 
-| 字段 | 描述 | 示例 |
-|------|------|------|
-| gene_id | 基因ID | rs123456 |
-| gene_name | 基因名称 | FTO |
-| trait | 性状 | Body mass index |
-| nutrient | 相关营养素 | Fat |
-| p_value | P值 | 1e-8 |
-| effect_size | 效应量 | 0.15 |
+## 6. 隐私与许可
 
-**数据量**: ~2,000 条关联记录
-
-**获取方式**:
-
-```bash
-python -m app.scripts.dataset_downloader --dataset gene_nutrition
-```
-
-## 数据导入
-
-### 导入所有数据集
-
-```bash
-python -m app.scripts.dataset_downloader --all
-python -m app.scripts.import_sample_data
-```
-
-### 导入指定数据集
-
-```bash
-python -m app.scripts.dataset_downloader --dataset usda
-python -m app.scripts.import_sample_data --dataset usda
-```
-
-## 数据格式
-
-### CSV格式
-
-```csv
-food_name,calories,protein,carbohydrates,fat,fiber
-Apple,95,0.5,25,0.3,4.4
-Banana,105,1.3,27,0.4,3.1
-```
-
-### JSON格式
-
-```json
-{
-  "food_name": "Apple",
-  "nutrients": {
-    "calories": 95,
-    "protein": 0.5,
-    "carbohydrates": 25,
-    "fat": 0.3
-  }
-}
-```
-
-## 数据预处理
-
-### 数据清洗
-
-- 去除重复记录
-- 处理缺失值
-- 标准化单位
-- 验证数据范围
-
-### 特征工程
-
-- 计算营养素比例
-- 创建食物类别特征
-- 编码分类变量
-- 标准化数值特征
-
-### 数据划分
-
-- 训练集: 70%
-- 验证集: 15%
-- 测试集: 15%
-
-## 数据存储
-
-### 数据库表结构
-
-```sql
-CREATE TABLE foods (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    calories REAL,
-    protein REAL,
-    carbohydrates REAL,
-    fat REAL,
-    fiber REAL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE metabolites (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    reference_range_low REAL,
-    reference_range_high REAL,
-    unit TEXT
-);
-
-CREATE TABLE microbiome_taxa (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    taxonomic_level TEXT,
-    parent_id INTEGER
-);
-```
-
-### 缓存策略
-
-- 热门食物数据缓存到Redis
-- 设置缓存过期时间为24小时
-- 使用LRU策略淘汰缓存
-
-## 数据更新
-
-### 定期更新
-
-```bash
-python -m app.scripts.dataset_downloader --all --update
-```
-
-### 更新频率
-
-| 数据集 | 更新频率 |
-|--------|----------|
-| USDA食物数据库 | 每年 |
-| KEGG代谢通路数据 | 每月 |
-| HMP参考数据 | 每季度 |
-| 代谢组学参考数据 | 每季度 |
-| 基因-营养相互作用数据 | 每月 |
-
-## 数据质量
-
-### 验证规则
-
-- 热量值必须为正数
-- 营养素比例之和应接近100%
-- 参考范围应合理
-- 分类单元应符合命名规范
-
-### 质量报告
-
-```bash
-python -m app.scripts.data_quality_check
-```
-
-## 数据隐私
-
-### 用户数据
-
-- 用户数据加密存储
-- 脱敏处理敏感信息
-- 仅存储必要的最小数据
-
-### 公共数据
-
-- 使用公开可访问的数据集
-- 确保数据来源合法
-- 遵守数据使用协议
-
-## 许可证
-
-| 数据集 | 许可证 |
-|--------|--------|
-| USDA食物数据库 | Public Domain |
-| KEGG代谢通路数据 | Creative Commons Attribution |
-| HMP参考数据 | Public Domain |
-| MetaboLights | Creative Commons Attribution |
-| GWAS Catalog | Open Access |
+- **用户数据**：个人组学数据经鉴权隔离存储，不经本模块暴露。
+- **公共数据**：来源于上述公开数据库，归档用于演示与研究；使用前请遵守各上游的数据使用协议。
