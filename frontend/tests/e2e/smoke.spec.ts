@@ -10,20 +10,57 @@ const fulfillJson = (route: Route, status: number, body: unknown) =>
   });
 
 // 列表类端点必须返回数组，否则页面在 .map 上会抛错。
+// 注意这里只放“叶子”路径：`startsWith` 会把 `/api/datasets/*` 等子路由一并吞掉。
 const ARRAY_ENDPOINTS: string[] = [
   '/api/recommendations/personalized',
   '/api/genomic/user',
   '/api/microbiome/user',
   '/api/metabolomics/user',
-  '/api/datasets',
 ];
 
 // 返回结构与各 hook / 卡片消费的字段保持一致（见 lib/hooks.ts 与 dashboard 卡片）。
 const JSON_ENDPOINTS: Array<[RegExp, unknown]> = [
   // 登录响应只带元数据：JWT 由后端以 httpOnly Cookie 下发，前端读不到。
   [/\/api\/auth\/login/, { token_type: 'bearer', expires_in: 1800 }],
-  [/\/api\/users\/me/, { id: 1, username: 'demo', email: 'demo@example.com' }],
-  [/\/api\/users\/profile/, { age: 30, height_cm: 175, weight_kg: 70, activity_level: 'moderate' }],
+  [/^\/api\/users\/me$/, { id: 1, username: 'demo', email: 'demo@example.com' }],
+  [
+    /^\/api\/users\/profile$/,
+    { age: 30, height_cm: 175, weight_kg: 70, activity_level: 'moderate' },
+  ],
+  // `/api/datasets` 返回的是信封对象（不是数组），否则 `data.datasets` 取不到。
+  [/^\/api\/datasets$/, { datasets: [], total: 0 }],
+  // stats 页会直接读取嵌套数值，必须给出完整形状，否则渲染时 TypeError。
+  [
+    /^\/api\/datasets\/stats$/,
+    {
+      database: {
+        food_database: { total_foods: 0, categories: [] },
+        microbiome: { user_taxa_count: 0, reference_taxa_count: 0 },
+        metabolomics: {
+          user_metabolites_count: 0,
+          reference_metabolites_count: 0,
+          user_pathways_count: 0,
+        },
+        gene_nutrition: { interactions_count: 0 },
+      },
+      files: {},
+    },
+  ],
+  [
+    /^\/api\/datasets\/tianchi$/,
+    { message: 'ok', bioinformatics_datasets: [], next_steps: [] },
+  ],
+  // 代谢组页 mount 时就会调 analyze()，渲染直接读 `analysis.pathways.length`，
+  // 必须返回完整形状，否则整页被 ErrorBoundary 接管。
+  [
+    /\/api\/metabolomics\/analysis/,
+    {
+      total_metabolites: 0,
+      summary: { upregulated: 0, downregulated: 0, normal: 0 },
+      pathways: [],
+      insights: [],
+    },
+  ],
   [
     /\/api\/predict\/risk-assessment/,
     {
@@ -95,5 +132,50 @@ test('login lands on the dashboard without a blank screen', async ({ page }) => 
   await expect(page.getByRole('heading', { name: 'Nutrition Dashboard' })).toBeVisible();
   // BodyMetricsCard 曾用 t.activity（对象）渲染，这里确保标签正常显示。
   await expect(page.getByText('Activity', { exact: true })).toBeVisible();
+  expect(pageErrors).toEqual([]);
+});
+
+// 回归保护（清单 1.3）：受保护页面统一由 app/(app)/layout.tsx 提供导航栏与守卫，
+// 页面自身不再包裹。若某个路由漏挂或重复挂载外壳，这里会直接失败。
+const PROTECTED_ROUTES = [
+  '/dashboard',
+  '/datasets',
+  '/explore',
+  '/genomic',
+  '/meal-plan',
+  '/metabolomics',
+  '/microbiome',
+  '/predict',
+  '/profile',
+  '/recommendations',
+];
+
+test('every protected route renders the shared app shell exactly once', async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+
+  await mockApi(page);
+  await page.goto('/login');
+  const origin = new URL(page.url()).origin;
+  await page.context().addCookies([
+    { name: 'metanutri_access', value: 'e2e-token', url: origin },
+  ]);
+  // 中间件只看 Cookie，但客户端 `ProtectedRoute` 还要求 store 里有 user（持久化在
+  // localStorage，key 见 authStore 的 `name: 'metanutri-auth'`）。两者都种上，
+  // 才能真实模拟“已登录”状态，避免守卫把页面弹回 /login。
+  await page.evaluate(() => {
+    localStorage.setItem(
+      'metanutri-auth',
+      JSON.stringify({ state: { user: { id: 1, username: 'demo' } }, version: 0 })
+    );
+  });
+
+  for (const route of PROTECTED_ROUTES) {
+    await page.goto(route);
+    await expect(page, `route ${route}`).toHaveURL(new RegExp(`${route}$`));
+    await expect(page.locator('nav[aria-label="Main navigation"]'), `nav on ${route}`).toHaveCount(1);
+    await expect(page.locator('main#main-content'), `main on ${route}`).toHaveCount(1);
+  }
+
   expect(pageErrors).toEqual([]);
 });

@@ -27,7 +27,12 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https:",
               `connect-src 'self' ${API_URL} ws:`,
               "frame-ancestors 'none'",
-              'upgrade-insecure-requests',
+              // NOTE: intentionally no `upgrade-insecure-requests`. It upgrades the
+              // App Router's same-origin RSC fetches (plain http) to https, which
+              // breaks client-side navigation whenever the app is served over HTTP
+              // (local `next start`, e2e, self-hosted without TLS): the router gets
+              // ERR_SSL_PROTOCOL_ERROR, falls back to a full browser navigation and
+              // fixtures see ERR_ABORTED. HTTPS deployments rely on HSTS instead.
             ].join('; '),
           },
         ],

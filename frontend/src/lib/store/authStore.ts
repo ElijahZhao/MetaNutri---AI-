@@ -2,20 +2,15 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ApiErrorLike, AuthResult, User } from '@/types';
 
-const USER_STORAGE_KEY = 'metanutri-user';
-
-const getStoredUser = (): User | null => {
-  if (typeof window === 'undefined') return null;
-  try {
-    const stored = localStorage.getItem(USER_STORAGE_KEY);
-    return stored ? (JSON.parse(stored) as User) : null;
-  } catch {
-    return null;
-  }
-};
-
 interface AuthState {
+  /** Display-only copy of the signed-in user. The JWT itself is an httpOnly cookie. */
   user: User | null;
+  /**
+   * False until `persist` has read localStorage. Guards must wait on this: the
+   * very first client render (and SSR) always has `user: null`, so acting on it
+   * early would bounce a signed-in user back to /login on a direct page load.
+   */
+  hydrated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<AuthResult>;
   register: (username: string, email: string, password: string) => Promise<AuthResult>;
@@ -23,13 +18,14 @@ interface AuthState {
   /** Drop the local session without calling the API (used from the 401 path). */
   clearSession: () => void;
   setUser: (user: User | null) => void;
-  isAuthenticated: () => boolean;
+  setHydrated: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      user: getStoredUser(),
+      user: null,
+      hydrated: false,
       isLoading: false,
 
       login: async (username, password) => {
@@ -43,7 +39,6 @@ export const useAuthStore = create<AuthState>()(
           const meRes = await authAPI.me();
           const user = meRes.data;
 
-          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
           set({ user, isLoading: false });
           return { success: true, user };
         } catch (err) {
@@ -64,7 +59,6 @@ export const useAuthStore = create<AuthState>()(
           const meRes = await authAPI.me();
           const user = meRes.data;
 
-          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
           set({ user, isLoading: false });
           return { success: true, user };
         } catch (err) {
@@ -87,29 +81,20 @@ export const useAuthStore = create<AuthState>()(
         );
       },
 
-      clearSession: () => {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(USER_STORAGE_KEY);
-        }
-        set({ user: null });
-      },
+      clearSession: () => set({ user: null }),
 
-      setUser: (user) => {
-        if (typeof window !== 'undefined') {
-          if (user) {
-            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-          } else {
-            localStorage.removeItem(USER_STORAGE_KEY);
-          }
-        }
-        set({ user });
-      },
+      setUser: (user) => set({ user }),
 
-      isAuthenticated: () => !!get().user,
+      setHydrated: () => set({ hydrated: true }),
     }),
     {
       name: 'metanutri-auth',
+      // Only the display object is persisted — never a token (that lives in an
+      // httpOnly cookie). `hydrated` is runtime state and must not be stored.
       partialize: (state) => ({ user: state.user }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
+      },
     }
   )
 );
