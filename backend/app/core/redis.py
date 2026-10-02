@@ -89,6 +89,41 @@ def invalidate_user_token(user_id: str):
     _mem_set(f"user_token:{user_id}", REVOKED, _REVOKE_TTL_SECONDS)
 
 
+# --- Refresh tokens (single active session per user, rotated on every refresh) ---
+
+
+def cache_refresh_token(user_id: str, token: str, expires_seconds: int = 60 * 60 * 24 * 14):
+    r = _get_redis_client()
+    if r:
+        try:
+            r.setex(f"refresh_token:{user_id}", expires_seconds, token)
+            return
+        except Exception:
+            pass
+    _mem_set(f"refresh_token:{user_id}", token, expires_seconds)
+
+
+def get_refresh_token(user_id: str) -> str:
+    r = _get_redis_client()
+    if r:
+        try:
+            return r.get(f"refresh_token:{user_id}")
+        except Exception:
+            pass
+    return _mem_get(f"refresh_token:{user_id}")
+
+
+def invalidate_refresh_token(user_id: str):
+    r = _get_redis_client()
+    if r:
+        try:
+            r.delete(f"refresh_token:{user_id}")
+            return
+        except Exception:
+            pass
+    _memory_cache.pop(f"refresh_token:{user_id}", None)
+
+
 def cache_data(key: str, data: str, expires_seconds: int = 3600):
     r = _get_redis_client()
     if r:

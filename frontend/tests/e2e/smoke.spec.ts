@@ -1,17 +1,11 @@
 import { test, expect, type Page, type Route } from '@playwright/test';
 
-// 跨域请求（默认后端 http://localhost:8000）在浏览器里受 CORS 约束，
-// 因此 fulfill 时必须回带 CORS 头，并处理预检 OPTIONS。
-const CORS_HEADERS: Record<string, string> = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-  'access-control-allow-headers': 'authorization,content-type',
-};
-
+// 前端通过相对路径 /api/* 访问后端（同源，由 next.config.ts rewrites 代理），
+// 因此这里用 page.route 打桩即可，无需处理 CORS 预检。
 const fulfillJson = (route: Route, status: number, body: unknown) =>
   route.fulfill({
     status,
-    headers: { ...CORS_HEADERS, 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   });
 
@@ -26,7 +20,8 @@ const ARRAY_ENDPOINTS: string[] = [
 
 // 返回结构与各 hook / 卡片消费的字段保持一致（见 lib/hooks.ts 与 dashboard 卡片）。
 const JSON_ENDPOINTS: Array<[RegExp, unknown]> = [
-  [/\/api\/auth\/login/, { access_token: 'e2e-token', token_type: 'bearer' }],
+  // 登录响应只带元数据：JWT 由后端以 httpOnly Cookie 下发，前端读不到。
+  [/\/api\/auth\/login/, { token_type: 'bearer', expires_in: 1800 }],
   [/\/api\/users\/me/, { id: 1, username: 'demo', email: 'demo@example.com' }],
   [/\/api\/users\/profile/, { age: 30, height_cm: 175, weight_kg: 70, activity_level: 'moderate' }],
   [
@@ -54,12 +49,7 @@ const JSON_ENDPOINTS: Array<[RegExp, unknown]> = [
 // 打桩后端，让用例不依赖 Render 实例（可能正在冷启动，也不应把 CI 绑到生产）。
 async function mockApi(page: Page) {
   await page.route('**/api/**', async (route) => {
-    const request = route.request();
-    if (request.method() === 'OPTIONS') {
-      return route.fulfill({ status: 204, headers: CORS_HEADERS });
-    }
-
-    const { pathname } = new URL(request.url());
+    const { pathname } = new URL(route.request().url());
 
     if (ARRAY_ENDPOINTS.some((path) => pathname.startsWith(path))) {
       return fulfillJson(route, 200, []);
@@ -89,6 +79,13 @@ test('login lands on the dashboard without a blank screen', async ({ page }) => 
 
   await mockApi(page);
   await page.goto('/login');
+
+  // 真实环境里这个 Cookie 由 /api/auth/login 的 Set-Cookie 下发；打桩路由无法
+  // 触发中间件，所以手动种下访问 Cookie，模拟已建立会话。
+  const origin = new URL(page.url()).origin;
+  await page.context().addCookies([
+    { name: 'metanutri_access', value: 'e2e-token', url: origin },
+  ]);
 
   await page.locator('input[type="text"]').fill('demo');
   await page.locator('input[type="password"]').fill('Demo1234!');

@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 import logging
 
 from app.core.config import settings
+from app.core.rate_limit import RateLimitMiddleware
 from app.db.session import engine, Base
 from app.services.seed_data import seed_foods
 from app.api import auth, users, food, genomic, microbiome, metabolomics, recommendation, predict, datasets, import_export, nutrition_alerts
@@ -44,6 +45,11 @@ _DEFAULT_CORS_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
 ]
+
+# Added before CORS on purpose: Starlette treats the last-added middleware as
+# the outermost layer, so CORS ends up wrapping the limiter and 429 responses
+# still carry the Access-Control-* headers the browser needs to read them.
+app.add_middleware(RateLimitMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

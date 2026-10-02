@@ -14,28 +14,28 @@
 
 | 状态 | 数量 | 占比 |
 |------|------|------|
-| ✅ 已完整落地 | 24 | 63% |
-| 🟡 部分落地 | 8 | 21% |
-| ❌ 未落地 | 6 | 16% |
-| **合计（第一～九章 38 项）** | **38** | **有进展 84%** |
+| ✅ 已完整落地 | 28 | 74% |
+| 🟡 部分落地 | 6 | 16% |
+| ❌ 未落地 | 4 | 11% |
+| **合计（第一～九章 38 项）** | **38** | **有进展 89%** |
 
-> 更新记录：第一轮完成 `2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks`（🟡→✅）并消除 `1.2` 的死代码缺口；第二轮把演示级功能改为真实实现（血糖预测、风险评分、膳食计划、种子数据）；第三轮修复登录链路（CORS 预览域名、token 落盘顺序、超时 60s）与登录后 React #31，并引入 Vitest + RTL 测试体系（`7.5` ❌→🟡）；第四轮补齐 Playwright E2E（`7.5` 🟡→✅，`e2e` job 接入 CI），并修正 E2E 打桩中 nutrition-alerts 响应形状错误；第五轮启动 TypeScript 迁移（`1.1` ❌→🟡）：新增 `src/types/`、核心逻辑层迁 `.ts`、开启 `strict`；第六轮完成 `1.1`（🟡→✅）：`src/` 全部 `.js/.jsx` 迁为 `.ts/.tsx`，并收尾 `next.config`、`playwright.config`、`vitest.setup`、E2E spec 的 TS 化；第七轮「快赢一批」：`4.4 减少重渲染`（🟡→✅，`React.memo` 包装 `ScrollReveal`/`FeatureCard`）、`5.1 Loading 与骨架屏`（🟡→✅，根级 + 各路由 `loading.tsx` + Dashboard 卡片级骨架屏）、`7.4 常量集中`（❌→✅，新增 `src/constants/`）、`9.2 OG/Twitter`（❌→✅，`metadataBase` + `openGraph`/`twitter` + `opengraph-image`/`twitter-image`）、`9.3 a11y`（❌→✅，全局 `focus-visible` + reduced-motion、Navbar ARIA、skip link、登录/资料表单 `aria-invalid`/`aria-describedby`）。
+> 更新记录：第一轮完成 `2.3 数据缓存`、`7.1 ESLint/Prettier/Git Hooks`（🟡→✅）并消除 `1.2` 的死代码缺口；第二轮把演示级功能改为真实实现（血糖预测、风险评分、膳食计划、种子数据）；第三轮修复登录链路（CORS 预览域名、token 落盘顺序、超时 60s）与登录后 React #31，并引入 Vitest + RTL 测试体系（`7.5` ❌→🟡）；第四轮补齐 Playwright E2E（`7.5` 🟡→✅，`e2e` job 接入 CI），并修正 E2E 打桩中 nutrition-alerts 响应形状错误；第五轮启动 TypeScript 迁移（`1.1` ❌→🟡）：新增 `src/types/`、核心逻辑层迁 `.ts`、开启 `strict`；第六轮完成 `1.1`（🟡→✅）：`src/` 全部 `.js/.jsx` 迁为 `.ts/.tsx`，并收尾 `next.config`、`playwright.config`、`vitest.setup`、E2E spec 的 TS 化；第七轮「快赢一批」：`4.4 减少重渲染`（🟡→✅，`React.memo` 包装 `ScrollReveal`/`FeatureCard`）、`5.1 Loading 与骨架屏`（🟡→✅，根级 + 各路由 `loading.tsx` + Dashboard 卡片级骨架屏）、`7.4 常量集中`（❌→✅，新增 `src/constants/`）、`9.2 OG/Twitter`（❌→✅，`metadataBase` + `openGraph`/`twitter` + `opengraph-image`/`twitter-image`）、`9.3 a11y`（❌→✅，全局 `focus-visible` + reduced-motion、Navbar ARIA、skip link、登录/资料表单 `aria-invalid`/`aria-describedby`）；第八轮「安全硬化」：`6.1 Token 存储安全`（❌→✅，httpOnly Cookie）、`2.2 Token 刷新与无感登录`（❌→✅，refresh 轮换 + 401 静默续期）、`1.2 服务端边缘守卫`（🟡→✅，`middleware.ts`）、`6.2 全站限流`（🟡→✅，新增 `RateLimitMiddleware`）。
 
-> 说明：原判断「第 1、2 章基本未落地」不准确。事实是第 1、2 章完成度最高（认证状态、API 拦截、错误边界均已落地），真正的缺口集中在 **TypeScript 迁移、Token 安全、测试/CI、以及若干新增功能**。
+> 说明：原判断「第 1、2 章基本未落地」不准确。事实是第 1、2 章完成度最高（认证状态、API 拦截、错误边界均已落地）。经过第八轮安全硬化，剩余缺口集中在 **布局统一化（1.3）、上传封装（2.4）、输入校验（6.4）、大文件拆分（7.3）以及图片优化 / 头像 / 图表增强 / WebSocket 等新增功能类**。
 
 ---
 
 ## 一、架构与工程化
 
 - [x] **1.1 TypeScript 类型体系** — `src/types/`（`auth` / `profile` / `risk` / `omics` / `nutrition` / `dataset` / `api`）形状对齐后端 pydantic；核心逻辑层（`lib/api.ts`、`lib/hooks.ts`、`lib/store/authStore.ts`、`lib/i18n.tsx`）与全部 50+ 展示组件/页面 content 均已迁 `.ts/.tsx`；`tsconfig.json` 开启 `strict: true`，新增 `npm run typecheck`（`tsc --noEmit`）；配置与测试（`next.config.ts`、`playwright.config.ts`、`vitest.setup.ts`、`tests/e2e/smoke.spec.ts`）同步 TS 化。`typecheck` / `lint`（0 error）/ `test`（9）/ `build` 全绿。
-- [ ] 🟡 **1.2 统一路由守卫与认证状态** — `src/lib/store/authStore.ts`（Zustand+persist）已就绪；`ProtectedRoute` 已修复并接入全部 10 个受保护页面（原为死代码：把 `isAuthenticated` 当布尔值用导致永不生效）；**仍缺 `middleware.ts` 服务端边缘拦截**，跳转仍发生在客户端。
+- [x] **1.2 统一路由守卫与认证状态** — `src/lib/store/authStore.ts`（Zustand）承载认证状态（用户对象，令牌在 httpOnly Cookie 中，前端不可读）；`ProtectedRoute` 已接入全部 10 个受保护页面（原为死代码：把 `isAuthenticated` 当布尔值用导致永不生效）；新增 `src/middleware.ts` 服务端边缘守卫：无会话 Cookie 访问受保护路由直接 302 到 `/login`，已登录访问 `/login` 反向跳 `/dashboard`（只校验 Cookie 存在性，真正鉴权仍在 API 侧）。
 - [ ] 🟡 **1.3 全局布局统一化** — 首页已拆分为 `components/home/`（SiteHeader/HeroSection/FeatureGrid/CTASection）；但未建 `(app)`/`(auth)` 路由组，各页仍各自 `import Navbar`。
 - [x] **1.4 统一错误边界** — `components/ErrorBoundary.jsx` + `app/error.js`，全局（ClientProvider 内）与 dashboard 局部均已包裹。
 
 ## 二、API 层优化
 
 - [x] **2.1 统一 API 错误处理与响应拦截** — `lib/api.ts` 请求/响应双拦截器、`ERROR_MESSAGES` 归一化、401 统一登出；`timeout` 已由 15s 提升至 60s，给 Render 免费实例冷启动留出余量。
-- [ ] ❌ **2.2 Token 刷新与无感登录** — 后端 `app/api/auth.py` 无 refresh token 机制，前端无静默刷新逻辑。
+- [x] **2.2 Token 刷新与无感登录** — 后端 `/api/auth/refresh`：校验 httpOnly refresh Cookie、与缓存中的当前令牌比对（每次刷新轮换，重放已轮换令牌即判定会话可能泄露并清空），重新签发 access+refresh。前端 `lib/api.ts` 响应拦截器遇 401 自动调用 refresh 并重放原请求（并发 401 共用同一个 in-flight 请求，仅刷新一次），刷新失败才清会话跳 `/login`；`/auth/*` 端点自身 401 不触发刷新。
 - [x] **2.3 数据缓存与请求去重** — React Query 已接入实际页面：`lib/hooks.ts` 的 9 个 hooks 全部被 dashboard/profile/datasets/microbiome/metabolomics/NutritionAlerts 使用；profile 更新走 `useUpdateProfile` 并自动失效缓存；跨页共享 `profile`/`risk` 缓存键。
 - [ ] 🟡 **2.4 上传接口统一封装** — `importExportAPI.importData` 已处理 FormData+60s 超时；但无通用 `uploadFile(endpoint, file, onProgress)`。后端 CORS 已收紧为白名单（✅ 该项已完成）。
 
@@ -63,8 +63,8 @@
 
 ## 六、安全优化
 
-- [ ] ❌ **6.1 Token 存储安全** — token 仍存 `localStorage`（`authStore.js` 读写、`api.js` 读取注入 Bearer），未迁 httpOnly Cookie。
-- [ ] 🟡 **6.2 CORS 与 API 安全** — CORS 已白名单，并额外放行 `*.vercel.app` 预览/分支域名（避免预览地址登录被 CORS 拦截）；`auth.py` 有登录/注册/忘记密码的内存限流（✅）；但**全站限流缺失**（仅 auth 端点）。
+- [x] **6.1 Token 存储安全** — 令牌不再落 `localStorage`：后端登录/刷新通过 `Set-Cookie` 下发 `metanutri_access` / `metanutri_refresh`（`httponly` + `secure` + `samesite=lax`，可配 `COOKIE_DOMAIN`），前端 `authStore` 只保留展示用 user 对象，`lib/api.ts` 启用 `withCredentials` 走同源 `/api` 代理（Cookie 因此是第一方，不受三方 Cookie 拦截影响）；登出/改密/重置密码均吊销服务端会话。
+- [x] **6.2 CORS 与 API 安全** — CORS 白名单 + 放行 `*.vercel.app` 预览/分支域名；`app/api/auth.py` 对登录/注册/忘记密码做按 IP+用户名 的内存限流（5 次/60s，另有 20 次/300s 的 IP 突发上限）；新增 `app/core/rate_limit.py` 的 `RateLimitMiddleware` 对**全部 `/api` 路由**按客户端 IP 限流（读 120 次/分、写 40 次/分，Redis 优先，Redis 不可用时退化为进程内滑动窗口），`/health` 与 CORS 预检豁免，超限返回 429 + `Retry-After`，且因挂在 CORS 内层，429 响应仍带 CORS 头。
 - [x] **6.3 安全响应头** — `next.config.js` 已配置 CSP、X-Frame-Options、X-Content-Type-Options、Referrer-Policy、Permissions-Policy。
 - [ ] 🟡 **6.4 输入安全** — `MetabolicPathway.jsx` 有 `escapeHtml` 处理 tooltip（✅）；上传文件类型/大小校验仍需确认。
 
@@ -162,11 +162,17 @@
 - [x] `9.3` a11y：`focus-visible` + reduced-motion、Navbar ARIA、skip link、表单 `aria-invalid`/`aria-describedby`
 - [x] 全量验证：`typecheck` / `lint`（0 error）/ `test`（9）/ `build` 全绿（含 `/opengraph-image`、`/twitter-image` 静态产物）
 
+**已完成（第八轮：安全硬化）**
+- [x] `6.1` Token 存储安全：令牌迁 httpOnly Cookie（`httponly`/`secure`/`samesite=lax`，可配 domain）
+- [x] `2.2` Token 刷新与无感登录：`/api/auth/refresh` + 轮换 + 重放检测；前端 401 静默续期并重放原请求（并发去重）
+- [x] `1.2` 收尾：`src/middleware.ts` 服务端边缘守卫（Cookie 存在性判定，未登录 302 `/login`，已登录访问 `/login` 反向跳转）
+- [x] `6.2` 全站限流：`app/core/rate_limit.py` 的 `RateLimitMiddleware` 覆盖全部 `/api`（读 120/分、写 40/分；Redis 优先 + 内存降级；429 + `Retry-After`，CORS 头保留）
+- [x] 同步更新 E2E（打桩后手动种会话 Cookie）与单测（断言 localStorage 不再存令牌）
+- [x] 已用最小 FastAPI 应用做功能自测：读/写分档生效、`/health` 豁免、其他 IP 不受影响、429 带 CORS 头
+
 **待办 · 中大型**
-- [ ] Token 迁 httpOnly Cookie + refresh（2.2，跨前后端）
-- [ ] 全站限流（当前仅 auth 端点）
-- [ ] `middleware.ts` 服务端边缘守卫（1.2 收尾）
 - [ ] 通用 `uploadFile(endpoint, file, onProgress)` 封装（2.4）
+- [ ] `(app)`/`(auth)` 路由组统一布局（1.3）
 
 **待办 · 新增功能类**
 - [ ] 头像上传、Dashboard 图表增强、WebSocket 通知、next/image

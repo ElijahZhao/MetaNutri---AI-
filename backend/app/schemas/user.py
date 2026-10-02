@@ -27,9 +27,12 @@ class UserResponse(UserBase):
         from_attributes = True
 
 
-class Token(BaseModel):
-    access_token: str
+class LoginResponse(BaseModel):
+    """Login/refresh response. The JWTs themselves are delivered as httpOnly
+    cookies and never exposed to JavaScript."""
+
     token_type: str = "bearer"
+    expires_in: int
 
 
 class ForgotPasswordRequest(BaseModel):

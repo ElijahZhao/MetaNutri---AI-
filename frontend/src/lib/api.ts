@@ -16,6 +16,7 @@ import type {
   GlucosePrediction,
   GlucosePredictionRequest,
   LoginCredentials,
+  LoginResponse,
   MealPlanRequest,
   MetabolomicsAnalysis,
   MetabolomicsEntry,
@@ -30,34 +31,57 @@ import type {
   RegisterPayload,
   RiskAssessment,
   TianchiDatasetList,
-  TokenResponse,
   User,
   UserProfile,
   UserProfileUpdate,
 } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
 const api = axios.create({
-  baseURL: API_URL,
+  // Deliberately relative: the browser calls /api/* on the app's own origin and
+  // next.config.ts rewrites proxy it to the backend. Same-origin is what makes
+  // the httpOnly auth cookies first-party (and visible to middleware).
+  baseURL: '',
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
   // The backend runs on a free tier that spins down when idle; the first request
   // after that can take well over the old 15s, surfacing as a confusing
   // "Login failed". Give cold starts room to finish.
   timeout: 60000,
 });
 
-api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('metanutri-token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+// Endpoints that must never trigger the silent-refresh flow: a 401 from these is
+// a real credential failure, not an expired session.
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+
+const isAuthEndpoint = (url?: string) => !!url && AUTH_ENDPOINTS.some((p) => url.includes(p));
+
+/**
+ * Exchange the httpOnly refresh cookie for a fresh session. Concurrent 401s
+ * share one in-flight request so a burst of failing calls only refreshes once.
+ */
+let refreshRequest: Promise<void> | null = null;
+
+const refreshSession = (): Promise<void> => {
+  if (!refreshRequest) {
+    // Use bare axios (not `api`) to avoid recursing through this interceptor.
+    refreshRequest = axios
+      .post('/api/auth/refresh', {}, { withCredentials: true })
+      .then(() => undefined)
+      .finally(() => {
+        refreshRequest = null;
+      });
   }
-  return config;
-});
+  return refreshRequest;
+};
+
+const clearSessionAndRedirect = () => {
+  useAuthStore.getState().clearSession();
+  if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+    window.location.href = '/login';
+  }
+};
 
 const ERROR_MESSAGES: Record<string, string> = {
   '400': '请求参数错误',
@@ -98,19 +122,27 @@ const getErrorMessage = (error: ApiErrorLike): string => {
   );
 };
 
+type RetriableConfig = ApiErrorLike['config'] & { _retried?: boolean };
+
 api.interceptors.response.use(
   (response) => response,
-  (error: ApiErrorLike) => {
+  async (error: ApiErrorLike) => {
     const status = error.response?.status;
+    const config = error.config as RetriableConfig | undefined;
 
-    if (status === 401) {
-      const isAuthRequest =
-        error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
-      if (!isAuthRequest) {
-        useAuthStore.getState().logout();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+    if (status === 401 && config && !isAuthEndpoint(config.url)) {
+      if (!config._retried) {
+        config._retried = true;
+        try {
+          await refreshSession();
+          // Replay the original request with the freshly minted access cookie.
+          return api(config);
+        } catch {
+          clearSessionAndRedirect();
         }
+      } else {
+        // Refresh already ran and the retry still 401'd: the session is gone.
+        clearSessionAndRedirect();
       }
     }
 
@@ -126,8 +158,9 @@ api.interceptors.response.use(
 export default api;
 
 export const authAPI = {
-  login: (data: LoginCredentials) => api.post<TokenResponse>('/api/auth/login', data),
+  login: (data: LoginCredentials) => api.post<LoginResponse>('/api/auth/login', data),
   register: (data: RegisterPayload) => api.post<User>('/api/auth/register', data),
+  logout: () => api.post<{ message: string }>('/api/auth/logout'),
   me: () => api.get<User>('/api/users/me'),
   forgotPassword: (email: string) =>
     api.post<{ message: string; reset_token?: string | null; reset_url?: string | null }>(
