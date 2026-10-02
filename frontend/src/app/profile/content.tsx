@@ -11,6 +11,7 @@ import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import { User, Heart, Activity, Scale, Ruler, Calendar, Check, Loader2, Key } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
+import { buildProfileOptions, BMI_THRESHOLDS } from '@/constants';
 import type { ApiErrorLike, UserProfile, UserProfileUpdate } from '@/types';
 
 const buildProfileForm = (
@@ -117,29 +118,8 @@ function ProfileContent() {
     }
   };
 
-  const goalOptions = [
-    { value: 'Weight Loss', label: t.goals.weightLoss },
-    { value: 'Muscle Gain', label: t.goals.muscleGain },
-    { value: 'Maintenance', label: t.goals.maintenance },
-    { value: 'Improve Energy', label: t.goals.improveEnergy },
-    { value: 'Better Sleep', label: t.goals.betterSleep },
-  ];
-  const restrictionOptions = [
-    { value: 'Gluten Free', label: t.restrictions.glutenFree },
-    { value: 'Dairy Free', label: t.restrictions.dairyFree },
-    { value: 'Vegetarian', label: t.restrictions.vegetarian },
-    { value: 'Vegan', label: t.restrictions.vegan },
-    { value: 'Nut Free', label: t.restrictions.nutFree },
-    { value: 'Low Carb', label: t.restrictions.lowCarb },
-    { value: 'Low Sugar', label: t.restrictions.lowSugar },
-  ];
-  const activityOptions = [
-    { value: 'sedentary', label: t.activity.sedentary },
-    { value: 'light', label: t.activity.light },
-    { value: 'moderate', label: t.activity.moderate },
-    { value: 'active', label: t.activity.active },
-    { value: 'very_active', label: t.activity.veryActive },
-  ];
+  const { gender: genderOptions, activity: activityOptions, goals: goalOptions, restrictions: restrictionOptions } =
+    useMemo(() => buildProfileOptions(t), [t]);
 
   const toggleArrayItem = (field: 'dietary_goals' | 'dietary_restrictions', value: string) => {
     const current = formValues[field] || [];
@@ -159,9 +139,9 @@ function ProfileContent() {
   const getBMICategory = useMemo(() => {
     const bmi = parseFloat(calculateBMI);
     if (isNaN(bmi)) return { text: 'N/A', color: 'text-slate-600' };
-    if (bmi < 18.5) return { text: t.underweight, color: 'text-blue-600' };
-    if (bmi < 25) return { text: t.normal, color: 'text-emerald-600' };
-    if (bmi < 30) return { text: t.overweight, color: 'text-amber-600' };
+    if (bmi < BMI_THRESHOLDS.underweight) return { text: t.underweight, color: 'text-blue-600' };
+    if (bmi < BMI_THRESHOLDS.normal) return { text: t.normal, color: 'text-emerald-600' };
+    if (bmi < BMI_THRESHOLDS.overweight) return { text: t.overweight, color: 'text-amber-600' };
     return { text: t.obese, color: 'text-red-600' };
   }, [calculateBMI, t]);
 
@@ -184,7 +164,7 @@ function ProfileContent() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main id="main-content" tabIndex={-1} className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ScrollReveal>
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-slate-900">{t.userProfile}</h1>
@@ -209,71 +189,97 @@ function ProfileContent() {
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    <Calendar className="w-4 h-4 inline mr-1" />
+                  <label htmlFor="age" className="block text-sm font-medium text-slate-700 mb-2">
+                    <Calendar className="w-4 h-4 inline mr-1" aria-hidden="true" />
                     {t.age}
                   </label>
                   <input
+                    id="age"
                     type="number"
                     {...register('age')}
+                    aria-invalid={!!errors.age}
+                    aria-describedby={errors.age ? 'age-error' : undefined}
                     className={inputClass(!!errors.age)}
                     placeholder={t.enterAge}
                   />
-                  {errors.age && <p className="mt-1 text-xs text-red-500">{errors.age.message}</p>}
+                  {errors.age && (
+                    <p id="age-error" className="mt-1 text-xs text-red-500">
+                      {errors.age.message}
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    <Heart className="w-4 h-4 inline mr-1" />
+                  <label htmlFor="gender" className="block text-sm font-medium text-slate-700 mb-2">
+                    <Heart className="w-4 h-4 inline mr-1" aria-hidden="true" />
                     {t.genderLabel}
                   </label>
-                  <select {...register('gender')} className={inputClass(!!errors.gender)}>
+                  <select
+                    id="gender"
+                    {...register('gender')}
+                    aria-invalid={!!errors.gender}
+                    className={inputClass(!!errors.gender)}
+                  >
                     <option value="">{t.selectGender}</option>
-                    <option value="male">{t.gender.male}</option>
-                    <option value="female">{t.gender.female}</option>
-                    <option value="other">{t.gender.other}</option>
+                    {genderOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    <Ruler className="w-4 h-4 inline mr-1" />
+                  <label htmlFor="height_cm" className="block text-sm font-medium text-slate-700 mb-2">
+                    <Ruler className="w-4 h-4 inline mr-1" aria-hidden="true" />
                     {t.height} (cm)
                   </label>
                   <input
+                    id="height_cm"
                     type="number"
                     {...register('height_cm')}
+                    aria-invalid={!!errors.height_cm}
+                    aria-describedby={errors.height_cm ? 'height-error' : undefined}
                     className={inputClass(!!errors.height_cm)}
                     placeholder={t.enterHeight}
                   />
                   {errors.height_cm && (
-                    <p className="mt-1 text-xs text-red-500">{errors.height_cm.message}</p>
+                    <p id="height-error" className="mt-1 text-xs text-red-500">
+                      {errors.height_cm.message}
+                    </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    <Scale className="w-4 h-4 inline mr-1" />
+                  <label htmlFor="weight_kg" className="block text-sm font-medium text-slate-700 mb-2">
+                    <Scale className="w-4 h-4 inline mr-1" aria-hidden="true" />
                     {t.weight} (kg)
                   </label>
                   <input
+                    id="weight_kg"
                     type="number"
                     {...register('weight_kg')}
+                    aria-invalid={!!errors.weight_kg}
+                    aria-describedby={errors.weight_kg ? 'weight-error' : undefined}
                     className={inputClass(!!errors.weight_kg)}
                     placeholder={t.enterWeight}
                   />
                   {errors.weight_kg && (
-                    <p className="mt-1 text-xs text-red-500">{errors.weight_kg.message}</p>
+                    <p id="weight-error" className="mt-1 text-xs text-red-500">
+                      {errors.weight_kg.message}
+                    </p>
                   )}
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    <Activity className="w-4 h-4 inline mr-1" />
+                  <label htmlFor="activity_level" className="block text-sm font-medium text-slate-700 mb-2">
+                    <Activity className="w-4 h-4 inline mr-1" aria-hidden="true" />
                     {t.activityLevel}
                   </label>
                   <select
+                    id="activity_level"
                     {...register('activity_level')}
+                    aria-invalid={!!errors.activity_level}
                     className={inputClass(!!errors.activity_level)}
                   >
                     <option value="">{t.selectActivity}</option>

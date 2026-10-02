@@ -1,4 +1,5 @@
 "use client";
+import { memo } from 'react';
 import { Dna, Brain, Microscope, Shield, Zap, Activity, type LucideIcon } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 import { useLanguage, type Translations } from '@/lib/i18n';
@@ -120,7 +121,8 @@ const colorMap = {
   },
 };
 
-function FeatureCard({ feature }: { feature: Feature }) {
+// FEATURES 是模块级常量，feature 引用稳定；memo 后切换语言之外的渲染不会再重跑卡片。
+const FeatureCard = memo(function FeatureCard({ feature }: { feature: Feature }) {
   const { t } = useLanguage();
   const c = colorMap[feature.colorClass];
   const Icon = feature.icon;
@@ -144,7 +146,7 @@ function FeatureCard({ feature }: { feature: Feature }) {
       </div>
     </ScrollReveal>
   );
-}
+});
 
 export default function FeatureGrid() {
   const { t } = useLanguage();
