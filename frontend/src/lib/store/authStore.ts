@@ -3,7 +3,6 @@ import { persist } from 'zustand/middleware';
 import type { ApiErrorLike, AuthResult, User } from '@/types';
 
 const USER_STORAGE_KEY = 'metanutri-user';
-const TOKEN_STORAGE_KEY = 'metanutri-token';
 
 const getStoredUser = (): User | null => {
   if (typeof window === 'undefined') return null;
@@ -15,24 +14,15 @@ const getStoredUser = (): User | null => {
   }
 };
 
-const getStoredToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  try {
-    return localStorage.getItem(TOKEN_STORAGE_KEY) || null;
-  } catch {
-    return null;
-  }
-};
-
 interface AuthState {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<AuthResult>;
   register: (username: string, email: string, password: string) => Promise<AuthResult>;
   logout: () => void;
+  /** Drop the local session without calling the API (used from the 401 path). */
+  clearSession: () => void;
   setUser: (user: User | null) => void;
-  setToken: (token: string) => void;
   isAuthenticated: () => boolean;
 }
 
@@ -40,29 +30,22 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: getStoredUser(),
-      token: getStoredToken(),
       isLoading: false,
 
       login: async (username, password) => {
         const { authAPI } = await import('@/lib/api');
         set({ isLoading: true });
         try {
-          const res = await authAPI.login({ username, password });
-          const token = res.data.access_token;
-
-          // Persist the token before calling /me: the request interceptor reads it
-          // from localStorage, so calling /me first would send an unauthenticated
-          // request and the login would fail with a 401.
-          localStorage.setItem(TOKEN_STORAGE_KEY, token);
-          set({ token });
+          // The server responds with httpOnly cookies; nothing is persisted here
+          // except the display-only user object.
+          await authAPI.login({ username, password });
 
           const meRes = await authAPI.me();
           const user = meRes.data;
 
           localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-
-          set({ user, token, isLoading: false });
-          return { success: true, user, token };
+          set({ user, isLoading: false });
+          return { success: true, user };
         } catch (err) {
           set({ isLoading: false });
           const apiError = err as ApiErrorLike;
@@ -76,20 +59,14 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           await authAPI.register({ username, email, password });
-          const res = await authAPI.login({ username, password });
-          const token = res.data.access_token;
-
-          // Same ordering requirement as login(): persist the token before /me.
-          localStorage.setItem(TOKEN_STORAGE_KEY, token);
-          set({ token });
+          await authAPI.login({ username, password });
 
           const meRes = await authAPI.me();
           const user = meRes.data;
 
           localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-
-          set({ user, token, isLoading: false });
-          return { success: true, user, token };
+          set({ user, isLoading: false });
+          return { success: true, user };
         } catch (err) {
           set({ isLoading: false });
           const apiError = err as ApiErrorLike;
@@ -100,26 +77,39 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-        localStorage.removeItem(USER_STORAGE_KEY);
-        set({ user: null, token: null });
+        // Clear locally first so the UI reacts immediately; the API call only
+        // needs to revoke the server-side session and clear the cookies.
+        get().clearSession();
+        void import('@/lib/api').then(({ authAPI }) =>
+          authAPI.logout().catch(() => {
+            // Already signed out / offline — local state is cleared either way.
+          })
+        );
+      },
+
+      clearSession: () => {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(USER_STORAGE_KEY);
+        }
+        set({ user: null });
       },
 
       setUser: (user) => {
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+        if (typeof window !== 'undefined') {
+          if (user) {
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+          } else {
+            localStorage.removeItem(USER_STORAGE_KEY);
+          }
+        }
         set({ user });
       },
 
-      setToken: (token) => {
-        localStorage.setItem(TOKEN_STORAGE_KEY, token);
-        set({ token });
-      },
-
-      isAuthenticated: () => !!get().token,
+      isAuthenticated: () => !!get().user,
     }),
     {
       name: 'metanutri-auth',
-      partialize: (state) => ({ user: state.user, token: state.token }),
+      partialize: (state) => ({ user: state.user }),
     }
   )
 );

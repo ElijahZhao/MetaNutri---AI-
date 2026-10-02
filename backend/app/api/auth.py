@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -9,13 +10,24 @@ import time
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.user import (
-    UserCreate, UserLogin, UserResponse, Token,
+    UserCreate, UserLogin, UserResponse, LoginResponse,
     ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest,
 )
-from app.core.security import get_password_hash, verify_password, create_access_token, get_current_active_user
+from app.core.security import (
+    get_password_hash,
+    verify_password,
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+    ACCESS_TOKEN_COOKIE,
+    REFRESH_TOKEN_COOKIE,
+    ACCESS_TOKEN_TYPE,
+    REFRESH_TOKEN_TYPE,
+)
 from app.core.config import settings
 from app.core.redis import (
     cache_user_token, get_user_token, invalidate_user_token,
+    cache_refresh_token, get_refresh_token, invalidate_refresh_token,
     set_password_reset_token, get_password_reset_user_id, clear_password_reset_token,
 )
 
@@ -84,8 +96,80 @@ async def register(user_in: UserCreate, request: Request, db: AsyncSession = Dep
     return user
 
 
-@router.post("/login", response_model=Token)
-async def login(user_in: UserLogin, request: Request, db: AsyncSession = Depends(get_db)):
+def _cookie_kwargs() -> dict:
+    kwargs = {
+        "httponly": True,
+        "secure": settings.COOKIE_SECURE,
+        "samesite": settings.COOKIE_SAMESITE,
+        "path": "/",
+    }
+    if settings.COOKIE_DOMAIN:
+        kwargs["domain"] = settings.COOKIE_DOMAIN
+    return kwargs
+
+
+def _set_auth_cookies(response: Response, access_token: str, refresh_token: str) -> None:
+    kwargs = _cookie_kwargs()
+    response.set_cookie(
+        ACCESS_TOKEN_COOKIE,
+        access_token,
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        **kwargs,
+    )
+    response.set_cookie(
+        REFRESH_TOKEN_COOKIE,
+        refresh_token,
+        max_age=settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+        **kwargs,
+    )
+
+
+def _clear_auth_cookies(response: Response) -> None:
+    kwargs = _cookie_kwargs()
+    response.delete_cookie(ACCESS_TOKEN_COOKIE, **kwargs)
+    response.delete_cookie(REFRESH_TOKEN_COOKIE, **kwargs)
+
+
+def _unauthorized_with_cleared_cookies() -> JSONResponse:
+    """401 that also expires the auth cookies.
+
+    Raising HTTPException would discard cookie mutations, leaving a stale
+    refresh cookie in the browser that the edge middleware would keep treating
+    as a live session — an infinite /login <-> /dashboard redirect loop.
+    """
+    response = JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content={"detail": "Could not validate credentials"},
+    )
+    _clear_auth_cookies(response)
+    return response
+
+
+def _issue_session(response: Response, user: User) -> LoginResponse:
+    """Mint a new access/refresh pair, cache it and set both httpOnly cookies."""
+    access_token = create_access_token(
+        data={"sub": str(user.id)},
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+    )
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+
+    cache_user_token(
+        str(user.id), access_token, expires_seconds=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+    cache_refresh_token(
+        str(user.id), refresh_token, expires_seconds=settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60
+    )
+    _set_auth_cookies(response, access_token, refresh_token)
+    return LoginResponse(expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
+
+
+@router.post("/login", response_model=LoginResponse)
+async def login(
+    user_in: UserLogin,
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+):
     _check_login_rate_limit(request, user_in.username)
     result = await db.execute(select(User).where(User.username == user_in.username))
     user = result.scalar_one_or_none()
@@ -96,17 +180,56 @@ async def login(user_in: UserLogin, request: Request, db: AsyncSession = Depends
 
     _record_success(request.client.host if request.client else "unknown")
 
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": str(user.id)}, expires_delta=access_token_expires
-    )
-    cache_user_token(str(user.id), access_token, expires_seconds=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
-    return {"access_token": access_token, "token_type": "bearer"}
+    return _issue_session(response, user)
+
+
+@router.post("/refresh", response_model=LoginResponse)
+async def refresh_session(
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+):
+    """Exchange a valid refresh cookie for a fresh access/refresh pair.
+
+    The refresh token is rotated on every use and must match the cached one, so
+    a replayed (already rotated) token is rejected and the session is dropped.
+    """
+    token = request.cookies.get(REFRESH_TOKEN_COOKIE)
+    payload = decode_token(token, REFRESH_TOKEN_TYPE) if token else None
+    if not payload:
+        return _unauthorized_with_cleared_cookies()
+
+    user_id = payload["sub"]
+    if get_refresh_token(user_id) != token:
+        # Reuse of a rotated token means the session may be compromised: drop it.
+        invalidate_user_token(user_id)
+        invalidate_refresh_token(user_id)
+        return _unauthorized_with_cleared_cookies()
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user or not user.is_active:
+        return _unauthorized_with_cleared_cookies()
+
+    return _issue_session(response, user)
 
 
 @router.post("/logout")
-async def logout(current_user: User = Depends(get_current_active_user)):
-    invalidate_user_token(str(current_user.id))
+async def logout(request: Request, response: Response):
+    # Deliberately does not require a valid access token: an expired session must
+    # still be able to clear its cookies. Idempotent by design.
+    token = request.cookies.get(ACCESS_TOKEN_COOKIE)
+    payload = decode_token(token, ACCESS_TOKEN_TYPE) if token else None
+
+    if not payload:
+        refresh = request.cookies.get(REFRESH_TOKEN_COOKIE)
+        payload = decode_token(refresh, REFRESH_TOKEN_TYPE) if refresh else None
+
+    if payload:
+        invalidate_user_token(payload["sub"])
+        invalidate_refresh_token(payload["sub"])
+
+    _clear_auth_cookies(response)
     return {"message": "Successfully logged out"}
 
 

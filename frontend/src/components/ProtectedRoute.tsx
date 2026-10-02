@@ -5,7 +5,7 @@ import { useAuthStore } from '@/lib/store/authStore';
 
 export default function ProtectedRoute({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const isAuthenticated = useAuthStore((state) => Boolean(state.token));
+  const isAuthenticated = useAuthStore((state) => Boolean(state.user));
 
   useEffect(() => {
     if (!isAuthenticated) {

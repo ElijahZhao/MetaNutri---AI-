@@ -34,6 +34,8 @@ services:
       - DATABASE_URL=postgresql+asyncpg://metanutri:metanutri_secret@db:5432/metanutri
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=super-secret-key-change-in-production
+      # Local dev is plain http, so Secure cookies would never be stored.
+      - COOKIE_SECURE=false
     depends_on:
       db:
         condition: service_healthy

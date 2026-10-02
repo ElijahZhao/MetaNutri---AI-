@@ -37,7 +37,27 @@ class Settings(BaseSettings):
         return url
     SECRET_KEY: str = _DEFAULT_SECRET_KEY
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+
+    # Access tokens are short-lived and delivered as an httpOnly cookie; the
+    # longer-lived refresh token (also httpOnly) silently mints new access
+    # tokens. Keep ACCESS_TOKEN_EXPIRE_MINUTES small in production.
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
+
+    # Auth cookies. Secure must stay True in production (HTTPS); set
+    # COOKIE_SECURE=false only for local http development.
+    COOKIE_SECURE: bool = True
+    # "lax" works because the frontend proxies /api on its own origin, so the
+    # cookie is first-party. Use "none" only if you must call the API cross-site.
+    COOKIE_SAMESITE: str = "lax"
+    COOKIE_DOMAIN: str = ""
+
+    # Site-wide rate limiting (applied to every /api route by middleware).
+    # Auth endpoints keep a stricter per-username limit in app/api/auth.py.
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_REQUESTS: int = 120
+    RATE_LIMIT_WRITE_REQUESTS: int = 40
+    RATE_LIMIT_WINDOW_SECONDS: int = 60
 
     class Config:
         env_file = ".env"

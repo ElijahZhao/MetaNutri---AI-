@@ -20,10 +20,13 @@ export interface RegisterPayload extends LoginCredentials {
   email: string;
 }
 
-export interface TokenResponse {
-  access_token: string;
+/**
+ * Login/refresh response. The JWTs live in httpOnly cookies, so the body only
+ * carries metadata — there is no token for JavaScript to read.
+ */
+export interface LoginResponse {
   token_type: string;
+  expires_in: number;
 }
 
-export type AuthResult =
-  { success: true; user: User; token: string } | { success: false; error: string };
+export type AuthResult = { success: true; user: User } | { success: false; error: string };
