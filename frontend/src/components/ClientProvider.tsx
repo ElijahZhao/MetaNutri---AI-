@@ -1,13 +1,20 @@
 'use client';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ParticleBackground from './ParticleBackground';
 import BioBackground from './BioBackground';
 import ErrorBoundary from './ErrorBoundary';
 import { LanguageProvider } from '../lib/i18n';
+import { prewarmBackend } from '../lib/backendWarmup';
 import { Toaster } from 'react-hot-toast';
 
 export default function ClientProvider({ children }: { children: ReactNode }) {
+  // Start waking the free-tier backend as early as possible so it is likely warm
+  // by the time the user submits anything. Fire-and-forget; never blocks render.
+  useEffect(() => {
+    void prewarmBackend();
+  }, []);
+
   const [queryClient] = useState(
     () =>
       new QueryClient({
