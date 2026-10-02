@@ -25,6 +25,7 @@ from app.core.security import (
     REFRESH_TOKEN_TYPE,
 )
 from app.core.config import settings
+from app.core.rate_limit import client_ip as get_client_ip
 from app.core.redis import (
     cache_user_token, get_user_token, invalidate_user_token,
     cache_refresh_token, get_refresh_token, invalidate_refresh_token,
@@ -51,7 +52,9 @@ def _prune_and_count(records, window: float, now: float):
 
 def _check_login_rate_limit(request: Request, username: str):
     now = time.monotonic()
-    client_ip = request.client.host if request.client else "unknown"
+    # Reuse the middleware helper so both limiters key off the real client IP
+    # (x-forwarded-for / x-real-ip), not the proxy's address on Render/Vercel.
+    client_ip = get_client_ip(request)
 
     # Overall burst guard per IP (prevents distributed username stuffing).
     burst = _prune_and_count(_IP_LOGIN_BURST.get(client_ip, []), _LOGIN_BURST_WINDOW, now)
@@ -178,7 +181,7 @@ async def login(
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Account is inactive")
 
-    _record_success(request.client.host if request.client else "unknown")
+    _record_success(get_client_ip(request))
 
     return _issue_session(response, user)
 

@@ -1,0 +1,33 @@
+# Build context for the backend image is the repository root (see
+# docker-compose.yml and backend/Dockerfile's `COPY backend/ .`), so only
+# `backend/` is actually needed. Keep the context small and free of secrets.
+
+# Version control / CI / docs
+.git
+.gitignore
+.github
+.husky
+docs
+*.md
+
+# Other apps in the monorepo
+frontend
+
+# Dependencies and build artifacts
+**/node_modules
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/.pytest_cache
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+
+# Local secrets & runtime junk
+.env
+.env.*
+.uploads
+.screenshots
+trae-html-share-packages
+*.log
+.DS_Store

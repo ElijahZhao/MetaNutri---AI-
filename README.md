@@ -71,11 +71,11 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | | Feature | Description |
 |---|---------|-------------|
 | 🧬 | **Tri-Omics Integration** | Genomics + Microbiome + Metabolomics data analysis in a unified pipeline |
-| 🤖 | **Deep Learning Models** | Transformer, GNN, and VAE architectures for metabolic response prediction |
+| 🤖 | **Deep Learning Models** | PyTorch model code for metabolic response, gene-nutrition (GNN) and microbiome (VAE) — research code; the live API currently serves deterministic heuristics |
 | 🔍 | **Explainable AI** | SHAP and LIME feature importance for every recommendation |
 | 🚨 | **Health Alerts** | Real-time nutritional deficiency detection and health risk assessment |
 | 📊 | **Interactive Visualization** | Metabolic pathway maps, ECharts dashboards, and radar charts |
-| 👤 | **User Profiles** | Personal health metrics, goals, and RBAC permission system |
+| 👤 | **User Profiles** | Personal health metrics and dietary goals |
 | 🍽️ | **Meal Planning** | AI-generated personalized meal plans based on your biology |
 | 🌐 | **i18n Support** | Full English / Chinese bilingual interface |
 | 📱 | **Responsive Design** | Works beautifully on desktop, tablet, and mobile |
@@ -121,11 +121,10 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
                                    │
                                    ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                        Supabase (Database)                           │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  │
-│  │  PostgreSQL      │  │  Auth (via API)   │  │  Storage         │  │
-│  │  (User + Omics)  │  │ (httpOnly Cookie) │  │  (Datasets)      │  │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘  │
+│                   Supabase (PostgreSQL Database)                    │
+│  Stores user, omics and dataset tables.                             │
+│  Auth is handled by the FastAPI API via httpOnly cookies;           │
+│  Supabase Auth and Storage are NOT used.                            │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -146,7 +145,7 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | [Zustand](https://zustand-demo.pmnd.rs/) | 5 | Client state management |
 | [React Hook Form](https://react-hook-form.com/) | 7 | Form validation |
 | [Zod](https://zod.dev/) | 4 | Schema validation |
-| [i18next](https://www.i18next.com/) | - | Internationalization |
+| Custom i18n | - | Lightweight EN/ZH translations (`src/lib/i18n.tsx`; no i18next dependency) |
 
 ### ⚙️ Backend
 
@@ -156,11 +155,10 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | [Python](https://www.python.org/) | 3.11 | Runtime |
 | [SQLAlchemy](https://www.sqlalchemy.org/) | 2.0 | Async ORM |
 | [PostgreSQL](https://www.postgresql.org/) | - | Primary database |
-| [Redis](https://redis.io/) | 7 | Caching (optional) |
+| [Redis](https://redis.io/) | 5 | Caching & rate limiting (optional, in-memory fallback) |
 | [Pydantic](https://docs.pydantic.dev/) | 2 | Data validation |
-| [python-jose](https://github.com/mpdavis/python-jose) | 3.3 | JWT (issued into httpOnly cookies) |
+| [python-jose](https://github.com/mpdavis/python-jose) | 3.5 | JWT (issued into httpOnly cookies) |
 | [Passlib](https://passlib.readthedocs.io/) | 1.7 | Password hashing (bcrypt) |
-| [Redis](https://redis.io/) | 5 | Rate limiting (optional/fallback) |
 
 ### 🧠 AI / ML
 
@@ -171,7 +169,8 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | [SHAP](https://shap.readthedocs.io/) | 0.46 | Model explainability |
 | [NumPy](https://numpy.org/) | 1.26 | Numerical computing |
 | [Pandas](https://pandas.pydata.org/) | 2.2 | Data processing |
-| [requests](https://docs.python-requests.org/) | 2.32 | Public dataset downloads |
+| [scikit-learn](https://scikit-learn.org/) | 1.5 | Feature scaling & baseline models (SHAP explainability) |
+| [requests](https://docs.python-requests.org/) | 2.32 | HTTP client (reference data is generated locally, not downloaded) |
 
 ---
 
@@ -180,7 +179,7 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 ### Prerequisites
 
 - **Python** ≥ 3.11
-- **Node.js** ≥ 18
+- **Node.js** ≥ 20.19
 - **npm** ≥ 9 or **pnpm** ≥ 8
 - **PostgreSQL** ≥ 14 (or use [Supabase](https://supabase.com/) for cloud)
 
@@ -275,7 +274,6 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
 | `ml/metabolic_response_model.py` | 血糖响应 / 营养吸收预测器 |
 | `ml/gene_nutrition_model.py` | 基因-营养关联（GNN） |
 | `ml/microbiome_vae.py` | 微生物组健康（VAE） |
-| `ml/microbiome_analysis.py` | 多样性分析 |
 | `ml/explainability.py` | SHAP + 自定义 LIME 可解释性 |
 | `ml/train_models.py` | 模型训练脚本 |
 | `ml/weights/` | 预训练权重 |
@@ -288,7 +286,7 @@ MetaNutri is designed for seamless cloud deployment with the following stack:
 
 | Component | Platform | Guide |
 |-----------|----------|-------|
-| 🗄️ Database | [Supabase](https://supabase.com/) | PostgreSQL + Auth in one |
+| 🗄️ Database | [Supabase](https://supabase.com/) | Managed PostgreSQL |
 | ⚙️ Backend API | [Render](https://render.com/) | Python deployment from GitHub |
 | 🎨 Frontend Web | [Vercel](https://vercel.com/) | Next.js native platform |
 
@@ -349,7 +347,6 @@ MetaNutri---AI-/
 │   │   │   ├── gene_nutrition_model.py       # GNN gene-nutrition
 │   │   │   ├── microbiome_vae.py             # VAE microbiome health
 │   │   │   ├── explainability.py              # SHAP/LIME explainer
-│   │   │   ├── microbiome_analysis.py         # Diversity analysis
 │   │   │   ├── dataset_downloader.py           # Public dataset fetcher
 │   │   │   ├── train_models.py                 # Training scripts
 │   │   │   └── weights/                        # Pre-trained model weights
@@ -393,14 +390,14 @@ MetaNutri---AI-/
 │   │   │   ├── Skeleton.tsx          # Loading skeletons
 │   │   │   ├── BioCanvas.tsx         # Animated DNA background
 │   │   │   └── MetabolicPathway.tsx  # Interactive pathway viewer
-│   │   └── lib/                      # Utilities & services
-│   │       ├── api.ts                # Fetch client with cookie auth
-│   │       ├── i18n.tsx              # Internationalization (EN/ZH)
-│   │       ├── hooks.ts              # Custom React hooks
-│   │       └── store/
-│   │           └── authStore.ts      # Zustand auth state
+│   │   ├── lib/                      # Utilities & services
+│   │   │   ├── api.ts                # Axios client (same-origin, cookie auth)
+│   │   │   ├── i18n.tsx              # Internationalization (EN/ZH)
+│   │   │   ├── hooks.ts              # Custom React hooks
+│   │   │   └── store/
+│   │   │       └── authStore.ts      # Zustand auth state
+│   │   └── proxy.ts                  # Next.js 16 edge auth guard
 │   ├── public/                       # Static assets
-│   ├── proxy.ts                      # Next.js edge middleware (auth guard)
 │   ├── next.config.ts                # Next.js config
 │   ├── tailwind.config.js            # Tailwind theme
 │   ├── vercel.json                   # Vercel deployment config

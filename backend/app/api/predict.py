@@ -11,7 +11,6 @@ from app.core.security import get_current_active_user
 from app.models.user import User
 from app.models.food import FoodNutrition
 from app.models.profile import UserProfile
-from app.ml.metabolic_response_model import get_predictor
 from app.ml.explainability import explain_metabolic_prediction, FeatureContributionExplainer
 
 router = APIRouter(prefix="/api/predict", tags=["predict"])

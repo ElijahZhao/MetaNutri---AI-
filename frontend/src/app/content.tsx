@@ -33,8 +33,8 @@ export default function Home() {
     setIsCanvasMode(true);
     try {
       await document.documentElement.requestFullscreen();
-    } catch (e) {
-      console.log('Fullscreen not supported');
+    } catch {
+      // Fullscreen API unavailable (e.g. iOS Safari); canvas mode still works.
     }
   };
 

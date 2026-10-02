@@ -1,0 +1,21 @@
+# Build context for the frontend image is ./frontend.
+
+# Dependencies and build artifacts (a host node_modules would otherwise
+# overwrite the image's installed dependencies in `COPY . .`).
+node_modules
+.next
+out
+
+# Tests and reports
+playwright-report
+blob-report
+test-results
+coverage
+
+# Local secrets & OS junk
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.git

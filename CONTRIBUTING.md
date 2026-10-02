@@ -16,8 +16,8 @@
 
 ### 前置要求
 
-- Python 3.10+
-- Node.js 18+
+- Python 3.11+
+- Node.js 20.19+（`next@16` 及其依赖要求 `node >=20.19.0`）
 - Git
 
 ### 步骤
@@ -29,8 +29,8 @@
 2. **克隆项目**
 
    ```bash
-   git clone https://github.com/your-username/metanutri.git
-   cd metanutri
+   git clone https://github.com/ElijahZhao/MetaNutri---AI-.git
+   cd MetaNutri---AI-
    ```
 
 3. **添加上游仓库**
@@ -52,7 +52,7 @@
 - 遵循 PEP 8 规范
 - 使用 type hints
 - 使用 async/await 进行异步操作
-- 确保代码通过 `flake8` 和 `mypy` 检查
+- 保持与现有代码风格一致；CI 会对 `app/` 执行 `python -m compileall` 与导入冒烟测试
 
 ### JavaScript/React 代码规范
 
@@ -123,19 +123,25 @@ feat(api): 添加营养预警接口
 
 ### 后端测试
 
+后端目前没有独立的 `tests/` 目录。CI 通过两项冒烟检查保证可用性：
+
 ```bash
 cd backend
-pytest tests/
+python -m compileall -q app
+SECRET_KEY=ci-smoke-test-key python -c "from app.main import app; print('FastAPI app OK:', app.title)"
 ```
 
 ### 前端测试
 
 ```bash
 cd frontend
-npm test
+npm run typecheck
+npm run lint
+npm test            # Vitest 单元测试
+npm run test:e2e    # Playwright 端到端（需先 npm run build）
 ```
 
-确保所有测试通过后再提交 Pull Request。
+确保所有检查通过后再提交 Pull Request。
 
 ## 📄 文档
 
