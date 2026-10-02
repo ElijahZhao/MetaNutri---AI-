@@ -21,10 +21,12 @@ export default defineConfig({
   webServer: useExternalServer
     ? undefined
     : {
-        // 需要先执行 `npm run build`，这里只负责启动产物。
-        command: `npm run start -- -p ${PORT}`,
+        // `next start` 与 `output: 'standalone'` 不兼容，改为启动生成的
+        // server（与 Docker 镜像走同一入口）。需先执行 `npm run build`。
+        command: 'npm run start:standalone',
         url: BASE_URL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
+        env: { PORT: String(PORT) },
       },
 });

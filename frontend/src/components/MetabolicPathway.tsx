@@ -178,7 +178,7 @@ export default function MetabolicPathway({
       },
     }));
 
-    const links = pathway.edges.map((edge, index) => {
+    const links = pathway.edges.map((edge) => {
       const isHighlighted = isUserGene(edge.gene);
       return {
         source: edge.source,
@@ -295,7 +295,7 @@ export default function MetabolicPathway({
         </div>
         <select
           value={selectedPathway}
-          onChange={(e) => setActiveNode(null)}
+          onChange={(_e) => setActiveNode(null)}
           className="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="glycolysis">糖酵解途径</option>

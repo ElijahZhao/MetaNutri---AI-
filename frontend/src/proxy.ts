@@ -33,7 +33,7 @@ const AUTH_PAGES = ['/login', '/forgot-password'];
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasSession = Boolean(
     request.cookies.get(ACCESS_COOKIE)?.value || request.cookies.get(REFRESH_COOKIE)?.value

@@ -353,7 +353,6 @@ export default function BioCanvas({
   const ripplesRef = useRef<Ripple[]>([]);
 
   const initParticles = useCallback((width: number, height: number): Particle[] => {
-    const types: ParticleType[] = ['dna', 'molecule', 'atom', 'glucose', 'protein'];
     const counts: Record<ParticleType, number> = { dna: 5, molecule: 10, atom: 18, glucose: 4, protein: 5 };
     const particles: Particle[] = [];
 

@@ -1,10 +1,17 @@
 import type { NextConfig } from 'next';
+import path from 'node:path';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  // Pin the Turbopack workspace root to this directory. A second lockfile
+  // lives in the repo root (for husky), and without this Next infers the
+  // wrong root and warns on every build.
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   async headers() {
     return [
       {

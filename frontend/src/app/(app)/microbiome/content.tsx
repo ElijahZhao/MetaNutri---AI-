@@ -12,7 +12,7 @@ import type {
   MicrobiomeEntry,
   MicrobiomeEntryInput,
 } from '@/types';
-import { Microscope, Upload, Leaf, Loader2, Activity, Shield, Zap } from 'lucide-react';
+import { Microscope, Upload, Leaf, Loader2, Shield, Zap } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
