@@ -123,8 +123,8 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        Supabase (Database)                           │
 │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  │
-│  │  PostgreSQL      │  │  Authentication   │  │  Storage         │  │
-│  │  (User + Omics)  │  │  (JWT + OAuth)   │  │  (Datasets)      │  │
+│  │  PostgreSQL      │  │  Auth (via API)   │  │  Storage         │  │
+│  │  (User + Omics)  │  │ (httpOnly Cookie) │  │  (Datasets)      │  │
 │  └──────────────────┘  └──────────────────┘  └──────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -158,8 +158,9 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | [PostgreSQL](https://www.postgresql.org/) | - | Primary database |
 | [Redis](https://redis.io/) | 7 | Caching (optional) |
 | [Pydantic](https://docs.pydantic.dev/) | 2 | Data validation |
-| [JWT](https://jwt.io/) | - | Authentication |
-| [Passlib](https://passlib.readthedocs.io/) | - | Password hashing |
+| [python-jose](https://github.com/mpdavis/python-jose) | 3.3 | JWT (issued into httpOnly cookies) |
+| [Passlib](https://passlib.readthedocs.io/) | 1.7 | Password hashing (bcrypt) |
+| [Redis](https://redis.io/) | 5 | Rate limiting (optional/fallback) |
 
 ### 🧠 AI / ML
 
