@@ -71,15 +71,13 @@
 
 ## 📸 截图展示
 
-| 首页 | 登录页 |
+| 首页 | 营养仪表盘 |
 |:---:|:---:|
-| ![首页](docs/assets/screenshots/01-landing.png) | ![登录页](docs/assets/screenshots/02-login.png) |
+| ![首页](docs/assets/screenshots/01-landing.png) | ![营养仪表盘](docs/assets/screenshots/02-dashboard.png) |
 
-<p align="center">
-  <img src="docs/assets/screenshots/01b-landing-full.png" alt="首页完整长图" width="240" />
-  <br />
-  <sub>首页完整长图</sub>
-</p>
+| 数据集管理 | 登录页 |
+|:---:|:---:|
+| ![数据集管理](docs/assets/screenshots/03-datasets.png) | ![登录页](docs/assets/screenshots/04-login.png) |
 
 ---
 
