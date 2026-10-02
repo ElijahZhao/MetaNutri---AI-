@@ -37,7 +37,6 @@ export default function LoginPage() {
     register: registerField,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<FormValues>({
     resolver: zodResolver(schema) as unknown as Resolver<FormValues>,
     mode: 'onBlur',

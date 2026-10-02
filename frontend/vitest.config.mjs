@@ -7,14 +7,8 @@ export default defineConfig({
       '@': path.resolve(process.cwd(), 'src'),
     },
   },
-  // 源码统一走 `tsx` loader（它是 JS / JSX / TS / TSX 的超集），覆盖 src 与根目录的
-  // setup / 配置文件；node_modules 交给 Vite 预打包处理，不做二次转换。
-  esbuild: {
-    jsx: 'automatic',
-    loader: 'tsx',
-    include: /\.[cm]?[jt]sx?$/,
-    exclude: [/node_modules/],
-  },
+  // vitest 4 起转换器改为 oxc，TS / TSX 与 automatic JSX runtime 均为默认行为，
+  // 不再需要此前为 esbuild 编写的 loader 配置。
   test: {
     environment: 'jsdom',
     globals: true,
