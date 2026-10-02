@@ -234,6 +234,10 @@ function DatasetsContent() {
 
         {activeTab === 'local' && (
           <>
+            <div className="flex items-start gap-2 mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>{t.datasets.sampleNotice}</span>
+            </div>
             <div className="flex justify-between items-center mb-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
