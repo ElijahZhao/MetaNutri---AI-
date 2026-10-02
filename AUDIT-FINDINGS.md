@@ -1,8 +1,8 @@
 # MetaNutri 审查发现汇总
 
 > 审查日期：2026-10-02 ｜ 方式：只读审查（未改动任何项目源文件）
-> 范围：仓库全量文件、依赖声明、后端路由与源码、前端组件、CI/构建/部署配置、认证与限流逻辑、版本库卫生
-> 结论：七轮审查结果一致，未互相推翻。以下为合并去重后的完整清单，按优先级排列。
+> 范围：仓库全量文件、依赖声明、后端路由与源码、前端组件与工程配置、CI/构建/部署配置、认证与限流逻辑、版本库卫生、部署与贡献文档
+> 结论：八轮审查结果一致，未互相推翻。以下为合并去重后的完整清单，按优先级排列。
 
 ---
 
@@ -11,9 +11,9 @@
 - **现象**：本沙箱环境中，写入文件会在 `main` 上自动产生提交，message 固定为 `feat: MetaNutri: AI精准营养代谢数字孪生平台`，并自动推送到 `origin/main`。
 - **证据**
   - `492bdc7`（新增，118 行）、`e7a8bca`（更新，51 增 17 删），两条提交**只包含 `AUDIT-FINDINGS.md`**，与文档的两次写入一一对应。
-  - 作者/提交者均为 `ElijahZhao`；`git ls-remote origin main` 返回 `e7a8bca`，即已推送。
+  - 作者/提交者均为 `ElijahZhao`；`git ls-remote origin main` 曾返回 `e7a8bca`，即已推送。
 - **影响**：绕过了正常提交流程，且使用了此前已废弃的通用 message，抵消了先前的提交历史整理成果。
-- **处理**：将这批提交合并为一条语义清晰的 `docs:` 提交，并以 `--force-with-lease` 覆盖远程 `main`。
+- **处理**：已将这批提交合并为一条语义清晰的 `docs:` 提交（`b07e553`），并以 `--force-with-lease` 覆盖远程 `main`；`git ls-remote` 复核通过。
 - **后续约定**：每次写入文件后，在当轮收尾统一改写该轮自动提交的 message。
 
 ---
@@ -74,22 +74,29 @@
 | 结构图 | `frontend/proxy.ts` | 实际路径为 `frontend/src/proxy.ts` |
 | 结构图（zh-CN） | `(login)` | 实际目录为 `(auth)` |
 | 架构图 | Supabase 提供 Auth / Storage | 认证为后端自研 httpOnly Cookie；未使用 Supabase Storage |
+| 前置要求 | `Node.js ≥ 18`（`README.md:183`、`README.zh-CN.md:183`） | `next@16.2.12`（`frontend/package.json:33`）在 `package-lock.json` 中多处要求 `node >=20.19.0`，Node 18 实际无法安装/构建 |
 
 ### 6. `CONTRIBUTING.md` 与实际不符
 
 - `CONTRIBUTING.md:126-129` 的后端测试命令 `pytest tests/` 指向不存在的目录（后端无 `tests/`，也无 pytest 配置）。
 - `CONTRIBUTING.md:19` 要求 Python 3.10+，与 README 的 3.11+ 冲突。
+- `CONTRIBUTING.md:20` 要求 Node.js 18+，与 `frontend/package-lock.json` 中 `>=20.19.0` 的实际要求冲突（见第 5 条）。
+- `CONTRIBUTING.md:32` 的克隆地址 `https://github.com/your-username/metanutri.git` 为模板占位符，与实际仓库名 `MetaNutri---AI-` 不符。
 - `CONTRIBUTING.md:55` 提到 `flake8` / `mypy`，但仓库未配置、未安装。
 
-### 7. `docs/DEPLOYMENT.md` 缺少保活说明
+### 7. `docs/DEPLOYMENT.md` 与实际架构不符，且缺少保活说明
 
-- 项目生产依赖 cron-job.org 维持 Render 免费实例不休眠，但 DEPLOYMENT.md 全文未提，后续维护者无从得知。
+- **架构描述过时**：文档 `DEPLOYMENT.md:18` 写「调用 /api/* (**跨域**)」、`:26` 写「页面里的 JS 通过 `NEXT_PUBLIC_API_URL` 找到后端地址」、`:27` 写「所有业务请求一律 `https://metanutri-backend.onrender.com/api/*`」。
+  - 实际 `frontend/src/lib/api.ts:44` 为 `baseURL: ''`（**同源相对路径**），`frontend/next.config.ts:49-62` 用 `rewrites` 把 `/api/:path*` 与 `/health` 代理到后端。
+  - 即浏览器侧是**同源**访问后端，`NEXT_PUBLIC_API_URL` 只在 Next 服务器端（rewrites 目标与 CSP `connect-src`）使用。文档描述的是一套已不再使用的跨域直连 + CORS 拓扑（`config.py:50-52` 的注释反而与新代码一致）。
+- **缺少保活说明**：生产依赖 cron-job.org 维持 Render 免费实例不休眠，但 `DEPLOYMENT.md` 全文未提，后续维护者无从得知。
 
-### 8. `backend/.env.example` 缺两个后端变量
+### 8. 环境变量文档缺口
 
-- `backend/app/core/config.py:21` 的 `CORS_ORIGINS` 未在示例与部署文档中出现（当前靠 `backend/app/main.py:43-56` 的默认值兜底）。
-- `backend/app/core/config.py:77` 的 `ALLOW_DEFAULT_SECRET_KEY` 仅在代码中使用，无任何说明。
-- **影响**：非官方域名自部署者无法从示例得知可配置项。
+- `backend/app/core/config.py:21` 的 `CORS_ORIGINS`：未出现在 `backend/.env.example` 与 `DEPLOYMENT.md`（当前靠 `backend/app/main.py:43-56` 的默认值兜底）。
+- `backend/app/core/config.py:77` 的 `ALLOW_DEFAULT_SECRET_KEY`：仅在代码中使用，无任何说明。
+- `backend/app/api/auth.py:247` 的 `FRONTEND_URL`：由 `os.getenv` 直接读取（**未在 config.py 中声明**），既不在 `.env.example` 也不在部署文档中。未设置时 `forgot-password` 返回的 `reset_url` 恒为 `None`（`auth.py:271`），调用方无从得知需要配置它。
+- **影响**：非官方域名自部署者、或需要重置链接的场景，无法从示例/文档得知这些可配置项。
 
 ---
 
@@ -138,7 +145,8 @@
 - `.github/workflows/ci.yml`：前端 typecheck+lint+test+build、e2e、后端 compileall+import 冒烟，覆盖充分。
 - `frontend/playwright.config.ts`、`frontend/vitest.config.mjs`：与 standalone 输出匹配。
 - `.github/workflows/keepalive.yml`：已从定时保活重构为 push/dispatch 健康检查，保活交由外部 cron。
-- `frontend/next.config.ts` 的 `/health` 代理 + `frontend/src/lib/backendWarmup.ts` 前端预热：冷启动 UX 完整。
+- `frontend/next.config.ts` 的 `/api` + `/health` rewrites、CSP（含不使用 `upgrade-insecure-requests` 的原因注释）、`frontend/src/lib/backendWarmup.ts` 前端预热：同源代理与冷启动 UX 完整、自洽。
+- `backend/app/main.py`：限流中间件在 CORS 之前注册（保证 429 也带 CORS 头）、lifespan 建表与种子失败不阻塞启动，处理得当。
 - `backend/app/core/config.py:69-83`：生产环境默认密钥硬失败保护逻辑本身正确（问题仅在于示例值绕过了它，见第 4 条）。
 - 后端 43 条路由与 `docs/API.md` 交叉核对：除第 2 条外全部一致。
 - 前端 17 个组件全部被引用（含相对路径与 `dynamic()` 导入），无孤立组件。
@@ -147,6 +155,7 @@
 - `i18n.tsx` 的 `sampleNotice` 中英双份齐全，并在 `datasets/content.tsx` 正确渲染。
 - 认证与限流源码复核通过：`backend/app/core/security.py`（access/refresh 类型区分、Cookie 优先、登出用哨兵值失效）、`backend/app/api/auth.py`（refresh 轮换 + 复用即失效 + 401 同时清 Cookie）、`backend/app/core/redis.py`（Redis 不可用时内存兜底、登出可失效）、`backend/app/db/session.py`（按数据库类型条件化连接池、pgbouncer 预处理语句兼容）。
 - 版本库卫生：186 个跟踪文件，未被误提交 `.db` / `.env` / 密钥 / `node_modules` / 构建产物；`.github` 含 issue 与 PR 模板。
+- 仓库根同时存在 `package.json` / `package-lock.json`（供 husky）与前端的同名文件：属有意设计，`frontend/next.config.ts:9-11` 已注释说明并固定 Turbopack root，无需处理。
 
 ---
 
@@ -154,12 +163,13 @@
 
 1. `requirements.txt` 补 `scikit-learn`；修正 `docs/API.md` 食物接口鉴权。
 2. 统一 `auth.py` 与 `rate_limit.py` 的客户端 IP 取值（第 3 条）；修正 `.env.example` 的 `SECRET_KEY` 占位值（第 4 条）。
-3. 修订两份 README（技术栈表、`api.ts` 描述、`src/proxy.ts`、zh-CN 的 `(auth)`）；修订 CONTRIBUTING 测试命令与 Python 版本；DEPLOYMENT 补保活说明；`.env.example` 补 `CORS_ORIGINS` / `ALLOW_DEFAULT_SECRET_KEY`。
-4. 删除孤立设计文档；清理 `.gitignore` 无效规则（第 14 条）；补全 `models/__init__.py`（第 15 条）；评估清理 RBAC 三处残留、Bearer 遗留命名、未加载权重与权重加载函数。
+3. 修订 `DEPLOYMENT.md`：改为同源代理的真实架构描述（第 7 条）、补保活说明、补齐环境变量（含 `FRONTEND_URL`，第 8 条）；修订 `CONTRIBUTING.md` 的 Python/Node 版本、测试命令与克隆地址（第 6 条）。
+4. 修订两份 README（技术栈表、`api.ts` 描述、`src/proxy.ts`、zh-CN 的 `(auth)`、Node 版本，第 5 条）。
+5. 删除孤立设计文档；清理 `.gitignore` 无效规则（第 14 条）；补全 `models/__init__.py`（第 15 条）；评估清理 RBAC 三处残留、Bearer 遗留命名、未加载权重与权重加载函数。
 
 ---
 
-## 附：七轮审查覆盖维度
+## 附：八轮审查覆盖维度
 
 | 轮次 | 维度 | 新增结论 |
 |------|------|----------|
@@ -170,6 +180,7 @@
 | 5 | 前端组件与环境变量 | `.env.example` 缺变量 |
 | 6 | 认证 / 限流 / 会话源码 | 客户端 IP 取值不一致；SECRET_KEY 占位值绕过保护 |
 | 7 | 版本库卫生与 git 状态 | 沙箱自动提交并推送；`.gitignore` 无效规则；`models/__init__.py` 聚合不全 |
+| 8 | 部署 / 贡献文档与工程入口 | DEPLOYMENT 架构描述过时；`FRONTEND_URL` 未记录；Node 版本口径不符；CONTRIBUTING 克隆地址占位 |
 
 ---
 
