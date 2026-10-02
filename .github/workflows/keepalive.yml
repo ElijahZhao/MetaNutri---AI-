@@ -1,32 +1,35 @@
-name: Backend Keep-alive
+name: Production Health Check
 
-# Render's free tier spins a service down after ~15 minutes without traffic, so
-# the next visitor pays a 30-60s cold start. This cron pings /health every 10
-# minutes to keep the instance warm.
+# What this does: smoke-test production. On every push to main it GETs the
+# backend's /health and the frontend's /health proxy; you can also run the same
+# checks on demand from the Actions tab. It does NOT keep the backend alive —
+# that is handled outside GitHub by a cron-job.org job.
 #
-# Budget note: 24/7 keeping a single instance alive costs ~730 instance-hours a
-# month, which fits inside Render's 750 free hours. Because GitHub's scheduled
-# runs can be delayed under load, this is best-effort — the frontend prewarm +
-# cold-start UX (see frontend/src/lib/backendWarmup.ts) covers the gaps.
+# Why the keep-alive moved out: Render's free tier spins a service down after
+# ~15 minutes without external traffic, so the next visitor pays a 30-60s cold
+# start. A cron-job.org job pings /health every 10 minutes, holding one instance
+# up 24/7 (~730 instance-hours a month, inside Render's 750 free hours). That
+# replaces the old `on: schedule` here, which never fired — GitHub delivered
+# zero `schedule` events in this repository, and moving the cron off the hour
+# did not change that. The frontend prewarm + cold-start UX (see
+# frontend/src/lib/backendWarmup.ts) still covers any gap.
+#
+# Caveat: this runs as soon as the push lands, which can be before Render
+# finishes deploying, so read it as an availability smoke test, not as proof
+# that the new version deployed successfully.
 on:
-  schedule:
-    # Minutes deliberately off the hour: GitHub's scheduler is most congested at
-    # :00 and drops runs there, which is exactly where a plain */10 lands.
-    - cron: '3,13,23,33,43,53 * * * *'
-  # Also runs on every deploy to main, so a broken health path shows up in CI
-  # instead of waiting for the next tick.
   push:
     branches: [main]
   workflow_dispatch:
 
-# Only one keep-alive ping needs to be in flight at a time.
+# Only one production check needs to be in flight at a time.
 concurrency:
-  group: backend-keepalive
+  group: production-health-check
   cancel-in-progress: false
 
 jobs:
   ping:
-    name: Keep-alive ping + health checks
+    name: Production health check (backend + frontend)
     runs-on: ubuntu-latest
     env:
       BACKEND_URL: https://metanutri-backend.onrender.com
