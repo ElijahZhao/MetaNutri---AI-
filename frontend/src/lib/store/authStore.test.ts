@@ -4,6 +4,7 @@ vi.mock('@/lib/api', () => ({
   authAPI: {
     login: vi.fn(),
     register: vi.fn(),
+    logout: vi.fn(),
     me: vi.fn(),
   },
 }));
@@ -11,34 +12,38 @@ vi.mock('@/lib/api', () => ({
 import { useAuthStore } from '@/lib/store/authStore';
 import { authAPI } from '@/lib/api';
 import type { AxiosResponse } from 'axios';
-import type { TokenResponse, User } from '@/types';
+import type { LoginResponse, User } from '@/types';
 
 beforeEach(() => {
   localStorage.clear();
-  useAuthStore.setState({ user: null, token: null, isLoading: false });
+  useAuthStore.setState({ user: null, isLoading: false });
   vi.clearAllMocks();
 });
 
 describe('authStore.login', () => {
-  it('persists the token before calling /me', async () => {
-    vi.mocked(authAPI.login).mockResolvedValue({
-      data: { access_token: 'tok-123' },
-    } as unknown as AxiosResponse<TokenResponse>);
+  it('authenticates via cookies, calls /me afterwards and never persists a token', async () => {
+    const callOrder: string[] = [];
 
-    let tokenSeenByMe: string | null = null;
+    vi.mocked(authAPI.login).mockImplementation(async () => {
+      callOrder.push('login');
+      return {
+        data: { token_type: 'bearer', expires_in: 1800 },
+      } as unknown as AxiosResponse<LoginResponse>;
+    });
+
     vi.mocked(authAPI.me).mockImplementation(async () => {
-      // 请求拦截器从 localStorage 读取 token；若先调 /me 再落盘，这里会是 null，
-      // 线上表现为登录后立刻 401。
-      tokenSeenByMe = localStorage.getItem('metanutri-token');
+      callOrder.push('me');
       return { data: { id: 1, username: 'demo' } } as unknown as AxiosResponse<User>;
     });
 
     const result = await useAuthStore.getState().login('demo', 'pw');
 
     expect(result.success).toBe(true);
-    expect(tokenSeenByMe).toBe('tok-123');
+    // /me needs the cookie that login() set, so it must run second.
+    expect(callOrder).toEqual(['login', 'me']);
     expect(useAuthStore.getState().user).toEqual({ id: 1, username: 'demo' });
-    expect(useAuthStore.getState().token).toBe('tok-123');
+    // Regression guard: the JWT lives in an httpOnly cookie, never in localStorage.
+    expect(localStorage.getItem('metanutri-token')).toBeNull();
   });
 
   it('returns an error and stays logged out when login fails', async () => {
@@ -53,6 +58,17 @@ describe('authStore.login', () => {
       expect(result.error).toBe('invalid credentials');
     }
     expect(useAuthStore.getState().user).toBeNull();
-    expect(useAuthStore.getState().token).toBeNull();
+  });
+});
+
+describe('authStore.logout', () => {
+  it('clears the local session immediately and tells the server', async () => {
+    useAuthStore.setState({ user: { id: 1, username: 'demo' } as unknown as User });
+    vi.mocked(authAPI.logout).mockResolvedValue({} as unknown as AxiosResponse<{ message: string }>);
+
+    useAuthStore.getState().logout();
+
+    expect(useAuthStore.getState().user).toBeNull();
+    expect(localStorage.getItem('metanutri-user')).toBeNull();
   });
 });

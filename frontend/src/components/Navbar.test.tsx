@@ -8,7 +8,6 @@ import type { User } from '@/types';
 beforeEach(() => {
   useAuthStore.setState({
     user: { id: 1, username: 'demo' } as unknown as User,
-    token: 'tok',
     isLoading: false,
   });
 });

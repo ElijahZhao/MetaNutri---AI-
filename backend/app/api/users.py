@@ -8,7 +8,7 @@ from app.models.user import User
 from app.models.profile import UserProfile
 from app.schemas.user import UserResponse, UserProfileCreate, UserProfileResponse, ChangePasswordRequest
 from app.core.security import get_current_active_user, verify_password, get_password_hash
-from app.core.redis import invalidate_user_token
+from app.core.redis import invalidate_user_token, invalidate_refresh_token
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -36,6 +36,7 @@ async def change_password(
 
     # Revoke existing sessions so the new password is actually enforced.
     invalidate_user_token(str(current_user.id))
+    invalidate_refresh_token(str(current_user.id))
     return {"message": "Password updated successfully. Please log in again."}
 
 
