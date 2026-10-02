@@ -6,7 +6,7 @@ import { genomicAPI } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import type { ApiErrorLike, GenomicAnalysis, GenomicEntry, GenomicEntryInput } from '@/types';
-import { Dna, Upload, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
+import { Dna, Upload, AlertTriangle, Loader2 } from 'lucide-react';
 
 interface GenomicForm {
   gene_name: string;

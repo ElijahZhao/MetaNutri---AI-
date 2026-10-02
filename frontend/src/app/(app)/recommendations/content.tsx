@@ -46,7 +46,7 @@ function RecommendationsContent() {
     }
   };
 
-  const scoreFood = async (foodId: string, foodName: string) => {
+  const scoreFood = async (foodId: string, _foodName: string) => {
     try {
       const res = await recommendationAPI.foodScore({ user_id: 'me', food_id: foodId });
       setFoodScore(res.data);

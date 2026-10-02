@@ -309,7 +309,6 @@ MetaNutri---AI-/
 │   ├── schema.sql                    # PostgreSQL table definitions
 │   ├── requirements.txt              # Python dependencies
 │   ├── Dockerfile                    # Production container
-│   ├── railway.json                  # Legacy Railway config (Render uses Dockerfile)
 │   └── .env.example                  # Environment template
 │
 ├── frontend/                         # 🎨 Next.js frontend

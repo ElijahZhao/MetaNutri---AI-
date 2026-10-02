@@ -1,13 +1,11 @@
 'use client';
 import { useState } from 'react';
-import { recommendationAPI, foodAPI } from '@/lib/api';
+import { recommendationAPI } from '@/lib/api';
 import {
   Utensils,
   Coffee,
   Sunrise,
   Sunset,
-  Moon,
-  Plus,
   Check,
   RefreshCw,
   Loader2,
@@ -125,7 +123,7 @@ export default function MealPlanPage() {
         <ScrollReveal className="mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
-              {meals.map((mealType, index) => (
+              {meals.map((mealType) => (
                 <div
                   key={mealType.id}
                   className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"

@@ -309,7 +309,6 @@ MetaNutri---AI-/
 │   ├── schema.sql                    # PostgreSQL 表定义
 │   ├── requirements.txt              # Python 依赖
 │   ├── Dockerfile                    # 生产容器
-│   ├── railway.json                  # 旧的 Railway 配置（Render 使用 Dockerfile）
 │   └── .env.example                  # 环境变量模板
 │
 ├── frontend/                         # 🎨 Next.js 前端

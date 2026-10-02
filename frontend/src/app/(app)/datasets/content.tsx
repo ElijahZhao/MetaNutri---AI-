@@ -7,17 +7,14 @@ import { useDatasets } from '@/lib/hooks';
 import { useLanguage } from '@/lib/i18n';
 import { toast } from 'react-hot-toast';
 import type { LucideIcon } from 'lucide-react';
-import type { ApiErrorLike, Dataset, DatasetStats, TianchiDataset } from '@/types';
+import type { ApiErrorLike, DatasetStats, TianchiDataset } from '@/types';
 import {
   Database,
   Download,
   Upload,
-  CheckCircle,
-  Circle,
   AlertCircle,
   ExternalLink,
   Search,
-  RefreshCw,
   Loader2,
   Package,
   FlaskConical,
