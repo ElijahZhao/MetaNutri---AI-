@@ -153,7 +153,7 @@ npm run test:e2e    # Playwright 端到端（需先 npm run build）
 ## 💬 沟通
 
 - 对于问题和讨论，请使用 GitHub Issues
-- 对于紧急问题，可以发送邮件到 elijahzhao@gmail.com
+- 对于紧急问题，可以发送邮件到 yulinzhao04@gmail.com 或 550568658@qq.com
 
 ## 📜 许可证
 

@@ -500,7 +500,7 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## 📮 Contact
 
-**ElijahZhao** - [@ElijahZhao](https://github.com/ElijahZhao) - elijahzhao@gmail.com
+**ElijahZhao** - [@ElijahZhao](https://github.com/ElijahZhao) - yulinzhao04@gmail.com · 550568658@qq.com
 
 Project Link: [https://github.com/ElijahZhao/MetaNutri---AI-](https://github.com/ElijahZhao/MetaNutri---AI-)
 
