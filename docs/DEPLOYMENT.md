@@ -92,7 +92,7 @@ MetaNutri 采用三端分离的云原生架构。本文档说明**三者在生�
 
 > `frontend/vercel.json` 已配置输出目录为 `.next`，可直接使用。
 >
-> **区域**：`frontend/vercel.json` 默认 `regions: ["iad1"]`（US East · Washington）。同源代理（rewrites）在 Vercel 函数内执行，若后端 Render / Supabase 位于其它区域（如悉尼 `ap-southeast-2`），跨区往返会增加延迟。可按后端实际区域调整 `regions` 以对齐（仅影响性能，不影响功能）。
+> **区域**：已按后端实际区域对齐——Render 后端部署在 **Singapore（东南亚）**（Vercel 对应区域代码 `sin1`），Supabase 在 `ap-southeast-2`（悉尼），故 `frontend/vercel.json` 的 `regions` 设为 `["sin1"]`，让同源代理就近执行。仅影响性能，不影响功能；若将来后端迁往其它区域，请同步调整此项。
 
 ---
 
