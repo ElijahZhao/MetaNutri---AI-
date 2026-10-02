@@ -13,7 +13,9 @@
 [![GitHub Stars](https://img.shields.io/github/stars/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=10b981)](https://github.com/ElijahZhao/MetaNutri---AI-/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=3b82f6)](https://github.com/ElijahZhao/MetaNutri---AI-/network/members)
 [![License](https://img.shields.io/github/license/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=8b5cf6)](LICENSE)
+[![CI](https://github.com/ElijahZhao/MetaNutri---AI-/actions/workflows/ci.yml/badge.svg)](https://github.com/ElijahZhao/MetaNutri---AI-/actions/workflows/ci.yml)
 [![Issues](https://img.shields.io/github/issues/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=f59e0b)](https://github.com/ElijahZhao/MetaNutri---AI-/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981?style=for-the-badge)](CONTRIBUTING.md)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -38,6 +40,8 @@
 - [🏗️ 系统架构](#️-系统架构)
 - [🛠️ 技术栈](#️-技术栈)
 - [🚀 快速开始](#-快速开始)
+- [🔌 API 与 AI/ML 实战](#-api-与-aiml-实战)
+- [🧪 测试与 CI](#-测试与-ci)
 - [☁️ 云端部署](#️-云端部署)
 - [📁 项目结构](#-项目结构)
 - [🤝 参与贡献](#-参与贡献)
@@ -73,12 +77,15 @@
 | 🧬 | **三重组学整合** | 基因组 + 微生物组 + 代谢组数据统一分析流程 |
 | 🤖 | **深度学习模型** | 代谢响应、基因-营养（GNN）与微生物组（VAE）的 PyTorch 模型代码——研究代码；线上 API 目前采用确定性启发式 |
 | 🔍 | **可解释 AI** | 每条建议都附带 SHAP 和 LIME 特征重要性分析 |
+| 📊 | **交互式仪表盘** | 健康评分、身体指标与风险雷达卡片，由 ECharts 图表支撑 |
 | 🚨 | **健康预警** | 实时营养缺乏检测与健康风险评估 |
-| 📊 | **交互式可视化** | 代谢路径图、ECharts 仪表盘、雷达图 |
-| 👤 | **用户档案** | 个人健康指标与饮食目标 |
-| 🍽️ | **膳食计划** | 基于个体生理特征的 AI 个性化膳食方案 |
-| 🌐 | **国际化支持** | 完整的英/中双语界面 |
-| 📱 | **响应式设计** | 桌面、平板、移动端完美适配 |
+| 🍎 | **食物与营养探索** | 可检索的食物数据库，并提供个性化食物评分 |
+| 🍽️ | **AI 膳食计划** | 基于个体生理特征的 AI 个性化膳食方案 |
+| 📁 | **数据集浏览器** | 浏览平台内置的精选参考数据集 |
+| 📥 | **导入 / 导出** | 导入你自己的组学与饮食数据，导出分析结果 |
+| 🔐 | **默认安全** | httpOnly Cookie 会话、bcrypt 哈希与请求限流 |
+| 🌐 | **双语界面** | 完整的英/中双语界面，基于轻量自研 i18n 层 |
+| 📱 | **精致且响应式** | DNA / 粒子动画，桌面、平板、移动端完美适配 |
 
 </div>
 
@@ -88,43 +95,39 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                              用户                                      │
-│                         (浏览器 / 移动端)                              │
+│                        用户（浏览器 / 移动端）                          │
+└──────────────────────────────────┬──────────────────────────────────┘
+                                   │  HTTPS
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Vercel（前端部署）                             │
+│     Next.js 16 App Router — 静态预渲染页面                            │
+│  ┌───────────────┐┌────────────────┐┌───────────────────────────┐   │
+│  │  静态页面      ││  边缘中间件     ││  ECharts + 自研 i18n       │   │
+│  │  (App Router) ││  (proxy.ts)    ││  (图表, 英 / 中)           │   │
+│  └───────────────┘└────────────────┘└───────────────────────────┘   │
+│    重写  /api/*  →  同源代理（Cookie 保持第一方，避免跨域）             │
+└──────────────────────────────────┬──────────────────────────────────┘
+                                   │  HTTPS / REST
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Render（后端部署）                             │
+│                       FastAPI (Python 3.11)                         │
+│  ┌────────┐┌────────┐┌────────┐┌────────┐┌──────────┐              │
+│  │  认证  ││  用户  ││  饮食  ││  组学  ││  预测    │              │
+│  └────────┘└────────┘└────────┘└────────┘└──────────┘              │
+│  ┌────────┐┌──────────┐┌────────┐┌──────────────┐                  │
+│  │  预警  ││  数据集   ││  导入  ││  ML (PyTorch)│                  │
+│  └────────┘└──────────┘└────────┘└──────────────┘                  │
+│   SQLAlchemy 2.0 异步 ORM · SHAP / LIME · 可选 Redis 缓存             │
 └──────────────────────────────────┬──────────────────────────────────┘
                                    │
                                    ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                          Vercel（前端部署）                            │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐              │
-│  │ Next.js  │ │  React   │ │ ECharts  │ │ i18n     │              │
-│  │  (SSR)   │ │  (UI)    │ │ (图表)   │ │ (本地化) │              │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘              │
-└──────────────────────────────────┬──────────────────────────────────┘
-                                   │  HTTPS / REST API
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                         Render（后端部署）                              │
-│  ┌─────────────────────────────────────────────────────────────┐    │
-│  │                       FastAPI (Python)                        │    │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │    │
-│  │  │  认证   │ │  用户   │ │  饮食   │ │  组学   │          │    │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘          │    │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │    │
-│  │  │  预测   │ │  预警   │ │  数据集  │ │  导入   │          │    │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘          │    │
-│  └─────────────────────────────────────────────────────────────┘    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
-│  │  PyTorch     │  │  SQLAlchemy  │  │  Redis (可选)│             │
-│  │  (机器学习模型) │  │   (ORM)     │  │   (缓存)     │             │
-│  └──────────────┘  └──────────────┘  └──────────────┘             │
-└──────────────────────────────────┬──────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                   Supabase（PostgreSQL 数据库）                       │
-│  存储用户、组学与数据集表。                                            │
-│  认证由 FastAPI 通过 httpOnly Cookie 处理；                           │
-│  未使用 Supabase Auth 与 Storage。                                    │
+│                   Supabase（托管 PostgreSQL 数据库）                    │
+│   存储用户、档案、饮食、组学与数据集表。                                │
+│   认证由 FastAPI 通过 httpOnly Cookie 处理；                          │
+│   未使用 Supabase Auth 与 Storage。                                   │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -280,6 +283,20 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
 
 ---
 
+## 🧪 测试与 CI
+
+| 检查项 | 工具 | 命令 |
+|--------|------|------|
+| 类型安全 | TypeScript（`tsc --noEmit`） | `npm run typecheck` |
+| 代码规范 | ESLint（扁平配置） | `npm run lint` |
+| 单元 / 组件测试 | Vitest + Testing Library | `npm test` |
+| 端到端测试 | Playwright（Chromium） | `npm run test:e2e` |
+| 后端语法 + 导入冒烟测试 | `compileall` + FastAPI 导入 | `python -m compileall -q app` |
+
+每次 push 与 Pull Request 都会通过 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 运行以上全部检查。
+
+---
+
 ## ☁️ 云端部署
 
 MetaNutri 采用以下技术栈实现无缝云端部署：
@@ -324,14 +341,14 @@ MetaNutri---AI-/
 ├── backend/                          # ⚙️ FastAPI 后端
 │   ├── app/
 │   │   ├── api/                      # API 路由处理器
-│   │   │   ├── auth.py               # 认证（注册/登录）
+│   │   │   ├── auth.py               # 认证（注册 / 登录 / 刷新）
 │   │   │   ├── users.py              # 用户档案管理
-│   │   │   ├── food.py               # 饮食日志与营养
+│   │   │   ├── food.py               # 食物检索、饮食日志与营养
 │   │   │   ├── genomic.py            # 基因组数据分析
 │   │   │   ├── microbiome.py         # 微生物组分析
 │   │   │   ├── metabolomics.py       # 代谢组数据
 │   │   │   ├── predict.py            # AI 预测接口
-│   │   │   ├── recommendation.py     # 营养建议
+│   │   │   ├── recommendation.py     # 营养建议与膳食计划
 │   │   │   ├── datasets.py           # 数据集管理
 │   │   │   ├── import_export.py      # 数据导入导出
 │   │   │   └── nutrition_alerts.py   # 健康预警系统
@@ -340,21 +357,21 @@ MetaNutri---AI-/
 │   │   │   ├── security.py           # JWT + httpOnly Cookie 认证、密码哈希
 │   │   │   ├── rate_limit.py         # 内存限流
 │   │   │   └── redis.py              # Redis 缓存（优雅降级）
-│   │   ├── db/                       # 数据库层
+│   │   ├── db/
 │   │   │   └── session.py            # SQLAlchemy 异步引擎
 │   │   ├── ml/                       # 🧠 机器学习模型
 │   │   │   ├── metabolic_response_model.py   # Transformer 预测器
 │   │   │   ├── gene_nutrition_model.py       # GNN 基因-营养
 │   │   │   ├── microbiome_vae.py             # VAE 微生物健康
-│   │   │   ├── explainability.py              # SHAP/LIME 解释器
-│   │   │   ├── dataset_downloader.py           # 公开数据集下载器
-│   │   │   ├── train_models.py                 # 训练脚本
-│   │   │   └── weights/                        # 预训练模型权重
+│   │   │   ├── explainability.py             # SHAP / LIME 解释器
+│   │   │   ├── dataset_downloader.py         # 参考数据集获取器
+│   │   │   ├── train_models.py               # 训练脚本
+│   │   │   └── weights/                      # 预训练模型权重
 │   │   ├── models/                   # SQLAlchemy ORM 模型
-│   │   ├── schemas/                  # Pydantic 请求/响应 Schema
-│   │   ├── services/                 # 业务逻辑层
+│   │   ├── schemas/                  # Pydantic 请求 / 响应 Schema
+│   │   ├── services/                 # 业务逻辑（种子数据、导入 / 导出）
 │   │   └── main.py                   # FastAPI 应用入口
-│   ├── data/                         # 种子与参考数据
+│   ├── data/                         # 种子与参考数据集（JSON）
 │   ├── schema.sql                    # PostgreSQL 表定义
 │   ├── requirements.txt              # Python 依赖
 │   ├── Dockerfile                    # 生产容器
@@ -362,10 +379,12 @@ MetaNutri---AI-/
 │
 ├── frontend/                         # 🎨 Next.js 前端
 │   ├── src/
-│   │   ├── app/                      # Next.js App Router 页面（TSX）
-│   │   │   ├── (auth)                # 公开认证组
-│   │   │   ├── (app)                 # 受保护应用组（需鉴权)
-│   │   │   │   ├── dashboard/        # 分析仪表盘
+│   │   ├── app/                      # Next.js App Router
+│   │   │   ├── (auth)/               # 公开认证组
+│   │   │   │   ├── login/            # 登录
+│   │   │   │   └── forgot-password/  # 密码找回
+│   │   │   ├── (app)/                # 受保护应用组（需鉴权）
+│   │   │   │   ├── dashboard/        # 分析仪表盘与健康评分
 │   │   │   │   ├── profile/          # 用户档案
 │   │   │   │   ├── genomic/          # 基因组分析
 │   │   │   │   ├── microbiome/       # 微生物组分析
@@ -376,43 +395,61 @@ MetaNutri---AI-/
 │   │   │   │   ├── explore/          # 食物探索
 │   │   │   │   └── datasets/         # 数据集浏览
 │   │   │   ├── page.tsx              # 首页
+│   │   │   ├── content.tsx           # 首页内容
+│   │   │   ├── layout.tsx            # 根布局（metadata、i18n）
+│   │   │   ├── loading.tsx           # 路由加载 UI
 │   │   │   ├── error.tsx             # 全局错误边界
 │   │   │   ├── not-found.tsx         # 自定义 404 页面
-│   │   │   └── layout.tsx            # 根布局（metadata、i18n）
+│   │   │   ├── icon.svg              # 网站图标
+│   │   │   ├── opengraph-image.tsx   # 动态 Open Graph 图
+│   │   │   ├── twitter-image.tsx     # 动态 Twitter 卡片
+│   │   │   ├── robots.ts             # robots.txt
+│   │   │   └── sitemap.ts            # sitemap.xml
 │   │   ├── components/               # 可复用 UI 组件
-│   │   │   ├── home/                 # 首页区块
+│   │   │   ├── home/                 # 首页区块（Hero、功能、CTA）
 │   │   │   ├── dashboard/            # 仪表盘小部件与卡片
 │   │   │   ├── Navbar.tsx            # 导航栏
 │   │   │   ├── ProtectedRoute.tsx    # 认证路由守卫
 │   │   │   ├── ErrorBoundary.tsx     # React 错误边界
 │   │   │   ├── Skeleton.tsx          # 加载骨架屏
+│   │   │   ├── MetabolicPathway.tsx  # 交互式路径查看器
+│   │   │   ├── NutritionAlerts.tsx   # 健康预警提示
 │   │   │   ├── BioCanvas.tsx         # 动画 DNA 背景
-│   │   │   └── MetabolicPathway.tsx  # 交互式路径查看器
-│   │   └── lib/                      # 工具与服务
-│   │       ├── api.ts                # Axios 客户端（同源、Cookie 认证）
-│   │       ├── i18n.tsx              # 国际化（英/中）
-│   │       ├── hooks.ts              # 自定义 React Hooks
-│   │       └── store/
-│   │           └── authStore.ts      # Zustand 认证状态
+│   │   │   ├── BioBackground.tsx     # 生物主题页面背景
+│   │   │   ├── ParticleBackground.tsx# 粒子场动画
+│   │   │   ├── ScrollReveal.tsx      # 滚动触发动效
+│   │   │   ├── SpotlightTitle.tsx    # 首屏标题动效
+│   │   │   └── TypeWriter.tsx        # 打字机文字效果
+│   │   ├── constants/                # 共享常量（档案选项、BMI）
+│   │   ├── lib/                      # 工具与服务
+│   │   │   ├── api.ts                # Axios 客户端（同源、Cookie 认证）
+│   │   │   ├── backendWarmup.ts      # 冷启动预热辅助
+│   │   │   ├── hooks.ts              # 自定义 React Hooks
+│   │   │   ├── i18n.tsx              # 国际化（英 / 中）
+│   │   │   └── store/authStore.ts    # Zustand 认证状态
+│   │   ├── types/                    # 共享 TypeScript 类型
+│   │   └── proxy.ts                  # Next.js 边缘鉴权守卫
+│   ├── tests/e2e/                    # Playwright 端到端测试
+│   ├── scripts/start-standalone.mjs  # 独立服务启动脚本
 │   ├── public/                       # 静态资源
-│   ├── src/proxy.ts                  # Next.js 边缘鉴权守卫
-│   ├── next.config.ts                # Next.js 配置
+│   ├── next.config.ts                # Next.js 配置（同源 /api 重写）
 │   ├── tailwind.config.js            # Tailwind 主题
 │   ├── vercel.json                   # Vercel 部署配置
 │   ├── eslint.config.mjs             # ESLint 扁平配置
 │   ├── vitest.config.mjs             # Vitest 配置
 │   ├── playwright.config.ts          # 端到端测试配置
-│   ├── .prettierrc                   # Prettier 格式化
-│   ├── package.json                  # 依赖
-│   └── Dockerfile                    # 生产容器
+│   ├── Dockerfile / Dockerfile.dev   # 生产 / 开发容器
+│   └── package.json                  # 依赖与脚本
 │
 ├── docs/                             # 📚 文档与资源
-│   ├── assets/                       # 图片与图表
+│   ├── assets/                       # Banner 与截图
 │   ├── API.md                        # API 参考
 │   ├── DEPLOYMENT.md                 # 部署指南
-│   └── DATASETS.md                   # 数据集参考
+│   ├── DATASETS.md                   # 数据集参考
+│   └── AUDIT-FINDINGS.md             # 仓库审计记录
 │
 ├── .github/                          # GitHub 配置
+│   ├── workflows/                    # CI 与保活工作流
 │   ├── ISSUE_TEMPLATE/               # Bug 与功能建议模板
 │   └── PULL_REQUEST_TEMPLATE/        # PR 模板
 │
