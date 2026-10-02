@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Typecheck
+        run: npm run typecheck
+
       - name: Lint
         run: npm run lint
 
@@ -80,6 +83,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
       - name: Compile all Python sources
         run: python -m compileall -q app
+
+      - name: Verify application imports
+        env:
+          # Local default is fine for an import smoke test; production sets its own.
+          SECRET_KEY: ci-smoke-test-key
+        run: python -c "from app.main import app; print('FastAPI app OK:', app.title)"
