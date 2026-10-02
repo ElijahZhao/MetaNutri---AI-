@@ -27,11 +27,11 @@ MetaNutri 使用多种公共数据集来支持精准营养代谢预测。数据�
 
 以下接口均有鉴权，`BASE` 为后端根地址（如 `https://metanutri-backend.onrender.com`）。
 
-### GET `/api/datasets/`
+### GET `/api/datasets`
 列出所有数据集及其状态（`available` / `not_downloaded` / `error`）与记录条数。
 
 ```bash
-curl -b cookies.txt "$BASE/api/datasets/"
+curl -b cookies.txt "$BASE/api/datasets"
 ```
 
 ### GET `/api/datasets/categories`

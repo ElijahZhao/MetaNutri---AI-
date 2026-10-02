@@ -24,9 +24,8 @@ router = APIRouter(prefix="/api/datasets", tags=["datasets"])
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
 
 
-@router.get("/")
+@router.get("")
 async def list_datasets(
-    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     datasets = []
@@ -79,7 +78,9 @@ async def list_datasets(
 
 
 @router.get("/categories")
-async def list_categories():
+async def list_categories(
+    current_user: User = Depends(get_current_active_user)
+):
     categories = {}
     for key, info in PUBLIC_DATASETS.items():
         cat = info["category"]

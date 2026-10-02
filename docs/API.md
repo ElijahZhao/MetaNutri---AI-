@@ -25,8 +25,8 @@
 
 | 是否鉴权 | 接口 |
 |----------|------|
-| 公开 | `/auth/*`（登录/注册/刷新/登出/找回密码）、`/health`、`/api/foods/search`、`/api/foods/{id}` |
-| 需登录 | `/users/*`、`/api/genomic/*`、`/api/microbiome/*`、`/api/metabolomics/*`、`/api/predict/*`、`/api/recommendations/*`、`/api/datasets/*`、`/api/nutrition-alerts/*`、`/api/import-export/*` |
+| 公开 | `/api/auth/*`（登录/注册/刷新/登出/找回密码）、`/health` |
+| 需登录 | `/api/foods/*`、`/users/*`、`/api/genomic/*`、`/api/microbiome/*`、`/api/metabolomics/*`、`/api/predict/*`、`/api/recommendations/*`、`/api/datasets/*`、`/api/nutrition-alerts/*`、`/api/import-export/*` |
 
 ---
 
@@ -62,8 +62,8 @@
 ### `/api/foods`
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/foods/search` | 搜索食物（公开） |
-| GET | `/api/foods/{food_id}` | 食物营养详情（公开） |
+| GET | `/api/foods/search` | 搜索食物（需登录） |
+| GET | `/api/foods/{food_id}` | 食物营养详情（需登录） |
 
 ---
 
@@ -119,7 +119,7 @@
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/datasets/` | 所有数据集及状态 |
+| GET | `/api/datasets` | 所有数据集及状态 |
 | GET | `/api/datasets/categories` | 按分类归组 |
 | POST | `/api/datasets/download` | 下载全部 |
 | POST | `/api/datasets/download/{id}` | 下载指定数据集 |

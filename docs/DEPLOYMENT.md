@@ -11,25 +11,31 @@ MetaNutri 采用三端分离的云原生架构。本文档说明**三者在生�
 | 数据库 | PostgreSQL | Supabase (DB + 连接池) | 见下 |
 
 ```
-┌─────────────┐   HTTPS/Cookies ┌──────────────────┐   Pooler(PG，IPv4)   ┌──────────────┐
-│  浏览器用户   │ ─────────────►│  Vercel 前端       │                      │   Supabase    │
-│ (Vercel 页面) │              │  NEXT_PUBLIC_API_URL │                      │   PostgreSQL   │
-└─────────────┘              │      ▼          │                      └──────────────┘
-                             │ 调用 /api/* (跨域) │
-                             └────────┬─────────┘
-                                      │  Render 后端 (FastAPI /:$PORT)
-                                      │  DATABASE_URL = *.pooler.supabase.com:5432
+┌─────────────┐  HTTPS 同源 /api/*  ┌──────────────────────────┐
+│  浏览器用户   │ ──────────────────►│  Vercel 前端 (Next.js)     │
+│              │                    │  rewrites: /api/* → 后端   │
+└─────────────┘                    └────────────┬─────────────┘
+                                                │ 服务端代理（同源，浏览器无跨域）
+                                                ▼
+                                     ┌──────────────────────────┐
+                                     │  Render 后端 (FastAPI/:PORT)│
+                                     │  DATABASE_URL = pooler:5432 │
+                                     └────────────┬─────────────┘
+                                                  ▼
+                                     ┌──────────────────────────┐
+                                     │  Supabase PostgreSQL(pooler)│
+                                     └──────────────────────────┘
 ```
 
 ### 三者如何连在一起（关键规则）
 
-- **前端不直接连数据库**。浏览器只访问 Vercel 页面；页面里的 JS 通过 `NEXT_PUBLIC_API_URL` 这个环境变量找到后端地址。
-- **所有业务请求都走后端**：登录、查询、AI 预测等一律 `https://metanutri-backend.onrender.com/api/*`。
+- **前端不直接连数据库**。浏览器只访问 Vercel 页面。
+- **浏览器通过同源相对路径 `/api/*` 访问后端**：前端 axios 的 `baseURL` 为空（`frontend/src/lib/api.ts`），由 `frontend/next.config.ts` 的 `rewrites` 在 **Next 服务器端**把 `/api/:path*` 与 `/health` 代理到 `NEXT_PUBLIC_API_URL`。因此浏览器侧是**同源**访问，不存在跨域；`NEXT_PUBLIC_API_URL` 只在 Next 服务器端（rewrites 目标与 CSP `connect-src`）使用，**不含 `/api` 后缀**。
 - **后端通过 `DATABASE_URL` 连 Supabase PostgreSQL**：走 **连接池（pooler）**，端口 **5432（会话模式 Session）**。
   - 为什么必须用 pooler：Render 服务器**没有 IPv6**，而 Supabase 直连主机名（`db.xxxx.supabase.co`）只解析 IPv6，无法直连。
   - 为什么用 5432 会话模式而不是 6543 事务模式：事务池（pgbouncer 串行复用连接）会与 asyncpg 的预编译语句缓存冲突，导致偶发 `prepared statement already exists` 500 错误。会话模式下后端已通过 `?prepared_statement_cache_size=0` 进一步规避。
 - **认证采用 httpOnly Cookie**：登录成功后后端通过 `Set-Cookie` 下发 `metanutri_access` / `metanutri_refresh` 两个 **httpOnly Cookie**，浏览器自动随请求携带，无需在 JS 里手动附加 `Authorization` 头。刷新令牌每次使用都会轮换，且与 Redis 缓存校验，防重放。
-- **CORS 明确白名单**：后端启用了 `allow_credentials=True`（Cookie 必须），并对 `*.vercel.app` 用 `allow_origin_regex` 放行（覆盖 Vercel 的生产/预览/分支域名），其余来源走 `allow_origins` 精确列表。**不是** 以前的 `allow_origins=["*"]`（通配符与 `allow_credentials=True` 互斥）。
+- **CORS 白名单仅作兜底**：同源代理下浏览器不会触发跨域，但直接访问后端 API、Swagger 或非浏览器客户端仍受 CORS 约束。后端启用 `allow_credentials=True`（Cookie 必须），对 `*.vercel.app` 用 `allow_origin_regex` 放行，其余来源走 `CORS_ORIGINS` 精确列表。**不是** `allow_origins=["*"]`（通配符与 `allow_credentials=True` 互斥）。
 
 ---
 
@@ -43,13 +49,17 @@ MetaNutri 采用三端分离的云原生架构。本文档说明**三者在生�
 |------|----|------|
 | `DATABASE_URL` | `postgresql://postgres.<PROJECT-REF>:<DB_PASSWORD>@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres` | **会话池(5432)**，IPv4 可解析；禁用预编译缓存 |
 | `SECRET_KEY` | 一个高熵随机字符串 | JWT 签名密钥，生产必须改 |
+| `CORS_ORIGINS` | `https://meta-nutri-ai.vercel.app` | 逗号分隔的浏览器来源白名单（可选）。同源代理下浏览器不触发 CORS，仅直接访问 API / Swagger 时需要；未设置时使用 `app/main.py` 的内置默认 |
+| `FRONTEND_URL` | `https://meta-nutri-ai.vercel.app` | 拼接「忘记密码」重置链接用。未设置时 `/api/auth/forgot-password` 返回的 `reset_url` 为 `null` |
+| `ALLOW_DEFAULT_SECRET_KEY` | 不设置 | 仅设为 `1` 时才允许在生产使用默认 `SECRET_KEY`；默认会在生产硬失败，避免弱密钥上线 |
 | `PORT` | Render 自动注入（默认无） | Dockerfile 监听 `$PORT`，未设置则 8000 |
 
 ### 前端（Vercel → Project → Settings → Environment Variables）
 
 | 变量 | 值 | 说明 |
 |------|----|------|
-| `NEXT_PUBLIC_API_URL` | `https://metanutri-backend.onrender.com` | 后端基础地址（**不含 `/api` 后缀**） |
+| `NEXT_PUBLIC_API_URL` | `https://metanutri-backend.onrender.com` | 后端基础地址（**不含 `/api` 后缀**），仅供 Next 服务器端 rewrites / CSP 使用 |
+| `NEXT_PUBLIC_SITE_URL` | `https://meta-nutri-ai.vercel.app` | 站点公开地址，用于 canonical / Open Graph / Twitter 元数据与 sitemap；未设置时回退到 Vercel 注入的 URL |
 
 > 注意：`NEXT_PUBLIC_*` 会打进前端构建产物并暴露到浏览器，只放可公开的值。
 
@@ -81,6 +91,8 @@ MetaNutri 采用三端分离的云原生架构。本文档说明**三者在生�
 3. 部署后发正式域名（例：`https://meta-nutri-ai.vercel.app/`）。
 
 > `frontend/vercel.json` 已配置输出目录为 `.next`，可直接使用。
+>
+> **区域**：`frontend/vercel.json` 默认 `regions: ["iad1"]`（US East · Washington）。同源代理（rewrites）在 Vercel 函数内执行，若后端 Render / Supabase 位于其它区域（如悉尼 `ap-southeast-2`），跨区往返会增加延迟。可按后端实际区域调整 `regions` 以对齐（仅影响性能，不影响功能）。
 
 ---
 
@@ -102,7 +114,21 @@ docker-compose up -d
 
 ---
 
-## 6. 常见排障
+## 6. 保活（Render 免费层）
+
+Render 免费 Web Service 在 **约 15 分钟无请求后进入休眠**，下一次请求会触发冷启动（可能等待数十秒）。生产环境通过 **外部定时器 cron-job.org** 每 10 分钟请求一次 `/health` 维持实例常驻：
+
+- 任务 URL：`https://metanutri-backend.onrender.com/health`
+- 频率：每 10 分钟
+- 自定义请求头（用于在日志中识别）：`User-Agent: MetaNutriKeepAlive/1.0`
+
+> 注意：免费的 750 实例小时/月按「实例运行时长」计，保活会让实例近乎全天运行（约 720 小时/月），仍在上限内；若同账号还有其它常驻服务，请留意总额度。
+>
+> 仓库中的 `.github/workflows/keepalive.yml` 已降级为 **push / 手动触发的健康检查**（该仓库的 GitHub Actions 定时任务不可靠），**不再**承担定时保活职责；定时保活由 cron-job.org 负责。
+
+---
+
+## 7. 常见排障
 
 - **登录偶发 500 / `prepared statement already exists`**：`DATABASE_URL` 用错了 pooler——确认端口是 **5432 会话模式**，且连接串含 `prepared_statement_cache_size=0`。
 - **后端与数据库连不上 / `password authentication failed`**：检查 `DATABASE_URL` 的密码与 Supabase 重置后的密码是否一致。
@@ -111,7 +137,7 @@ docker-compose up -d
 
 ---
 
-## 7. 健康检查
+## 8. 健康检查
 
 ```http
 GET /health

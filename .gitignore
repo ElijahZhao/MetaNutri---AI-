@@ -19,8 +19,8 @@ build/
 *.sqlite
 *.sqlite3
 
-# Model weights (keep tracked model weights in backend/app/ml/weights/)
-!backend/app/ml/weights/
+# Model weights in backend/app/ml/weights/ are intentionally tracked, so no
+# ignore rule is needed here.
 
 # Logs
 *.log
@@ -60,4 +60,11 @@ SECRETS.md
 # Local runtime artifacts (screenshots, logs, temporary uploads produced by
 # dev/CI tooling; these are never part of a production build)
 .uploads/
+.screenshots/
 .trae-html-share-packages/
+.backend.pid
+.frontend.pid
+
+# Python virtual environments
+venv/
+.venv/
