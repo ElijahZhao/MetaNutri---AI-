@@ -10,6 +10,8 @@
 >
 > 两仓库关系（本仓库 ↔ `ElijahZhao/ppgr-predictor`）见两份 README 的 "Related Repositories" 章节。
 >
+> 复审复核（2026-10-03，5 轮）：逐条对账后修掉 2 处文档缺陷——① 技术报告 §8 的"固定版本"清单漏列新增的 `statsmodels==0.15.0`；② 图 2 说明只说 mean 基线"negative by construction"却未解释原因（LOPO 下留一均值与留出受试者反相关）。同时修正 `evaluate.py` 中 `discrimination_auc` 一处误导性注释（"常数预测器得 0.5"对 LOPO mean 基线不成立）。其余项核验通过：无 token 泄漏、数据/压缩包未被跟踪、CSV 与 PNG 逐字节可复现、报告表 4/5/7 与结果 CSV 完全一致、两仓库 PDF 文本一致（仅时间戳不同）、Demo 端到端预测无异常。
+>
 > 最后更新：2026-10-03
 
 ---
