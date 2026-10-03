@@ -6,6 +6,8 @@
 
 其中 `<BASE>` 为后端根地址（本地 `http://localhost:8000`，生产 `https://metanutri-backend.onrender.com`）。
 
+> ⚠️ **诚实说明（演示性质）**：`/api/predict/*`、`/api/metabolomics/analysis`、`/api/recommendations/food-score` 等"AI"接口当前返回的是**确定性启发式**（部分掺入随机值），**不是**神经网络推理；`backend/app/ml/` 下的模型代码为**研究原型，未接入线上 API**，`weights/` 权重也**从不加载**。数据集相关接口为演示占位，见 [DATASETS.md](./DATASETS.md)。详见根目录 README 的「Project Status / Limitations & Scope」。
+
 ---
 
 ## 1. 认证机制
@@ -101,7 +103,7 @@
 | POST | `/api/predict/nutrient-absorption` | 营养素吸收预测 `{user_id, nutrient, amount_mg}` → 吸收率/生物利用率/特征贡献 |
 | GET | `/api/predict/risk-assessment` | 慢病风险评估 → 糖尿病/肥胖/心血管风险分 + 建议 |
 
-> ML 能力来源见 [`backend/app/ml/`](../backend/app/ml/)（代谢响应模型、基因-营养模型、微生物组 VAE、SHAP/可解释性）。详情可参考仓库中的训练脚本与 `weights/` 预训练权重。
+> **实现说明（诚实）**：以上接口当前均由**确定性规则/启发式**实现——`glucose-response` 为确定性公式，`risk-assessment` 为启发式打分，`nutrient-absorption` 含随机扰动；返回的 `feature_contributions` 是**启发式贡献权重**，并非 SHAP。`backend/app/ml/` 下的代谢响应模型、基因-营养 GNN、微生物组 VAE 与 SHAP/LIME 均为**研究原型，未接入线上 API**；`weights/` 权重在合成数据上训练且从不加载。
 
 ## 7. 推荐 `/api/recommendations`
 
@@ -121,8 +123,8 @@
 |------|------|------|
 | GET | `/api/datasets` | 所有数据集及状态 |
 | GET | `/api/datasets/categories` | 按分类归组 |
-| POST | `/api/datasets/download` | 下载全部 |
-| POST | `/api/datasets/download/{id}` | 下载指定数据集 |
+| POST | `/api/datasets/download` | （重新）生成本地样例数据（不联网） |
+| POST | `/api/datasets/download/{id}` | 生成指定数据集的本地样例（不联网） |
 | POST | `/api/datasets/import/{id}` | 导入指定数据集到数据库 |
 | GET | `/api/datasets/stats` | 数据集统计 |
 | GET | `/api/datasets/tianchi...` | 天池集成（框架/mock） |
