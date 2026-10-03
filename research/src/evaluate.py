@@ -97,7 +97,10 @@ def discrimination_auc(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     meal produce an above- or below-typical response?"). We binarise the
     observed target at its median and score the continuous predictions, giving
     a threshold-free discrimination number that is comparable across targets.
-    A constant predictor scores 0.5 by construction.
+    A genuinely constant predictor would score 0.5. The LOPO "mean" baseline is
+    *not* constant — its per-fold predictions anti-correlate with the held-out
+    subject (see report §4.2 and Figure 2) — so it scores well below 0.5; that
+    is a property of the baseline, not of this metric.
     """
     y = np.asarray(y_true, dtype=float)
     p = np.asarray(y_pred, dtype=float)
