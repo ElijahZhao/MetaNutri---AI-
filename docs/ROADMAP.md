@@ -6,7 +6,7 @@
 >
 > 遗留项状态：CSRF 专项核查 ✅ 已完成（无阻断项，1 处配置隐患已记入 `AUDIT-FINDINGS.md` 第六节）；技术报告 PDF ✅ 已导出；`.deploy` 误当子模块、遗留 `ppgr-predictor-space.zip` 两处版本库卫生问题 ✅ 已修复。
 >
-> 评估强化（2026-10-03）：技术报告新增 §4.5，把汇总相关系数拆成**个体内 / 个体间**两部分，并补上**中位数二分 ROC-AUC**；结论：AUC 的高相关主要来自"认出谁反应更高"，iAUC 才更接近真实的餐次信号。另新增 §4.6：在 LOPO 预测上叠加**保形预测区间**（conformal），边际覆盖率达标（0.800 / 0.898），但区间偏宽、且少数个体被系统性低估覆盖——如实报告。对应代码 `research/src/evaluate.py`、`research/src/uncertainty.py`，图 6–7、表 5–6、`experiments/results.csv`、`experiments/uncertainty.csv`。
+> 评估强化（2026-10-03）：技术报告新增 §4.5，把汇总相关系数拆成**个体内 / 个体间**两部分，并补上**中位数二分 ROC-AUC**；结论：AUC 的高相关主要来自"认出谁反应更高"，iAUC 才更接近真实的餐次信号。另新增 §4.6：在 LOPO 预测上叠加**保形预测区间**（conformal），边际覆盖率达标（0.800 / 0.898），但区间偏宽、且少数个体被系统性低估覆盖——如实报告。再新增 §4.7：按 §3.3 要求补上**混合效应模型（subject 随机截距）+ 个体内中心化 + 分层报告**（Mundlak within-between），ICC = AUC 0.69 / iAUC 0.33 / peak 0.32，与 §4.5 互相印证；个体内效应为碳水↑、蛋白↓（均显著），个体间系数精度低且蛋白变号。对应代码 `research/src/evaluate.py`、`research/src/uncertainty.py`、`research/src/mixed_effects.py`，图 6–8、表 5–8，`experiments/{results,uncertainty,mixed_effects_*}.csv`。
 >
 > 两仓库关系（本仓库 ↔ `ElijahZhao/ppgr-predictor`）见两份 README 的 "Related Repositories" 章节。
 >
@@ -163,7 +163,7 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
   1. mean predictor（预测训练集均值）
   2. carb-only 线性模型（"升糖负荷式"启发式的操作化）
   3. energy-only 线性模型
-- **重复餐处理**：混合效应模型（subject 随机截距）+ 个体内中心化；分层报告个体内 / 个体间指标
+- **重复餐处理**：混合效应模型（subject 随机截距）+ 个体内中心化；分层报告个体内 / 个体间指标 ✅ **已实现**（报告 §4.7，`research/src/mixed_effects.py`，Mundlak within-between 规格）
 
 ### 3.4 可对标的公开数字
 

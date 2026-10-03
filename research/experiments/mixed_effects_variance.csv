@@ -1,0 +1,4 @@
+target,sigma_subject,sigma_residual,icc,n_meals,n_subjects
+auc,4306.79,2863.08,0.6935,1556,45
+iauc,1536.48,2201.21,0.3276,1556,45
+peak_rise,19.43,28.28,0.3208,1556,45

@@ -49,6 +49,7 @@ step "build BIG IDEAs meal-level table"     "$PY" src/build_external.py
 step "cross-cohort validation"              "$PY" src/external_validate.py
 step "figures 1-6"                          "$PY" src/make_figures.py
 step "conformal intervals (table 6, fig 7)" "$PY" src/uncertainty.py
+step "mixed-effects check (table 7-8, fig 8)" "$PY" src/mixed_effects.py
 step "freeze model for the demo"            "$PY" src/train_final.py
 step "render report PDF"                    "$PY" src/export_report_pdf.py
 
