@@ -1,97 +1,61 @@
 'use client';
 import { useState } from 'react';
 import { recommendationAPI } from '@/lib/api';
-import {
-  Utensils,
-  Coffee,
-  Sunrise,
-  Sunset,
-  Check,
-  RefreshCw,
-  Loader2,
-} from 'lucide-react';
+import { Utensils, Check, RefreshCw, Loader2 } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
-import dynamic from 'next/dynamic';
+import { toast } from 'react-hot-toast';
+import type { ApiErrorLike, Recommendation } from '@/types';
 
-const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
-
-interface MealItem {
-  id?: string;
+interface PlanItem {
   name: string;
-  portion?: string;
-  calories?: number;
-  protein?: number;
-  carbs?: number;
+  calories: number;
+  protein: number;
+  category?: string;
 }
 
-type MealPlan = Record<string, MealItem[]>;
-
 export default function MealPlanPage() {
-  const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
+  const [plan, setPlan] = useState<Recommendation | null>(null);
   const [loading, setLoading] = useState(false);
-  const [selectedMeals, setSelectedMeals] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
+
+  // The backend returns a single plan with a flat `food_items` list; render it
+  // as-is instead of inventing per-meal grouping it never sends.
+  const items: PlanItem[] = (plan?.food_items ?? []).map((it) => ({
+    name: it.name,
+    calories: Number(it.calories ?? 0) || 0,
+    protein: Number(it.protein ?? 0) || 0,
+    category: typeof it.category === 'string' ? it.category : undefined,
+  }));
+
+  const totalCalories = items.reduce((sum, it) => sum + it.calories, 0);
+  const totalProtein = items.reduce((sum, it) => sum + it.protein, 0);
+
+  const targets = plan?.nutrient_targets ?? {};
+  const calorieTarget = Number(targets.calories ?? 0) || 0;
+  const proteinTarget = Number(targets.target_protein_g ?? 0) || 0;
 
   const generateMealPlan = async () => {
     setLoading(true);
     try {
       const res = await recommendationAPI.mealPlan({});
-      setMealPlan(res.data as unknown as MealPlan);
+      setPlan(res.data);
+      setSelected([]);
     } catch (err) {
-      console.error(err);
+      toast.error((err as ApiErrorLike).userMessage || 'Failed to generate meal plan');
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleMeal = (mealId: string) => {
-    setSelectedMeals((prev) =>
-      prev.includes(mealId) ? prev.filter((id) => id !== mealId) : [...prev, mealId]
-    );
-  };
+  const toggleItem = (key: string) =>
+    setSelected((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
 
-  const nutrientChartOption = {
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-    legend: { data: ['Calories', 'Protein', 'Carbs', 'Fat'] },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'category', data: ['Breakfast', 'Lunch', 'Dinner', 'Snack'] },
-    yAxis: { type: 'value' },
-    series: [
-      {
-        name: 'Calories',
-        type: 'bar',
-        stack: 'total',
-        itemStyle: { color: '#ef4444' },
-        data: [350, 550, 500, 200],
-      },
-      {
-        name: 'Protein',
-        type: 'bar',
-        stack: 'total',
-        itemStyle: { color: '#3b82f6' },
-        data: [20, 30, 25, 10],
-      },
-      {
-        name: 'Carbs',
-        type: 'bar',
-        stack: 'total',
-        itemStyle: { color: '#f59e0b' },
-        data: [50, 60, 55, 25],
-      },
-      {
-        name: 'Fat',
-        type: 'bar',
-        stack: 'total',
-        itemStyle: { color: '#10b981' },
-        data: [10, 15, 12, 5],
-      },
-    ],
-  };
+  const percent = (value: number, target: number) =>
+    target > 0 ? Math.min(100, Math.round((value / target) * 100)) : 0;
 
-  const meals = [
-    { id: 'breakfast', name: 'Breakfast', icon: Sunrise, time: '7:00 - 9:00 AM' },
-    { id: 'lunch', name: 'Lunch', icon: Utensils, time: '12:00 - 2:00 PM' },
-    { id: 'dinner', name: 'Dinner', icon: Sunset, time: '6:00 - 8:00 PM' },
-    { id: 'snack', name: 'Snack', icon: Coffee, time: '3:00 - 4:00 PM' },
+  const totals = [
+    { label: 'Calories', value: totalCalories, target: calorieTarget, unit: 'kcal', bar: 'bg-red-500' },
+    { label: 'Protein', value: totalProtein, target: proteinTarget, unit: 'g', bar: 'bg-blue-500' },
   ];
 
   return (
@@ -120,33 +84,35 @@ export default function MealPlanPage() {
 
         <ScrollReveal className="mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              {meals.map((mealType) => (
-                <div
-                  key={mealType.id}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
-                >
-                  <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                        <mealType.icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h2 className="font-semibold">{mealType.name}</h2>
-                        <p className="text-sm text-indigo-100">{mealType.time}</p>
-                      </div>
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                      <Utensils className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="font-semibold">Recommended Foods</h2>
+                      <p className="text-sm text-indigo-100">
+                        {items.length > 0
+                          ? `${items.length} items selected for your plan`
+                          : 'Lower-GI foods picked for your calorie target'}
+                      </p>
                     </div>
                   </div>
-                  <div className="p-4">
+                </div>
+                <div className="p-4">
+                  {items.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {mealPlan &&
-                        mealPlan[mealType.id] &&
-                        mealPlan[mealType.id].map((food, i) => (
+                      {items.map((food, i) => {
+                        const key = `${food.name}-${i}`;
+                        const isSelected = selected.includes(key);
+                        return (
                           <div
-                            key={food.id || i}
-                            onClick={() => toggleMeal(`${mealType.id}-${i}`)}
+                            key={key}
+                            onClick={() => toggleItem(key)}
                             className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                              selectedMeals.includes(`${mealType.id}-${i}`)
+                              isSelected
                                 ? 'border-emerald-500 bg-emerald-50'
                                 : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'
                             }`}
@@ -154,97 +120,76 @@ export default function MealPlanPage() {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <h3 className="font-semibold text-slate-900">{food.name}</h3>
-                                <p className="text-sm text-slate-500">{food.portion}</p>
+                                {food.category && (
+                                  <p className="text-sm text-slate-500">{food.category}</p>
+                                )}
                               </div>
                               <div
                                 className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                                  selectedMeals.includes(`${mealType.id}-${i}`)
+                                  isSelected
                                     ? 'bg-emerald-500 border-emerald-500'
                                     : 'border-slate-300'
                                 }`}
                               >
-                                {selectedMeals.includes(`${mealType.id}-${i}`) && (
-                                  <Check className="w-4 h-4 text-white" />
-                                )}
+                                {isSelected && <Check className="w-4 h-4 text-white" />}
                               </div>
                             </div>
-                            <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                            <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                               <div className="bg-slate-100 rounded-lg p-2 text-center">
-                                <p className="font-bold text-slate-700">{food.calories || '--'}</p>
+                                <p className="font-bold text-slate-700">
+                                  {food.calories ? Math.round(food.calories) : '--'}
+                                </p>
                                 <p className="text-slate-500">kcal</p>
                               </div>
                               <div className="bg-slate-100 rounded-lg p-2 text-center">
-                                <p className="font-bold text-slate-700">{food.protein || '--'}</p>
+                                <p className="font-bold text-slate-700">
+                                  {food.protein ? Math.round(food.protein) : '--'}
+                                </p>
                                 <p className="text-slate-500">g protein</p>
-                              </div>
-                              <div className="bg-slate-100 rounded-lg p-2 text-center">
-                                <p className="font-bold text-slate-700">{food.carbs || '--'}</p>
-                                <p className="text-slate-500">g carbs</p>
                               </div>
                             </div>
                           </div>
-                        ))}
-                      {(!mealPlan || !mealPlan[mealType.id]) && (
-                        <div className="col-span-2 text-center py-8 text-slate-500">
-                          <Utensils className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                          <p>Click "Generate Plan" to get personalized recommendations</p>
-                        </div>
-                      )}
+                        );
+                      })}
                     </div>
-                  </div>
+                  ) : (
+                    <div className="text-center py-12 text-slate-500">
+                      <Utensils className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                      <p>Click "Generate Plan" to get personalized recommendations</p>
+                    </div>
+                  )}
                 </div>
-              ))}
+              </div>
             </div>
 
             <div className="space-y-6">
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                <h3 className="font-semibold text-slate-900 mb-4">Daily Nutrient Targets</h3>
-                <ReactECharts option={nutrientChartOption} style={{ height: 250 }} />
-              </div>
-
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                 <h3 className="font-semibold text-slate-900 mb-4">Today's Totals</h3>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-slate-600">Calories</span>
-                      <span className="font-semibold text-slate-900">1,600 / 2,000 kcal</span>
-                    </div>
-                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-red-500 rounded-full" style={{ width: '80%' }} />
-                    </div>
+                {plan ? (
+                  <div className="space-y-4">
+                    {totals.map((item) => (
+                      <div key={item.label}>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm text-slate-600">{item.label}</span>
+                          <span className="font-semibold text-slate-900">
+                            {Math.round(item.value)}
+                            {item.target > 0 ? ` / ${Math.round(item.target)}` : ''} {item.unit}
+                          </span>
+                        </div>
+                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${item.bar}`}
+                            style={{ width: `${percent(item.value, item.target)}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-slate-600">Protein</span>
-                      <span className="font-semibold text-slate-900">85 / 90g</span>
-                    </div>
-                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full" style={{ width: '94%' }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-slate-600">Carbs</span>
-                      <span className="font-semibold text-slate-900">190 / 250g</span>
-                    </div>
-                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-amber-500 rounded-full" style={{ width: '76%' }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-slate-600">Fat</span>
-                      <span className="font-semibold text-slate-900">42 / 65g</span>
-                    </div>
-                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 rounded-full"
-                        style={{ width: '65%' }}
-                      />
-                    </div>
-                  </div>
-                </div>
+                ) : (
+                  <p className="text-sm text-slate-500">
+                    Generate a plan to see your totals against the targets.
+                  </p>
+                )}
               </div>
 
               <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl p-6 text-white">
@@ -254,21 +199,23 @@ export default function MealPlanPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold">Meal Summary</h3>
-                    <p className="text-sm text-emerald-100">Based on your profile</p>
+                    <p className="text-sm text-emerald-100">Based on the generated plan</p>
                   </div>
                 </div>
                 <div className="space-y-2 text-sm">
                   <p className="flex justify-between">
-                    <span>Selected Meals</span>
-                    <span className="font-bold">{selectedMeals.length}/8</span>
+                    <span>Selected Items</span>
+                    <span className="font-bold">
+                      {selected.length}/{items.length}
+                    </span>
                   </p>
                   <p className="flex justify-between">
-                    <span>Estimated Calories</span>
-                    <span className="font-bold">1,600 kcal</span>
+                    <span>Total Calories</span>
+                    <span className="font-bold">{Math.round(totalCalories)} kcal</span>
                   </p>
                   <p className="flex justify-between">
-                    <span>Nutrition Score</span>
-                    <span className="font-bold">8.5/10</span>
+                    <span>Total Protein</span>
+                    <span className="font-bold">{Math.round(totalProtein)} g</span>
                   </p>
                 </div>
               </div>

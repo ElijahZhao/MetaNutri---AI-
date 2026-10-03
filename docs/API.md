@@ -90,7 +90,7 @@
 |------|------|------|
 | POST | `/api/metabolomics/upload` | 上传代谢组学数据 |
 | GET | `/api/metabolomics/user` | 当前用户的代谢物数据 |
-| GET | `/api/metabolomics/analysis` | 代谢通路富集 / 分析（`enrichment_score` / `p_value` 为**确定性启发式**，由通路计数推导，**非统计检验**） |
+| POST | `/api/metabolomics/analysis` | 代谢通路富集 / 分析（`enrichment_score` / `p_value` 为**确定性启发式**，由通路计数推导，**非统计检验**） |
 | DELETE | `/api/metabolomics/{data_id}` | 删除一条代谢物记录 |
 
 ---
