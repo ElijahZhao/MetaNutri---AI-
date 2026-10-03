@@ -96,3 +96,26 @@ jobs:
           # Local default is fine for an import smoke test; production sets its own.
           SECRET_KEY: ci-smoke-test-key
         run: python -c "from app.main import app; print('FastAPI app OK:', app.title)"
+
+  research:
+    name: Research (demo smoke test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: research/app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: research/app/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Headless Streamlit AppTest over the frozen model bundle in model/.
+      # No server, no network, no training stack — a few seconds.
+      - name: Demo smoke test (AppTest)
+        run: python test_app.py
