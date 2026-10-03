@@ -298,7 +298,13 @@ honest degradation.
 
 **Figure 2 — Model comparison.** Out-of-fold Pearson r by model, target and
 subset. XGBoost dominates everywhere; the linear baselines are close to zero,
-and the mean predictor is negative by construction.
+and the mean predictor is negative by construction. The sign is worth explaining:
+under LOPO the "mean" model predicts the mean of the *other* 44 subjects, so for
+a high-responding person that mean is pulled **down** by that person's own
+exclusion. The leave-one-out mean is therefore anti-correlated with the held-out
+subject, which is why this no-skill reference lands below zero (and below 0.5
+ROC-AUC) instead of at zero. It is a reference point, not a model that has
+learned anything.
 
 ### 4.3 What the model uses
 
@@ -664,8 +670,9 @@ not separate entry points.)
 
 Pinned versions: Python 3.12, `numpy==2.5.3`, `pandas==3.0.6`,
 `scikit-learn==1.9.1`, `xgboost==3.4.1`, `scipy==1.18.1`,
-`matplotlib==3.11.2`. Random seed 42. Re-running `experiment.py` regenerates
-`experiments/results.csv`; `make_figures.py` regenerates the figures.
+`matplotlib==3.11.2`, `statsmodels==0.15.0`. Random seed 42. Re-running the suite
+regenerates `experiments/results.csv`, `experiments/uncertainty.csv` and
+`experiments/mixed_effects_*.csv`, and `make_figures.py` regenerates the figures.
 
 ---
 
