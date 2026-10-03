@@ -32,12 +32,16 @@ is then tested for cross-cohort generalisation on **BIG IDEAs**.
 ## Quick start
 
 ```bash
-# 1. get data (627 MB, ~10–40 min via the open S3 endpoint)
-bash src/download_data.sh
-
-# 2. set up the environment
+# 1. set up the environment
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
+
+# 2. reproduce everything with one command (data → results → figures → PDF)
+bash src/run_all.sh                  # downloads CGMacros + BIG IDEAs first
+bash src/run_all.sh --skip-download  # reuse already-downloaded archives
 ```
+
+Downloads are idempotent, so re-running is safe. `run_all.sh` is a thin wrapper
+around the individual scripts listed in `reports/technical_report.md` §8.
 
 ## Layout
 

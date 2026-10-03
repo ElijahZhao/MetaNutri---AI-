@@ -105,6 +105,16 @@ BMI, HbA1c, fasting glucose, insulin, HOMA-IR and a lipid panel (triglycerides,
 total cholesterol, HDL, non-HDL, LDL, VLDL, cholesterol/HDL ratio). Subject
 features are joined **on subject id**, not positionally.
 
+**Which CGM channel we use, and why it matters.** CGMacros participants wore two
+sensors simultaneously (a Libre Pro sampled every 15 min, and a Dexcom G6 Pro
+every 5 min). We use the **Libre** channel (`Libre GL`), matching the official
+baseline, whose corresponding feature is named `Baseline_Libre` — that keeps the
+replication like-for-like. The choice is not cosmetic: the two channels read
+systematically differently, and they agree only moderately on *which* meals
+produce the largest excursions (mean Kendall τ ≈ 0.43 across subjects;
+Howard et al., 2020). Numbers produced on one channel are therefore not directly
+comparable with numbers produced on the other.
+
 Two data-quality issues were handled explicitly rather than silently. First,
 column names are inconsistent across the 45 per-subject files (trailing spaces,
 and one file lacks `Amount Consumed`); we normalise names and access optional
@@ -384,6 +394,27 @@ We state these explicitly; they bound every claim above.
   within-subject evaluation. A per-subject standardised variant would be
   stricter and would likely lower the numbers; we report the comparable metric
   but flag the effect.
+- **The response is only weakly repeatable within a person.** The same meal,
+  eaten again a week later, does not reliably reproduce its excursion: reported
+  within-subject ICCs for postprandial response are only 0.16–0.31 (Hengist
+  et al., 2023). This is a ceiling on how much of the variance *any*
+  composition-driven model can explain, and it is a property of the cohort we
+  use, not of our pipeline.
+- **CGM measurement is noisy, lagged and device-dependent.** Subcutaneous
+  glucose lags blood glucose by roughly 9–10 min, which blurs fast postprandial
+  peaks; because our window is anchored on the annotated meal time, the lag
+  shifts the target rather than invalidating it. Measurement also depends on
+  which sensor channel is used, and the two channels in this study agree only
+  moderately on meal ranking (τ ≈ 0.43; see §2.2 and Howard et al., 2020).
+- **Confounding is uncontrolled.** Meal timing, the interval since the previous
+  meal, physical activity, sleep and menstrual cycle all influence the
+  postprandial response and are not features here. The correlations above
+  therefore describe association under this study's conditions, not an isolated
+  causal effect of macronutrients.
+- **Meal annotation quality differs across cohorts.** CGMacros meals are
+  expert-annotated; BIG IDEAs is a free-living, self-reported food log subject to
+  the usual portion-estimation error. Part of the cross-cohort drop in §4.4 is
+  therefore a difference in measurement, not only in modelling.
 - **External validation is narrow and imperfect.** We test one external cohort
   (BIG IDEAs, 16 subjects, 656 meals) with only five shared features, because
   that cohort lacks the CGMacros blood panel. The two studies differ
@@ -394,9 +425,18 @@ We state these explicitly; they bound every claim above.
   procedure, which is validated but not ground truth.
 - **No uncertainty quantification.** Point predictions are reported without
   calibrated intervals; for a health-adjacent setting, that is a real gap.
+- **No discrimination metric.** We report correlations and error metrics, but not
+  a median-split ROC-AUC, so these results are not directly comparable with
+  classification-style PPGR reporting.
 - **Observational and non-causal.** Associations between features and response
   are not interventions. Nothing here implies that changing a macronutrient
   will cause the predicted change.
+- **Reproducibility in this field is poor, which cuts both ways.** An audit of
+  deep-learning glucose-prediction papers found that only 23.9 % released code,
+  37.3 % used private data, and 55.2 % of the remainder relied on OhioT1DM
+  — a 12-person cohort. That makes an open, subject-wise-evaluated pipeline a
+  genuine differentiator, but it also means most published numbers are not
+  directly comparable with ours.
 - **Data provenance caveats.** The dataset's internal `LICENSE.txt` is an empty
   file; the CC BY-NC-SA 4.0 terms are declared only on the PhysioNet web page.
   We treat the web page as authoritative and comply with attribution and
@@ -412,33 +452,53 @@ We state these explicitly; they bound every claim above.
    (e.g. a T2D population) would separate device effects from population
    effects.
 2. **Within-subject evaluation** in addition to pooled metrics, to separate
-   "who is this person" from "what did they eat".
+   "who is this person" from "what did they eat". We flag the pooled-metric
+   caveat in §6 but do not yet report the stricter variant.
 3. **Uncertainty estimates** (quantile or conformal prediction) so a prediction
    comes with a defensible interval.
-4. **Richer meal representations** — meal timing, prior-meal context, and
-   activity — which the current feature set omits.
-5. **An interactive demo** exposing per-meal predictions and feature
-   attributions, built on this frozen, reproducible pipeline.
+4. **Richer meal representations** — meal timing, prior-meal context, activity,
+   and **meal type as an explicit feature** (we currently use meal type only to
+   define evaluation subsets, not as an input to the model).
+5. **A discrimination metric** — a median-split ROC-AUC alongside the
+   correlations, so the results can be compared with classification-style PPGR
+   reporting.
+
+An interactive demo exposing per-meal predictions and exact TreeSHAP
+attributions on this frozen pipeline is already deployed
+(<https://metanutri-ai-ppgr-predictor.streamlit.app/>); see §8 for the code.
 
 ---
 
 ## 8. Reproducibility
 
 All results are produced by a small, dependency-pinned pipeline
-(`research/`), independent of the MetaNutri platform:
+(`research/`), independent of the MetaNutri platform. The entire chain — from
+raw download to the figures and this PDF — runs with **one command** from
+`research/`:
+
+```bash
+bash src/run_all.sh                    # full pipeline
+bash src/run_all.sh --skip-download    # reuse already-downloaded archives
+```
+
+It runs, in order:
 
 ```
-src/download_data.py     # parallel-chunk download + SHA256 verification
-src/build_dataset.py     # CGM → meal-level table (targets + features)
-src/iauc.py              # iAUC / AUC / peak-rise definitions
-src/evaluate.py          # LOPO protocol, imputation, baselines, XGBoost
-src/experiment.py        # runs both subsets × three targets → results.csv
+src/download_data.sh     # parallel-chunk download + SHA256 verification
 src/download_bigideas.py # fetch the 33 small BIG IDEAs files (2.4 MB)
+src/build_dataset.py     # CGM → meal-level table (uses src/iauc.py for targets)
+src/experiment.py        # LOPO protocol, baselines, XGBoost (uses src/evaluate.py);
+                         #   breakfast replication × all-meals extension × three targets
+                         #   → experiments/results.csv
 src/build_external.py    # BIG IDEAs → meal-level table (date-offset repair)
-src/external_validate.py # cross-cohort transfer → external_results.csv
+src/external_validate.py # cross-cohort transfer → experiments/external_results.csv
 src/make_figures.py      # figures 1–5
+src/train_final.py       # freeze the model into app/model/ for the demo
 src/export_report_pdf.py # this report → reports/technical_report.pdf
 ```
+
+(`iauc.py` and `evaluate.py` are library modules imported by the steps above,
+not separate entry points.)
 
 Pinned versions: Python 3.12, `numpy==2.5.3`, `pandas==3.0.6`,
 `scikit-learn==1.9.1`, `xgboost==3.4.1`, `scipy==1.18.1`,
