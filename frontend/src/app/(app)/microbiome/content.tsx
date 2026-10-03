@@ -17,6 +17,12 @@ import dynamic from 'next/dynamic';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
+// Fixed per-nutrient weights for the association heatmap. The old code scaled
+// every cell by (0.5 + Math.random() * 0.5), so the heatmap was redrawn with
+// different colours on every render; fixed weights keep the columns distinct
+// without inventing new numbers each time.
+const NUTRIENT_WEIGHTS = [1, 0.85, 0.9, 0.8, 0.95];
+
 interface MicrobiomeForm {
   taxon_name: string;
   taxon_level: string;
@@ -97,6 +103,25 @@ function MicrobiomeContent() {
     ],
   };
 
+  // Deterministic health profile derived from the stored entries. These values
+  // used to be Math.random() draws, so the radar showed different — and
+  // fabricated — numbers on every render. Every axis below now comes from the
+  // uploaded abundances and health scores.
+  const validAbundances = data.map((d) => d.relative_abundance ?? 0).filter((a) => a > 0);
+  const totalAbundance = validAbundances.reduce((sum, a) => sum + a, 0);
+  const shannon = totalAbundance > 0
+    ? -validAbundances.reduce((sum, a) => {
+        const p = a / totalAbundance;
+        return sum + p * Math.log(p);
+      }, 0)
+    : 0;
+  const maxShannon = validAbundances.length > 1 ? Math.log(validAbundances.length) : 1;
+  const evenness = maxShannon > 0 ? shannon / maxShannon : 0;
+  const healthScores = data.map((d) => d.health_score).filter((v): v is number => v !== null);
+  const avgHealth = healthScores.length
+    ? healthScores.reduce((sum, v) => sum + v, 0) / healthScores.length
+    : 0;
+
   const radarOption =
     data.length > 0
       ? {
@@ -117,10 +142,10 @@ function MicrobiomeContent() {
                 {
                   value: [
                     Math.min(data.length / 10, 5),
-                    70 + Math.random() * 20,
-                    60 + Math.random() * 30,
-                    50 + Math.random() * 40,
-                    65 + Math.random() * 25,
+                    Math.round(evenness * 100),
+                    Math.round(Math.min(1, Math.max(0, avgHealth)) * 100),
+                    Math.round(Math.min(1, data.length / 10) * 100),
+                    Math.round(Math.min(1, totalAbundance) * 100),
                   ],
                   name: 'Microbiome Health',
                   areaStyle: { color: 'rgba(16, 185, 129, 0.3)' },
@@ -169,7 +194,7 @@ function MicrobiomeContent() {
                     i,
                     Math.round(
                       ((d.relative_abundance ?? 0) * 100 + (d.health_score ?? 0) * 20) *
-                        (0.5 + Math.random() * 0.5)
+                        NUTRIENT_WEIGHTS[j]
                     ),
                   ])
                 ),

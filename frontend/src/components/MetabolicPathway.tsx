@@ -51,9 +51,100 @@ const HTML_ESCAPES: Record<string, string> = {
 const escapeHtml = (str: string | number | null | undefined): string =>
   String(str ?? '').replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
 
+// Static pathway definitions live at module scope. They used to be rebuilt on every
+// render inside the component, and the render effect depended on that object, so the
+// ECharts instance was disposed and re-initialised on every render (losing zoom/pan
+// state and burning CPU). A module constant keeps the reference stable.
+const PATHWAYS: Record<PathwayKey, Pathway> = {
+  glycolysis: {
+    name: '糖酵解途径',
+    description: '葡萄糖分解为丙酮酸的代谢途径，产生ATP和NADH',
+    nodes: [
+      { id: 'glucose', name: '葡萄糖', x: 50, y: 150, category: 'substrate', color: '#ef4444' },
+      { id: 'g6p', name: '葡萄糖-6-磷酸', x: 150, y: 150, category: 'intermediate' },
+      { id: 'f6p', name: '果糖-6-磷酸', x: 250, y: 150, category: 'intermediate' },
+      { id: 'f16bp', name: '果糖-1,6-二磷酸', x: 350, y: 150, category: 'intermediate' },
+      { id: 'dhap', name: '二羟丙酮磷酸', x: 450, y: 80, category: 'intermediate' },
+      { id: 'g3p', name: '甘油醛-3-磷酸', x: 450, y: 220, category: 'intermediate' },
+      { id: '13bpg', name: '1,3-二磷酸甘油酸', x: 550, y: 150, category: 'intermediate' },
+      { id: '3pg', name: '3-磷酸甘油酸', x: 650, y: 150, category: 'intermediate' },
+      { id: '2pg', name: '2-磷酸甘油酸', x: 750, y: 150, category: 'intermediate' },
+      { id: 'pep', name: '磷酸烯醇式丙酮酸', x: 850, y: 150, category: 'intermediate' },
+      { id: 'pyruvate', name: '丙酮酸', x: 950, y: 150, category: 'product', color: '#10b981' },
+    ],
+    edges: [
+      { source: 'glucose', target: 'g6p', enzyme: 'HK', gene: 'HK1/HK2' },
+      { source: 'g6p', target: 'f6p', enzyme: 'PGI', gene: 'GPI' },
+      { source: 'f6p', target: 'f16bp', enzyme: 'PFK', gene: 'PFKL/PFKP' },
+      { source: 'f16bp', target: 'dhap', enzyme: 'ALD', gene: 'ALDOA' },
+      { source: 'f16bp', target: 'g3p', enzyme: 'ALD', gene: 'ALDOA' },
+      { source: 'dhap', target: 'g3p', enzyme: 'TPI', gene: 'TPI1' },
+      { source: 'g3p', target: '13bpg', enzyme: 'GAPDH', gene: 'GAPDH' },
+      { source: '13bpg', target: '3pg', enzyme: 'PGK', gene: 'PGK1' },
+      { source: '3pg', target: '2pg', enzyme: 'PGM', gene: 'PGAM1' },
+      { source: '2pg', target: 'pep', enzyme: 'ENO', gene: 'ENO1' },
+      { source: 'pep', target: 'pyruvate', enzyme: 'PK', gene: 'PKM2' },
+    ],
+  },
+  tca: {
+    name: '三羧酸循环',
+    description: '有氧呼吸的核心，将乙酰-CoA氧化为CO2，产生大量能量',
+    nodes: [
+      { id: 'acetylcoa', name: '乙酰-CoA', x: 100, y: 200, category: 'substrate', color: '#ef4444' },
+      { id: 'citrate', name: '柠檬酸', x: 250, y: 100, category: 'intermediate' },
+      { id: 'aconitate', name: '顺乌头酸', x: 400, y: 100, category: 'intermediate' },
+      { id: 'isocitrate', name: '异柠檬酸', x: 550, y: 100, category: 'intermediate' },
+      { id: 'akg', name: 'α-酮戊二酸', x: 700, y: 200, category: 'intermediate' },
+      { id: 'succinylcoa', name: '琥珀酰-CoA', x: 700, y: 300, category: 'intermediate' },
+      { id: 'succinate', name: '琥珀酸', x: 550, y: 400, category: 'intermediate' },
+      { id: 'fumarate', name: '延胡索酸', x: 400, y: 400, category: 'intermediate' },
+      { id: 'malate', name: '苹果酸', x: 250, y: 400, category: 'intermediate' },
+      { id: 'oxaloacetate', name: '草酰乙酸', x: 100, y: 300, category: 'product', color: '#10b981' },
+    ],
+    edges: [
+      { source: 'acetylcoa', target: 'citrate', enzyme: 'CS', gene: 'CS' },
+      { source: 'citrate', target: 'aconitate', enzyme: 'ACO', gene: 'ACO2' },
+      { source: 'aconitate', target: 'isocitrate', enzyme: 'ACO', gene: 'ACO2' },
+      { source: 'isocitrate', target: 'akg', enzyme: 'IDH', gene: 'IDH2' },
+      { source: 'akg', target: 'succinylcoa', enzyme: 'OGDH', gene: 'OGDH' },
+      { source: 'succinylcoa', target: 'succinate', enzyme: 'SCS', gene: 'SUCLG1' },
+      { source: 'succinate', target: 'fumarate', enzyme: 'SDH', gene: 'SDHA' },
+      { source: 'fumarate', target: 'malate', enzyme: 'FH', gene: 'FH' },
+      { source: 'malate', target: 'oxaloacetate', enzyme: 'MDH', gene: 'MDH2' },
+      { source: 'oxaloacetate', target: 'citrate', enzyme: 'CS', gene: 'CS' },
+    ],
+  },
+  fatty_acid: {
+    name: '脂肪酸氧化',
+    description: '脂肪酸分解产生乙酰-CoA，进入TCA循环供能',
+    nodes: [
+      { id: 'fattyacid', name: '脂肪酸', x: 50, y: 150, category: 'substrate', color: '#ef4444' },
+      { id: 'acylcoa', name: '脂酰-CoA', x: 150, y: 150, category: 'intermediate' },
+      { id: 'enoylcoa', name: '烯酰-CoA', x: 250, y: 150, category: 'intermediate' },
+      { id: 'hydoxyacylcoa', name: '羟脂酰-CoA', x: 350, y: 150, category: 'intermediate' },
+      { id: 'ketoacylcoa', name: '酮脂酰-CoA', x: 450, y: 150, category: 'intermediate' },
+      { id: 'acetylcoa_out', name: '乙酰-CoA', x: 550, y: 150, category: 'product', color: '#10b981' },
+      { id: 'short_fa', name: '缩短脂肪酸', x: 550, y: 250, category: 'intermediate' },
+    ],
+    edges: [
+      { source: 'fattyacid', target: 'acylcoa', enzyme: 'ACS', gene: 'ACSL' },
+      { source: 'acylcoa', target: 'enoylcoa', enzyme: 'ACAD', gene: 'ACADVL' },
+      { source: 'enoylcoa', target: 'hydoxyacylcoa', enzyme: 'ECH', gene: 'ECHS1' },
+      { source: 'hydoxyacylcoa', target: 'ketoacylcoa', enzyme: 'HADH', gene: 'HADHA' },
+      { source: 'ketoacylcoa', target: 'acetylcoa_out', enzyme: 'THL', gene: 'ACAT1' },
+      { source: 'ketoacylcoa', target: 'short_fa', enzyme: 'THL', gene: 'ACAT1' },
+      { source: 'short_fa', target: 'acylcoa', enzyme: 'ACSL', gene: 'ACSL' },
+    ],
+  },
+};
+
+// Stable empty default: a fresh `[]` on every render would change the effect
+// dependency identity and retrigger the chart setup each time.
+const EMPTY_GENES: string[] = [];
+
 export default function MetabolicPathway({
   selectedPathway = 'glycolysis',
-  userGenes = [],
+  userGenes = EMPTY_GENES,
 }: {
   selectedPathway?: PathwayKey;
   userGenes?: string[];
@@ -61,101 +152,22 @@ export default function MetabolicPathway({
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
   const [activeNode, setActiveNode] = useState<{ name: string } | null>(null);
+  // The dropdown owns the active pathway through local state. Previously the
+  // <select> was bound to the read-only `selectedPathway` prop and its onChange only
+  // cleared the selected node, so picking another pathway did nothing.
+  const [pathwayKey, setPathwayKey] = useState<PathwayKey>(selectedPathway);
 
-  const pathways: Record<PathwayKey, Pathway> = {
-    glycolysis: {
-      name: '糖酵解途径',
-      description: '葡萄糖分解为丙酮酸的代谢途径，产生ATP和NADH',
-      nodes: [
-        { id: 'glucose', name: '葡萄糖', x: 50, y: 150, category: 'substrate', color: '#ef4444' },
-        { id: 'g6p', name: '葡萄糖-6-磷酸', x: 150, y: 150, category: 'intermediate' },
-        { id: 'f6p', name: '果糖-6-磷酸', x: 250, y: 150, category: 'intermediate' },
-        { id: 'f16bp', name: '果糖-1,6-二磷酸', x: 350, y: 150, category: 'intermediate' },
-        { id: 'dhap', name: '二羟丙酮磷酸', x: 450, y: 80, category: 'intermediate' },
-        { id: 'g3p', name: '甘油醛-3-磷酸', x: 450, y: 220, category: 'intermediate' },
-        { id: '13bpg', name: '1,3-二磷酸甘油酸', x: 550, y: 150, category: 'intermediate' },
-        { id: '3pg', name: '3-磷酸甘油酸', x: 650, y: 150, category: 'intermediate' },
-        { id: '2pg', name: '2-磷酸甘油酸', x: 750, y: 150, category: 'intermediate' },
-        { id: 'pep', name: '磷酸烯醇式丙酮酸', x: 850, y: 150, category: 'intermediate' },
-        { id: 'pyruvate', name: '丙酮酸', x: 950, y: 150, category: 'product', color: '#10b981' },
-      ],
-      edges: [
-        { source: 'glucose', target: 'g6p', enzyme: 'HK', gene: 'HK1/HK2' },
-        { source: 'g6p', target: 'f6p', enzyme: 'PGI', gene: 'GPI' },
-        { source: 'f6p', target: 'f16bp', enzyme: 'PFK', gene: 'PFKL/PFKP' },
-        { source: 'f16bp', target: 'dhap', enzyme: 'ALD', gene: 'ALDOA' },
-        { source: 'f16bp', target: 'g3p', enzyme: 'ALD', gene: 'ALDOA' },
-        { source: 'dhap', target: 'g3p', enzyme: 'TPI', gene: 'TPI1' },
-        { source: 'g3p', target: '13bpg', enzyme: 'GAPDH', gene: 'GAPDH' },
-        { source: '13bpg', target: '3pg', enzyme: 'PGK', gene: 'PGK1' },
-        { source: '3pg', target: '2pg', enzyme: 'PGM', gene: 'PGAM1' },
-        { source: '2pg', target: 'pep', enzyme: 'ENO', gene: 'ENO1' },
-        { source: 'pep', target: 'pyruvate', enzyme: 'PK', gene: 'PKM2' },
-      ],
-    },
-    tca: {
-      name: '三羧酸循环',
-      description: '有氧呼吸的核心，将乙酰-CoA氧化为CO2，产生大量能量',
-      nodes: [
-        { id: 'acetylcoa', name: '乙酰-CoA', x: 100, y: 200, category: 'substrate', color: '#ef4444' },
-        { id: 'citrate', name: '柠檬酸', x: 250, y: 100, category: 'intermediate' },
-        { id: 'aconitate', name: '顺乌头酸', x: 400, y: 100, category: 'intermediate' },
-        { id: 'isocitrate', name: '异柠檬酸', x: 550, y: 100, category: 'intermediate' },
-        { id: 'akg', name: 'α-酮戊二酸', x: 700, y: 200, category: 'intermediate' },
-        { id: 'succinylcoa', name: '琥珀酰-CoA', x: 700, y: 300, category: 'intermediate' },
-        { id: 'succinate', name: '琥珀酸', x: 550, y: 400, category: 'intermediate' },
-        { id: 'fumarate', name: '延胡索酸', x: 400, y: 400, category: 'intermediate' },
-        { id: 'malate', name: '苹果酸', x: 250, y: 400, category: 'intermediate' },
-        { id: 'oxaloacetate', name: '草酰乙酸', x: 100, y: 300, category: 'product', color: '#10b981' },
-      ],
-      edges: [
-        { source: 'acetylcoa', target: 'citrate', enzyme: 'CS', gene: 'CS' },
-        { source: 'citrate', target: 'aconitate', enzyme: 'ACO', gene: 'ACO2' },
-        { source: 'aconitate', target: 'isocitrate', enzyme: 'ACO', gene: 'ACO2' },
-        { source: 'isocitrate', target: 'akg', enzyme: 'IDH', gene: 'IDH2' },
-        { source: 'akg', target: 'succinylcoa', enzyme: 'OGDH', gene: 'OGDH' },
-        { source: 'succinylcoa', target: 'succinate', enzyme: 'SCS', gene: 'SUCLG1' },
-        { source: 'succinate', target: 'fumarate', enzyme: 'SDH', gene: 'SDHA' },
-        { source: 'fumarate', target: 'malate', enzyme: 'FH', gene: 'FH' },
-        { source: 'malate', target: 'oxaloacetate', enzyme: 'MDH', gene: 'MDH2' },
-        { source: 'oxaloacetate', target: 'citrate', enzyme: 'CS', gene: 'CS' },
-      ],
-    },
-    fatty_acid: {
-      name: '脂肪酸氧化',
-      description: '脂肪酸分解产生乙酰-CoA，进入TCA循环供能',
-      nodes: [
-        { id: 'fattyacid', name: '脂肪酸', x: 50, y: 150, category: 'substrate', color: '#ef4444' },
-        { id: 'acylcoa', name: '脂酰-CoA', x: 150, y: 150, category: 'intermediate' },
-        { id: 'enoylcoa', name: '烯酰-CoA', x: 250, y: 150, category: 'intermediate' },
-        { id: 'hydoxyacylcoa', name: '羟脂酰-CoA', x: 350, y: 150, category: 'intermediate' },
-        { id: 'ketoacylcoa', name: '酮脂酰-CoA', x: 450, y: 150, category: 'intermediate' },
-        { id: 'acetylcoa_out', name: '乙酰-CoA', x: 550, y: 150, category: 'product', color: '#10b981' },
-        { id: 'short_fa', name: '缩短脂肪酸', x: 550, y: 250, category: 'intermediate' },
-      ],
-      edges: [
-        { source: 'fattyacid', target: 'acylcoa', enzyme: 'ACS', gene: 'ACSL' },
-        { source: 'acylcoa', target: 'enoylcoa', enzyme: 'ACAD', gene: 'ACADVL' },
-        { source: 'enoylcoa', target: 'hydoxyacylcoa', enzyme: 'ECH', gene: 'ECHS1' },
-        { source: 'hydoxyacylcoa', target: 'ketoacylcoa', enzyme: 'HADH', gene: 'HADHA' },
-        { source: 'ketoacylcoa', target: 'acetylcoa_out', enzyme: 'THL', gene: 'ACAT1' },
-        { source: 'ketoacylcoa', target: 'short_fa', enzyme: 'THL', gene: 'ACAT1' },
-        { source: 'short_fa', target: 'acylcoa', enzyme: 'ACSL', gene: 'ACSL' },
-      ],
-    },
-  };
-
-  const pathway = pathways[selectedPathway] || pathways.glycolysis;
-
-  const isUserGene = (geneStr: string): boolean => {
-    if (!userGenes.length) return false;
-    return userGenes.some((g) =>
-      geneStr.split('/').some((gene) => gene.toLowerCase().includes(g.toLowerCase()))
-    );
-  };
+  const pathway = PATHWAYS[pathwayKey] ?? PATHWAYS.glycolysis;
 
   useEffect(() => {
     if (!chartRef.current) return;
+
+    const isUserGene = (geneStr: string): boolean => {
+      if (!userGenes.length) return false;
+      return userGenes.some((g) =>
+        geneStr.split('/').some((gene) => gene.toLowerCase().includes(g.toLowerCase()))
+      );
+    };
 
     const chart = echarts.init(chartRef.current);
     chartInstance.current = chart;
@@ -284,7 +296,7 @@ export default function MetabolicPathway({
       chart.dispose();
       chartInstance.current = null;
     };
-  }, [selectedPathway, userGenes, pathway]);
+  }, [pathway, userGenes]);
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -294,8 +306,11 @@ export default function MetabolicPathway({
           <h2 className="text-lg font-semibold text-slate-900">代谢路径可视化</h2>
         </div>
         <select
-          value={selectedPathway}
-          onChange={(_e) => setActiveNode(null)}
+          value={pathwayKey}
+          onChange={(e) => {
+            setPathwayKey(e.target.value as PathwayKey);
+            setActiveNode(null);
+          }}
           className="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="glycolysis">糖酵解途径</option>

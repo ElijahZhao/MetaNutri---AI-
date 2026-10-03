@@ -76,7 +76,7 @@ function ExploreContent() {
 
   const scoreFood = async (food: Food) => {
     try {
-      const res = await recommendationAPI.foodScore({ user_id: 'me', food_id: food.id });
+      const res = await recommendationAPI.foodScore({ food_id: food.id });
       setFoodScore(res.data);
       setSelectedFood(food);
     } catch (e) {

@@ -34,7 +34,6 @@ export interface FoodScore {
 }
 
 export interface FoodScoreRequest {
-  user_id: string;
   food_id: string;
 }
 
@@ -57,7 +56,6 @@ export interface Recommendation {
 }
 
 export interface MealPlanRequest {
-  user_id: string;
   meal_type?: string;
   calorie_target?: number;
 }

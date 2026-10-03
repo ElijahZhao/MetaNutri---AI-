@@ -64,7 +64,7 @@ This repository is primarily a **full-stack engineering project**: a production-
 
 > **This repository is an engineering demo with a separate research track.**
 >
-> - **What runs live:** authentication, database CRUD, food search, import/export — plus **deterministic, rule-based heuristics** for glucose and nutrient estimates. A few endpoints additionally use random values and are illustrative only.
+> - **What runs live:** authentication, database CRUD, food search, import/export — plus **deterministic, rule-based heuristics** for glucose, nutrient-absorption and risk estimates. All of them are illustrative only.
 > - **Research scaffolding (not live):** the PyTorch model code in `backend/app/ml/` is **not trained on real data** and is **never loaded at runtime**.
 > - **Where the real AI is:** a self-contained research module — postprandial glucose-response prediction on **real open data**, with rigorous subject-wise evaluation — developed and deployed **independently** of this platform. See [docs/ROADMAP.md](docs/ROADMAP.md).
 > - **Not a medical device.** Nothing here is medical advice; never use it to make clinical decisions.
@@ -216,11 +216,8 @@ This project spans **two independent GitHub repositories**. They are deliberatel
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | [PyTorch](https://pytorch.org/) | 2.x | Research scaffolding for model prototypes (not loaded by the live API) |
-| [scipy](https://scipy.org/) | 1.14 | Scientific / statistical computing |
-| [SHAP](https://shap.readthedocs.io/) | 0.46 | Declared for the research track; the live API does not run SHAP |
-| [NumPy](https://numpy.org/) | 1.26 | Numerical computing |
-| [Pandas](https://pandas.pydata.org/) | 2.2 | Data processing |
-| [scikit-learn](https://scikit-learn.org/) | 1.5 | Feature scaling & baseline models (research scaffolding) |
+| [NumPy](https://numpy.org/) | 1.26 | Numerical computing (glucose-response curve) |
+| [Pandas](https://pandas.pydata.org/) | 2.2 | Data processing (import / export) |
 | [requests](https://docs.python-requests.org/) | 2.32 | HTTP client (bundled reference data is generated locally, not downloaded) |
 
 ---
@@ -325,7 +322,7 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
 | `ml/metabolic_response_model.py` | Research prototype: glucose response / nutrient absorption predictor (not wired to the live API) |
 | `ml/gene_nutrition_model.py` | Research prototype: gene–nutrition association (GNN) |
 | `ml/microbiome_vae.py` | Research prototype: microbiome health (VAE) |
-| `ml/explainability.py` | Research prototype: SHAP / LIME wrappers (the live API returns heuristic contribution weights instead) |
+| `ml/explainability.py` | Deterministic proportional feature-contribution explainer — the same one the live API returns |
 | `ml/train_models.py` | Prototype training scripts (train on synthetic tensors) |
 | `ml/weights/` | Weights trained on synthetic data; never loaded at runtime |
 

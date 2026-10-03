@@ -19,7 +19,6 @@ export interface GlucoseCurvePoint {
 }
 
 export interface GlucosePredictionRequest {
-  user_id: string;
   food_ids: string[];
   portion_sizes?: number[];
 }
@@ -34,7 +33,6 @@ export interface GlucosePrediction {
 }
 
 export interface NutrientAbsorptionRequest {
-  user_id: string;
   nutrient: string;
   amount_mg: number;
 }

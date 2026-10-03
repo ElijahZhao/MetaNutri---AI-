@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
 from uuid import UUID
-import random
 
 from app.db.session import get_db
 from app.models.recommendation import NutritionRecommendation
@@ -55,7 +54,10 @@ async def food_score(
         score += 10
     if food.calories_kcal and food.calories_kcal < 200:
         score += 10
-    score = min(100, max(0, score + random.uniform(-5, 5)))
+    # Fully deterministic: it used to add random.uniform(-5, 5) jitter, so the
+    # same food scored differently on every request and the frontend showed a
+    # different number each time it was clicked.
+    score = min(100, max(0, score))
 
     explanation = f"{food.food_name} has a nutrition score of {score:.1f} based on its fiber, protein, and glycemic profile."
 

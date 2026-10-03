@@ -3,11 +3,10 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from typing import List, Optional
 from datetime import date
-import numpy as np
 
 from app.core.security import get_current_active_user
 from app.models.user import User
-from app.models.metabolomics import MetabolomicsData, MetabolomicsPathway
+from app.models.metabolomics import MetabolomicsData
 from app.db.session import get_db
 
 router = APIRouter(prefix="/api/metabolomics", tags=["metabolomics"])
@@ -33,14 +32,6 @@ class MetabolomicsDataResponse(BaseModel):
     significance: Optional[float]
     sample_date: Optional[date]
     created_at: str
-
-
-class MetabolomicsPathwayResponse(BaseModel):
-    id: str
-    pathway_name: str
-    enrichment_score: float
-    p_value: float
-    num_metabolites: int
 
 
 @router.post("/upload", response_model=List[MetabolomicsDataResponse])
@@ -77,7 +68,9 @@ async def upload_metabolomics_data(
             created_at=str(r.created_at),
         ) for r in results]
     except Exception as e:
-        db.rollback()
+        # AsyncSession.rollback() is a coroutine: calling it without await left
+        # the coroutine un-run, so nothing was actually rolled back here.
+        await db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -138,13 +131,20 @@ async def analyze_metabolomics(
             else:
                 normal += 1
     
+    # Deterministic pathway summary. This demo ships no reference pathway
+    # database, so neither figure is a real statistical test: enrichment_score is
+    # the observed/expected count ratio and p_value is a deterministic, monotone
+    # function of it. Both used to be np.random.uniform draws, so the same upload
+    # reported different numbers — and a different "p-value" — on every request.
     pathways = []
+    expected = len(records) / len(pathway_counts) if pathway_counts else 0.0
     for pathway, count in pathway_counts.items():
+        enrichment = count / expected if expected else 1.0
         pathways.append({
             "name": pathway,
             "metabolite_count": count,
-            "enrichment_score": round(float(np.random.uniform(0.5, 1.5)), 4),
-            "p_value": round(float(np.random.uniform(0.001, 0.05)), 4),
+            "enrichment_score": round(float(enrichment), 4),
+            "p_value": round(float(1.0 / (1.0 + enrichment)), 4),
         })
     
     insights = []

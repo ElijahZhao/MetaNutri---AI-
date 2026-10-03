@@ -1,5 +1,5 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import MetabolicPathway from '@/components/MetabolicPathway';
 import NutritionAlerts from '@/components/NutritionAlerts';
@@ -34,7 +34,12 @@ function DashboardContent() {
   const risk = riskQuery.data ?? null;
   const recommendations = recommendationsQuery.data ?? [];
   const genomicData = genomicQuery.data ?? [];
-  const userGenes: string[] = genomicData.map((d) => d.gene_name).filter(Boolean);
+  // Memoised: a fresh array identity on every render would retrigger the pathway
+  // chart effect (dispose + re-init) even when the genes did not change.
+  const userGenes: string[] = useMemo(
+    () => genomicData.map((d) => d.gene_name).filter(Boolean),
+    [genomicData]
+  );
 
   return (
     <>

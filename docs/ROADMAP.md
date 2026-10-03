@@ -93,6 +93,27 @@
 - N1 / N2 的线上 API **不改代码**，仅在 `README` / `docs/API.md` / `docs/DATASETS.md` 标注为**演示占位**。
 - 诚实化统一叙事：**平台 = 工程演示；真 AI 在独立 `research/` 线**。
 
+### 1.6 第 15 轮审查与 A 线缺陷修缮（2026-10-03）
+
+项目所有者在本轮明确授权：在「保证项目正常运行」的前提下，对 A 线的**缺陷与死代码**做修缮（**不新增功能**）。据此完成：
+
+| # | 问题 | 处置 | 位置 |
+|---|---|---|---|
+| D1 | `FeatureContributionExplainer.top_negative` 取排序末 3 个且不判正负；血糖路径输入全为正 → 把**最小的正贡献**标成「主要负面因素」，污染线上解读文案 | 改为**按贡献正负分组**，量级排序天然使最负者居首 | `backend/app/ml/explainability.py` |
+| D2 | `calculate_confidence` 以 `len(input_data)` 为分母，空输入 `ZeroDivisionError` | 空输入直接返回基准置信度 | 同上 |
+| D3 | `nutrient-absorption` 用 `np.random.uniform` 抖动吸收率 → 同一请求结果不稳定 | 改为**确定性剂量-吸收曲线**；同步更新两份 README 与 `docs/API.md` 的「含随机扰动」表述 | `backend/app/api/predict.py` |
+| D4 | `SHAPExplainer` / `LIMEExplainer` 为**死代码**（无端点引用），后者还用随机数伪造贡献 | 删除；`explainability.py` 不再依赖 numpy/pandas/shap/sklearn | 同上 |
+| D5 | 随 D4，`shap`、`scikit-learn`、`scipy` 在后端**完全无引用** | 从 `backend/requirements.txt` 移除，缩小镜像与供应链面 | `backend/requirements.txt` |
+| D6 | 后端镜像**以 root 运行**（前端镜像已降权） | 新增非 root 用户并 `chown /app` 后 `USER appuser` | `backend/Dockerfile` |
+| D7 | `.dockerignore` 未排除 `research/`（含 `.venv` 与本地数据集）；且 `trae-html-share-packages` 少写点号致 `.trae-html-share-packages` 从未被忽略 | 补 `research`、`**/.venv` 等规则并修正拼写 | `.dockerignore` |
+| D8 | `/api/metabolomics/analysis` 用 `np.random.uniform` 生成 `enrichment_score` 与 `p_value` → 每次请求给出**随机 p 值**，前端还以 `p=...` 渲染（伪统计量被当显著性展示） | 改为**确定性**（观测/期望计数比及其单调函数）；字段与类型不变，前端零改动 | `backend/app/api/metabolomics.py` |
+
+**更正 §1.5 关于 husky / lint-staged 的记述**：该处称 `lint-staged`「并非任何依赖、husky 处于休眠」。现状已变——`frontend/package.json` 已将 `lint-staged@^15.5.2` 列为 devDependency 并配置了规则，根 `package.json` 亦有 `husky` + `prepare`，因此对执行过 `npm install` 的环境，`.husky/pre-commit` 是**生效**的。
+
+**N1 / N2 / N3 状态**：N1、N2（数据集下载器与天池客户端为演示占位）仍按 §1.5 决定**不改代码**；N3（LIME 随机贡献）随 D4 一并消除。
+
+**验证**：`python -m compileall -q app` 通过；`explainability.py` 已成为纯标准库模块，本轮以纯 Python 断言其「全正输入 → `top_negative` 为空」与「空输入不抛异常」，均通过。详见 `docs/AUDIT-FINDINGS.md` 第八节。
+
 ---
 
 ## 2. 战略决策

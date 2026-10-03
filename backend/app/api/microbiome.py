@@ -70,7 +70,7 @@ async def analyze_microbiome(
         suggestions.append("Increase dietary fiber intake to support beneficial bacteria")
         suggestions.append("Consider fermented foods like yogurt and kimchi")
     if diversity < 1.5:
-        suggestions.append(" diversify plant-based food sources")
+        suggestions.append("Diversify plant-based food sources")
 
     return MicrobiomeAnalysisResponse(
         user_id=current_user.id,

@@ -64,7 +64,7 @@
 
 > **本仓库是一个工程演示项目，并配有一条独立的研究线。**
 >
-> - **线上实际运行的内容：** 认证、数据库 CRUD、食物检索、导入导出——以及血糖/营养估算所用的**确定性规则化启发式**。另有少数接口使用了随机数，仅供演示。
+> - **线上实际运行的内容：** 认证、数据库 CRUD、食物检索、导入导出——以及血糖/营养/风险评估所用的**确定性规则化启发式**。全部仅供演示。
 > - **研究脚手架（非线上）：** `backend/app/ml/` 下的 PyTorch 模型代码**未用真实数据训练**，且在运行时**从不加载**。
 > - **真正的 AI 在哪里：** 一个自包含的研究模块——在**真实公开数据**上做餐后血糖响应预测，并采用严格的按受试者划分评估——**独立于本平台**开发与部署。见 [docs/ROADMAP.md](docs/ROADMAP.md)。
 > - **非医疗器械。** 本项目不构成任何医疗建议，切勿用于临床决策。
@@ -216,11 +216,8 @@
 | 技术 | 版本 | 用途 |
 |------|------|------|
 | [PyTorch](https://pytorch.org/) | 2.x | 模型原型的研究脚手架（线上 API 不加载） |
-| [scipy](https://scipy.org/) | 1.14 | 科学 / 统计计算 |
-| [SHAP](https://shap.readthedocs.io/) | 0.46 | 为研究线声明；线上 API 不运行 SHAP |
-| [NumPy](https://numpy.org/) | 1.26 | 数值计算 |
-| [Pandas](https://pandas.pydata.org/) | 2.2 | 数据处理 |
-| [scikit-learn](https://scikit-learn.org/) | 1.5 | 特征缩放与基线模型（研究脚手架） |
+| [NumPy](https://numpy.org/) | 1.26 | 数值计算（血糖响应曲线） |
+| [Pandas](https://pandas.pydata.org/) | 2.2 | 数据处理（导入 / 导出） |
 | [requests](https://docs.python-requests.org/) | 2.32 | HTTP 客户端（内置参考数据由本地生成，非下载） |
 
 ---
@@ -325,7 +322,7 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
 | `ml/metabolic_response_model.py` | 研究原型：血糖响应 / 营养吸收预测器（未接入线上 API） |
 | `ml/gene_nutrition_model.py` | 研究原型：基因-营养关联（GNN） |
 | `ml/microbiome_vae.py` | 研究原型：微生物组健康（VAE） |
-| `ml/explainability.py` | 研究原型：SHAP / LIME 封装（线上 API 返回的是启发式贡献权重） |
+| `ml/explainability.py` | 确定性的比例摊派特征贡献解释器（线上 API 返回的就是它） |
 | `ml/train_models.py` | 原型训练脚本（在合成张量上训练） |
 | `ml/weights/` | 在合成数据上训练的权重；运行时从不加载 |
 

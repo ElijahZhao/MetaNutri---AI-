@@ -17,7 +17,9 @@ router = APIRouter(prefix="/api/predict", tags=["predict"])
 
 
 class GlucoseResponseRequest(BaseModel):
-    user_id: UUID
+    # The acting user comes from the authenticated session, never the body: a
+    # client-supplied ``user_id`` was both ignored and typed as UUID while the
+    # frontend sent the literal "me", so every request failed validation (422).
     food_ids: List[UUID] = []
     portion_sizes: Optional[List[float]] = None
 
@@ -32,7 +34,7 @@ class GlucoseResponseResponse(BaseModel):
 
 
 class NutrientAbsorptionRequest(BaseModel):
-    user_id: UUID
+    # See GlucoseResponseRequest: the body must not carry a user_id.
     nutrient: str
     amount_mg: float
 
@@ -188,17 +190,23 @@ async def predict_nutrient_absorption(
     req: NutrientAbsorptionRequest,
     current_user: User = Depends(get_current_active_user)
 ):
-    nutrient_effects = {
-        'Iron': {'base_rate': 0.35, 'variability': 0.2},
-        'Calcium': {'base_rate': 0.25, 'variability': 0.15},
-        'Vitamin C': {'base_rate': 0.85, 'variability': 0.1},
-        'Vitamin D': {'base_rate': 0.65, 'variability': 0.2},
-        'Zinc': {'base_rate': 0.45, 'variability': 0.18},
-        'Magnesium': {'base_rate': 0.55, 'variability': 0.2},
+    # Baseline absorption per nutrient. The result is deterministic: it used to
+    # be jittered with np.random.uniform, so identical requests returned
+    # different numbers.
+    base_rates = {
+        'Iron': 0.35,
+        'Calcium': 0.25,
+        'Vitamin C': 0.85,
+        'Vitamin D': 0.65,
+        'Zinc': 0.45,
+        'Magnesium': 0.55,
     }
     
-    effect = nutrient_effects.get(req.nutrient, {'base_rate': 0.5, 'variability': 0.2})
-    absorption = max(0.1, min(0.95, effect['base_rate'] + np.random.uniform(-effect['variability'], effect['variability'])))
+    base_rate = base_rates.get(req.nutrient, 0.5)
+    # Saturating dose response: absorption approaches the base rate as the dose
+    # grows (>=100 mg) and is halved as the dose tends to zero.
+    dose_factor = min(1.0, max(0.0, float(req.amount_mg)) / 100.0)
+    absorption = max(0.1, min(0.95, base_rate * (0.5 + 0.5 * dose_factor)))
     bioavail = absorption * 100
     
     if absorption > 0.7:
@@ -208,7 +216,7 @@ async def predict_nutrient_absorption(
     else:
         recommendation = f"{req.nutrient}吸收效率较低。建议考虑补充剂或富含{req.nutrient}的食物。"
     
-    input_data = {'amount': req.amount_mg, 'base_rate': effect['base_rate']}
+    input_data = {'amount': req.amount_mg, 'base_rate': base_rate}
     explainer = FeatureContributionExplainer()
     contributions = explainer.calculate_contributions(input_data, absorption)
     

@@ -71,9 +71,16 @@ def _check_login_rate_limit(request: Request, username: str):
         raise HTTPException(status_code=429, detail="Too many failed attempts. Please try again later.")
 
 
-def _record_success(key_ip_prefix: str):
-    client_ip = key_ip_prefix
+def _record_success(request: Request, username: str):
+    """Clear the brute-force counters for a successful login.
+
+    The per-(ip, username) counter used to be left in place, so a caller who
+    authenticated successfully five times inside the window was then locked out
+    by the sixth request even though nothing had failed.
+    """
+    client_ip = get_client_ip(request)
     _IP_LOGIN_BURST.pop(client_ip, None)
+    _LOGIN_ATTEMPTS.pop(f"{client_ip}:{username}", None)
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_in: UserCreate, request: Request, db: AsyncSession = Depends(get_db)):
@@ -181,7 +188,7 @@ async def login(
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Account is inactive")
 
-    _record_success(get_client_ip(request))
+    _record_success(request, user_in.username)
 
     return _issue_session(response, user)
 

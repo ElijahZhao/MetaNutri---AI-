@@ -34,6 +34,12 @@ async def import_data(
     if not file.filename or "." not in file.filename:
         raise HTTPException(status_code=400, detail="File must have a .csv or .json extension")
 
+    # Validate the data type up front. It used to be checked inside the per-record
+    # loop, where the broad `except Exception` swallowed the HTTPException, so an
+    # unsupported type returned 200 with every record listed as an error.
+    if data_type not in ("genomic", "microbiome", "metabolomics"):
+        raise HTTPException(status_code=400, detail=f"Unsupported data type: {data_type}")
+
     if file.filename.endswith('.csv'):
         try:
             data = DataImporter.import_from_csv(content.decode('utf-8'))
@@ -90,8 +96,6 @@ async def import_data(
                     significance=_bounded(record.get("significance", 0.05), 0, 1, 0.05),
                 )
                 db.add(metabolomics)
-            else:
-                raise HTTPException(status_code=400, detail=f"Unsupported data type: {data_type}")
             imported += 1
         except Exception as e:
             errors.append({"record": record, "error": str(e)})

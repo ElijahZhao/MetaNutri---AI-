@@ -27,7 +27,7 @@ function PredictContent() {
   const predictGlucose = async () => {
     setLoadingGlucose(true);
     try {
-      const res = await predictAPI.glucoseResponse({ user_id: 'me', food_ids: [] });
+      const res = await predictAPI.glucoseResponse({ food_ids: [] });
       setGlucose(res.data);
     } catch (e) {
       console.error(e);
@@ -42,7 +42,6 @@ function PredictContent() {
     setLoadingNutrient(true);
     try {
       const res = await predictAPI.nutrientAbsorption({
-        user_id: 'me',
         nutrient: nutrientForm.nutrient,
         amount_mg: nutrientForm.amount_mg,
       });

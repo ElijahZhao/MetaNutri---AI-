@@ -90,7 +90,7 @@
 |------|------|------|
 | POST | `/api/metabolomics/upload` | 上传代谢组学数据 |
 | GET | `/api/metabolomics/user` | 当前用户的代谢物数据 |
-| GET | `/api/metabolomics/analysis` | 代谢通路富集 / 分析 |
+| GET | `/api/metabolomics/analysis` | 代谢通路富集 / 分析（`enrichment_score` / `p_value` 为**确定性启发式**，由通路计数推导，**非统计检验**） |
 | DELETE | `/api/metabolomics/{data_id}` | 删除一条代谢物记录 |
 
 ---
@@ -103,7 +103,7 @@
 | POST | `/api/predict/nutrient-absorption` | 营养素吸收预测 `{user_id, nutrient, amount_mg}` → 吸收率/生物利用率/特征贡献 |
 | GET | `/api/predict/risk-assessment` | 慢病风险评估 → 糖尿病/肥胖/心血管风险分 + 建议 |
 
-> **实现说明（诚实）**：以上接口当前均由**确定性规则/启发式**实现——`glucose-response` 为确定性公式，`risk-assessment` 为启发式打分，`nutrient-absorption` 含随机扰动；返回的 `feature_contributions` 是**启发式贡献权重**，并非 SHAP。`backend/app/ml/` 下的代谢响应模型、基因-营养 GNN、微生物组 VAE 与 SHAP/LIME 均为**研究原型，未接入线上 API**；`weights/` 权重在合成数据上训练且从不加载。
+> **实现说明（诚实）**：以上接口当前均由**确定性规则/启发式**实现——`glucose-response` 为确定性公式，`risk-assessment` 为启发式打分，`nutrient-absorption` 为确定性剂量-吸收曲线；返回的 `feature_contributions` 是**比例摊派的启发式贡献权重**，并非 SHAP。`backend/app/ml/` 下的代谢响应模型、基因-营养 GNN、微生物组 VAE 均为**研究原型，未接入线上 API**；`weights/` 权重在合成数据上训练且从不加载。
 
 ## 7. 推荐 `/api/recommendations`
 

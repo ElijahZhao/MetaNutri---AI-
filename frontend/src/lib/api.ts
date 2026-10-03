@@ -103,11 +103,37 @@ const ERROR_MESSAGES: Record<string, string> = {
 // still waking: the request likely failed because the container was booting.
 const COLD_START_MESSAGE = '后端服务正在启动（免费实例冷启动，通常需要 30–60 秒），请稍候重试。';
 
+/**
+ * Collapse FastAPI's `detail` into a plain string. Request-validation failures
+ * return an array of `{ msg, loc }` objects; passing that array straight to
+ * `toast.error` would hand React an array of objects as a child and throw.
+ */
+const normaliseDetail = (detail: unknown): string | undefined => {
+  if (typeof detail === 'string') {
+    return detail.trim() || undefined;
+  }
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((item) =>
+        typeof item === 'string'
+          ? item
+          : item && typeof item === 'object' && 'msg' in item
+            ? String((item as { msg?: unknown }).msg ?? '')
+            : ''
+      )
+      .filter(Boolean);
+    return messages.length ? messages.join('；') : undefined;
+  }
+  return undefined;
+};
+
 const getErrorMessage = (error: ApiErrorLike): string => {
   const status = error.response?.status;
+  const detail =
+    normaliseDetail(error.response?.data?.detail) ??
+    normaliseDetail(error.response?.data?.message);
 
   if (status && ERROR_MESSAGES[String(status)]) {
-    const detail = error.response?.data?.detail || error.response?.data?.message;
     return detail || ERROR_MESSAGES[String(status)];
   }
 
@@ -119,12 +145,7 @@ const getErrorMessage = (error: ApiErrorLike): string => {
     return isBackendWarm() ? ERROR_MESSAGES.network : COLD_START_MESSAGE;
   }
 
-  return (
-    error.response?.data?.detail ||
-    error.response?.data?.message ||
-    error.message ||
-    ERROR_MESSAGES.unknown
-  );
+  return detail || error.message || ERROR_MESSAGES.unknown;
 };
 
 type RetriableConfig = ApiErrorLike['config'] & { _retried?: boolean };

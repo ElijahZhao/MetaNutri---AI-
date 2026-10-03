@@ -11,6 +11,7 @@ import {
   nutritionAlertAPI,
 } from './api';
 import type {
+  ApiErrorLike,
   DatasetList,
   DeficiencyReport,
   GenomicEntry,
@@ -35,10 +36,20 @@ const queryKeys = {
 
 type QueryOptions<TData> = Omit<UseQueryOptions<TData>, 'queryKey' | 'queryFn'>;
 
-export function useProfile(options: QueryOptions<UserProfile> = {}) {
-  return useQuery<UserProfile>({
+export function useProfile(options: QueryOptions<UserProfile | null> = {}) {
+  return useQuery<UserProfile | null>({
     queryKey: queryKeys.profile,
-    queryFn: () => userAPI.getProfile().then((res) => res.data),
+    queryFn: async () => {
+      try {
+        return (await userAPI.getProfile()).data;
+      } catch (err) {
+        // The profile row is created lazily on first save, so a 404 simply means
+        // the user has not filled the form yet. Treat it as "no profile" instead
+        // of an error so the dashboard/profile do not toast on a fresh account.
+        if ((err as ApiErrorLike).response?.status === 404) return null;
+        throw err;
+      }
+    },
     staleTime: 5 * 60 * 1000,
     ...options,
   });
