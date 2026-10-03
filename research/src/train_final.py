@@ -31,7 +31,6 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 from evaluate import FEATURE_COLUMNS, SEED
-from iauc import incremental_auc
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.abspath(os.path.join(HERE, "..", "data", "raw", "extracted", "CGMacros"))
@@ -117,7 +116,11 @@ def lopo_metrics() -> dict[str, dict[str, float]]:
     sub = res[(res["subset"] == "all meals (extension)")
               & (res["model"] == "xgboost (official baseline)")]
     return {
-        row["target"]: {"pearson_r": float(row["pearson_r"]), "r2": float(row["r2"]), "n": int(row["n"])}
+        row["target"]: {
+            "pearson_r": float(row["pearson_r"]),
+            "r2": float(row["r2"]),
+            "n": int(row["n"]),
+        }
         for _, row in sub.iterrows()
     }
 

@@ -57,7 +57,7 @@ def fetch_chunk(idx: int, start: int, end: int, attempts: int = 4) -> int:
                         break
                     fh.write(buf)
             if os.path.getsize(part_path) != expected:
-                raise IOError(
+                raise OSError(
                     f"chunk {idx}: got {os.path.getsize(part_path)} bytes, "
                     f"expected {expected}"
                 )
