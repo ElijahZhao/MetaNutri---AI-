@@ -38,7 +38,10 @@ the high AUC correlation is driven mainly by identifying *who* responds more,
 whereas iAUC's correlation is closer to genuine meal-level ranking; median-split
 ROC-AUC is 0.74–0.96 across targets. Distribution-free conformal intervals hit
 their nominal marginal coverage (0.800 / 0.898) but are wide and, we show
-candidly, under-cover a minority of individuals. We report the limitations
+candidly, under-cover a minority of individuals. A mixed model with subject
+random intercepts locates about 69% of AUC variance *between* people versus 32%
+for iAUC, and shows that, within a person, carbohydrate raises and protein
+lowers the response. We report the limitations
 plainly: small cohorts, pooled-observation metrics that mix between- and
 within-subject variance, and a large domain gap between the two studies. Code,
 figures and fixed-seed experiments are included for full reproducibility.
@@ -223,7 +226,9 @@ additionally report a **within- / between-subject decomposition** (§4.5), and �
 so the numbers can be compared with classification-style PPGR reporting — a
 **median-split ROC-AUC** computed from the continuous predictions. The split
 threshold is derived from the observed responses and is never seen by the model;
-full per-model values are in `experiments/results.csv`.
+full per-model values are in `experiments/results.csv`. Repeated meals are
+handled explicitly — subject random intercept plus within-subject centring, with
+the within/between effects reported separately — by the mixed model in §4.7.
 
 ---
 
@@ -444,6 +449,65 @@ who sit systematically outside the band — a direct consequence of meals within
 subject being correlated rather than exchangeable. Per-subject (Mondrian) or
 residual-normalised conformal methods are the natural remedy (§7).
 
+### 4.7 Repeated meals: mixed-effects check
+
+§4.5 gave a *predictive* split of the LOPO skill. The plan also asks for the
+complementary *inferential* treatment of repeated meals (a mixed-effects model
+with a subject random intercept, plus within-subject centring and stratified
+within/between reporting). We fit that model here; it answers a different
+question and does not change the LOPO numbers.
+
+For each target we fit a linear mixed model on 1,556 meals (one meal lacked a
+fibre value and was dropped) with a **subject random intercept** and the
+**Mundlak within-between** specification: each standardised meal-level predictor
+enters both as a within-subject deviation (``cw``, "this person ate more carbs
+than usual") and as the subject's mean (``cm``, "this person habitually eats more
+carbs"). The random intercept absorbs the repeated-measures structure.
+
+**Table 7 — Variance components and ICC.**
+
+| Target | σ (subject) | σ (residual) | ICC (between-subject share) |
+|---|---|---|---|
+| 2-h AUC | 4,306.8 | 2,863.1 | **0.694** |
+| 2-h iAUC | 1,536.5 | 2,201.2 | 0.328 |
+| Peak rise | 19.4 | 28.3 | 0.321 |
+
+The ICCs are a direct, quantitative cross-check on §4.5. For AUC, about **69%**
+of the response variance sits *between* people; for iAUC and peak rise only
+about **32%** does. So AUC's pooled correlation being dominated by
+between-subject skill is not an artefact of the metric — it reflects where the
+variance actually lives. It also matches the external estimate that repeated
+meals are only weakly reproducible within a person (Hengist et al., 2023;
+ICC 0.16–0.31).
+
+**Table 8 — Standardised within- vs between-subject effects** (coefficient ± SE;
+only carbs and protein are shown — fat and fibre are indistinguishable from zero
+within subjects).
+
+| Target | Predictor | Within-subject | Between-subject |
+|---|---|---|---|
+| 2-h AUC | carbs | **+581.6 ± 88.6** | −258.7 ± 3,337.5 |
+| 2-h AUC | protein | **−340.2 ± 85.8** | +7,483.3 ± 4,913.8 |
+| 2-h iAUC | carbs | **+605.6 ± 68.2** | +65.3 ± 1,221.9 |
+| 2-h iAUC | protein | **−214.9 ± 66.0** | +3,701.8 ± 1,799.6 |
+| Peak rise | carbs | **+7.9 ± 0.9** | +0.3 ± 15.5 |
+| Peak rise | protein | **−2.9 ± 0.8** | +47.9 ± 22.8 |
+
+![Mixed-effects within vs between-subject effects](figures/fig8_mixed_effects.png)
+
+**Figure 8 — Mixed model (subject random intercept).** Standardised within- and
+between-subject coefficients with 95% intervals; each panel has its own x-scale
+because the targets differ by orders of magnitude.
+
+Two conclusions follow. First, **within a person, carbohydrates raise and protein
+lowers the response**, significantly and in the same direction for all three
+targets — the two effects that survive once stable between-person differences
+are absorbed; fat and fibre do not. Second, the **between-subject coefficients
+are an order of magnitude less precise** (only 45 people) and, for protein, flip
+sign — the association across *people* points the opposite way to the one within
+a person. That divergence is a concrete reason to distrust population-level
+macronutrient predictors as personal ones, and it reinforces the caution in §5.
+
 ---
 
 ## 5. Discussion
@@ -493,10 +557,7 @@ We state these explicitly; they bound every claim above.
   value is between-subject skill (§4.5). We report the decomposition alongside
   the pooled metric, but the pooled number alone should not be read as
   meal-level skill.
-- **The response is only weakly repeatable within a person.** The same meal,
-  eaten again a week later, does not reliably reproduce its excursion: reported
-  within-subject ICCs for postprandial response are only 0.16–0.31 (Hengist
-  et al., 2023). This is a ceiling on how much of the variance *any*
+- **The response is only weakly repeatable within a person.** The same meal, eaten again a week later, does not reliably reproduce its excursion: reported within-subject ICCs for postprandial response are only 0.16–0.31 (Hengist et al., 2023). Our own mixed model agrees, with ICC 0.32 for iAUC and peak rise (§4.7); for AUC the ICC is 0.69, i.e. most of that variance is between people rather than between meals of the same person. This is a ceiling on how much of the variance *any*
   composition-driven model can explain, and it is a property of the cohort we
   use, not of our pipeline.
 - **CGM measurement is noisy, lagged and device-dependent.** Subcutaneous
@@ -592,6 +653,8 @@ src/build_external.py    # BIG IDEAs → meal-level table (date-offset repair)
 src/external_validate.py # cross-cohort transfer → experiments/external_results.csv
 src/make_figures.py      # figures 1–6
 src/uncertainty.py       # conformal intervals → table 6, figure 7, experiments/uncertainty.csv
+src/mixed_effects.py     # subject random intercept → tables 7–8, figure 8
+                         #   → experiments/mixed_effects_{variance,coefficients}.csv (statsmodels)
 src/train_final.py       # freeze the model into app/model/ for the demo
 src/export_report_pdf.py # this report → reports/technical_report.pdf
 ```
