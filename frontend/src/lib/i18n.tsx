@@ -279,6 +279,26 @@ const en = {
     searchFailed: 'Search failed',
     scoreFailed: 'Failed to score food',
   },
+  mealPlan: {
+    title: 'Meal Plan',
+    subtitle: 'Personalized dietary recommendations',
+    generate: 'Generate Plan',
+    generating: 'Generating...',
+    recommendedFoods: 'Recommended Foods',
+    planHint: 'Lower-GI foods picked for your calorie target',
+    itemsSelected: 'items selected for your plan',
+    emptyHint: 'Click "Generate Plan" to get personalized recommendations',
+    todaysTotals: "Today's Totals",
+    totalsEmpty: 'Generate a plan to see your totals against the targets.',
+    mealSummary: 'Meal Summary',
+    summarySubtitle: 'Based on the generated plan',
+    selectedItems: 'Selected Items',
+    totalCalories: 'Total Calories',
+    totalProtein: 'Total Protein',
+    calories: 'Calories',
+    protein: 'Protein',
+    generateFailed: 'Failed to generate meal plan',
+  },
   predict: {
     title: 'AI Predictions',
     subtitle: 'Run metabolic models to predict responses',
@@ -602,6 +622,26 @@ const zh: Translations = {
     searchFailed: '搜索失败',
     scoreFailed: '评分失败',
   },
+  mealPlan: {
+    title: '膳食计划',
+    subtitle: '个性化饮食建议',
+    generate: '生成计划',
+    generating: '生成中...',
+    recommendedFoods: '推荐食物',
+    planHint: '依据你的热量目标挑选的低 GI 食物',
+    itemsSelected: '项已选入你的计划',
+    emptyHint: '点击“生成计划”获取个性化建议',
+    todaysTotals: '今日合计',
+    totalsEmpty: '生成计划后可查看合计与目标对比。',
+    mealSummary: '计划摘要',
+    summarySubtitle: '基于生成的计划',
+    selectedItems: '已选食物',
+    totalCalories: '总热量',
+    totalProtein: '总蛋白质',
+    calories: '热量',
+    protein: '蛋白质',
+    generateFailed: '生成膳食计划失败',
+  },
   predict: {
     title: 'AI 预测',
     subtitle: '运行代谢模型预测反应',
@@ -679,6 +719,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, language);
+    // Keep <html lang> in sync with the selected language for a11y/SEO.
+    document.documentElement.lang = language;
   }, [language]);
 
   useEffect(() => {
