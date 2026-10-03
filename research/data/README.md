@@ -19,7 +19,7 @@
 ## How to obtain
 
 ```bash
-bash research/src/download_data.sh
+bash src/download_data.sh
 ```
 
 The script downloads from the **open S3 endpoint**
@@ -60,7 +60,7 @@ and repair the food-log dates ourselves (`src/build_external.py`).
 ## How to obtain
 
 ```bash
-python research/src/download_bigideas.py
+python src/download_bigideas.py
 ```
 
 Only the 33 small files needed for this analysis are fetched (2.4 MB):
