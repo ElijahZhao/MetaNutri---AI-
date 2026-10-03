@@ -20,7 +20,15 @@ import sys
 
 from huggingface_hub import HfApi
 
-APP_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+def _find_app_dir() -> str:
+    """Works whether the script sits next to the app or one level above it."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    if os.path.exists(os.path.join(here, "app.py")):
+        return here
+    return os.path.abspath(os.path.join(here, "..", "app"))
+
+
+APP_DIR = _find_app_dir()
 IGNORE = ["__pycache__/*", "*.pyc", ".ipynb_checkpoints/*", ".DS_Store"]
 
 
