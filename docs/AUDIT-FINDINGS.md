@@ -452,4 +452,29 @@
 
 ---
 
+## 七、第十四轮审查（2026-10-03 · 研究模块 / 认证 / 仓库治理）
+
+> 第一至六节针对平台（backend / frontend）的 13 轮审查。本节记录对 `research/`、认证路径与 CI 的新一轮取证及处置。结论：未发现新的高优先级数据/逻辑缺陷；平台侧有一处可被利用的账号接管漏洞，经所有者批准后已最小修复。
+
+### 7.1 已修复（研究模块 / 基础设施）
+
+| # | 问题 | 证据 | 处置 |
+|---|------|------|------|
+| R1 | `experiments/results.csv` 中 `mean` 基线的 `within_r` **无法由代码复现**：`within_between()` 对「受试者内恒定」的预测返回 `NaN`，而 CSV 与报告 §4.5 记录为 `0.0` | `research/src/evaluate.py` vs `research/experiments/results.csv` | 明确约定：受试者内恒定预测记 `0.0`（并写入 docstring），代码与 CSV/报告三者一致 |
+| R2 | 外部验证的「内部参照」样本量不一致：`external_validate.py` 用**全部 1699 餐**，报告 §4.2 用 `iauc>0` 过滤后的 **1557 餐**，两处「内部」数字不可直接比较 | `research/src/external_validate.py`；报告表 4 | 在脚本 docstring 与报告表 4 加注说明。**未改数值**：数据集不随仓库提交，若改过滤会再次造成 `external_results.csv` 不可复现 |
+| I1 | GitHub Actions 未声明 `permissions`，默认 `GITHUB_TOKEN` 权限偏大 | `.github/workflows/ci.yml`、`keepalive.yml` | 两处均补 `permissions: contents: read` |
+
+### 7.2 平台侧安全修复（经所有者批准放行，最小改动、不动业务逻辑）
+
+| # | 问题 | 影响 | 处置 |
+|---|------|------|------|
+| S1 | `/api/auth/forgot-password` 对已注册邮箱**直接返回 `reset_token`**，前端还渲染该令牌与重置表单 | 任意人输入他人邮箱即可拿到令牌并改密码（**账号接管**），同时构成**用户枚举** | 新增配置 `PASSWORD_RESET_RETURN_TOKEN`（默认 `false`）；仅本地开发显式开启时才回传令牌，且已注册/未注册邮箱的响应完全一致 |
+| S2 | `COOKIE_SAMESITE=none` 会一次性移除本项目**唯一**的 CSRF 防线，且无 token / Origin 兜底（§6.3 已记录） | 换成跨站直连后，任意站点可让受害者浏览器携带 cookie 发写请求 | 启动时若 `COOKIE_SAMESITE=none` 且未设 `ALLOW_INSECURE_SAMESITE_NONE=1`，直接硬失败（与 `SECRET_KEY` 硬失败同风格） |
+
+> 说明：S1/S2 触及 `backend/` 代码，本在 `ROADMAP.md` §0/§1.5 的冻结范围内；经项目所有者于 2026-10-03 明确放行后按**最小修复**执行。`backend/.env.example`、`SECURITY.md`、`CHANGELOG.md`、`docs/API.md`、`docs/DEPLOYMENT.md` 已同步。
+
+> 后续待办（未改，S1 的配套项）：前端 `forgot-password` 页面**不读取** URL 上的 `?token=` 查询参数——令牌在 `content.tsx` 中只来自接口响应，而 `page.tsx` 只做透传。因此后端在 `PASSWORD_RESET_RETURN_TOKEN=true` 时拼出的 `reset_url`（若将来经邮件下发）落到 `/forgot-password?token=...` 后，页面不会用该令牌。当前默认不返回令牌、也不发信，故该缺口**不构成线上风险**；待真正接入邮件时，需让页面从查询参数读取令牌，重置链路才完整。
+
+---
+
 > 备注：本文档仅为审查记录，上述事项处理完毕后可一并删除，避免成为新的过时文件。

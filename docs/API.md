@@ -40,7 +40,7 @@
 | POST | `/api/auth/login` | 登录 `{username, password}`，返回 `{expires_in,...}` + 写 Cookie |
 | POST | `/api/auth/refresh` | 用 refresh Cookie 换取新令牌对（轮换） |
 | POST | `/api/auth/logout` | 登出，清除 Cookie 并作废会话（幂等，无需有效 access） |
-| POST | `/api/auth/forgot-password` | 请求重置 `{email}`；开发无邮件时返回 `reset_token` / `reset_url` |
+| POST | `/api/auth/forgot-password` | 请求重置 `{email}`；默认不返回令牌。仅当 `PASSWORD_RESET_RETURN_TOKEN=true`（本地开发）时才回传 `reset_token` / `reset_url` |
 | POST | `/api/auth/reset-password` | 重置 `{token, new_password}`（≥8 位且含字母+数字，单次有效） |
 
 登录存在**内存限速**：单 IP+用户名窗口内最多 5 次失败、IP 级突发上限，超限返回 `429`。

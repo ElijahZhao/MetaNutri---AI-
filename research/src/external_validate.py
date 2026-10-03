@@ -20,6 +20,13 @@ blood panel:
 
 For reference we also report the same feature set under CGMacros LOPO, i.e. the
 model's *internal* score, so the reader can see how much is lost across cohorts.
+That internal reference keeps **all** CGMacros meals (n=1699), i.e. without the
+``iauc > 0`` filter that ``experiment.py`` applies for the headline numbers in
+report §4.2 (n=1557). The transfer target is likewise every BIG IDEAs meal, and
+the ``iauc > 0`` filter exists only to mirror the official breakfast
+replication. The two internal numbers are therefore close but not identical
+(e.g. all-meal iAUC r 0.487 here vs. 0.451 in §4.2) and must not be
+cross-compared.
 
 Output: experiments/external_results.csv
 """

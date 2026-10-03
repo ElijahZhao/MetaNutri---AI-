@@ -22,6 +22,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Least privilege: this job only issues outbound curl requests; it never reads
+# or writes the repository, so the default GITHUB_TOKEN can be fully scoped down.
+permissions:
+  contents: read
+
 # Only one production check needs to be in flight at a time.
 concurrency:
   group: production-health-check

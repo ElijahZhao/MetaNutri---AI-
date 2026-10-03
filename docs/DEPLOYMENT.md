@@ -50,7 +50,9 @@ MetaNutri 采用三端分离的云原生架构。本文档说明**三者在生�
 | `DATABASE_URL` | `postgresql://postgres.<PROJECT-REF>:<DB_PASSWORD>@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres` | **会话池(5432)**，IPv4 可解析；禁用预编译缓存 |
 | `SECRET_KEY` | 一个高熵随机字符串 | JWT 签名密钥，生产必须改 |
 | `CORS_ORIGINS` | `https://meta-nutri-ai.vercel.app` | 逗号分隔的浏览器来源白名单（可选）。同源代理下浏览器不触发 CORS，仅直接访问 API / Swagger 时需要；未设置时使用 `app/main.py` 的内置默认 |
-| `FRONTEND_URL` | `https://meta-nutri-ai.vercel.app` | 拼接「忘记密码」重置链接用。未设置时 `/api/auth/forgot-password` 返回的 `reset_url` 为 `null` |
+| `FRONTEND_URL` | `https://meta-nutri-ai.vercel.app` | 拼接「忘记密码」重置链接用（仅在 `PASSWORD_RESET_RETURN_TOKEN=true` 时生效） |
+| `PASSWORD_RESET_RETURN_TOKEN` | 不设置（默认 `false`） | `false` 时 `/api/auth/forgot-password` **不**返回重置令牌，需由邮件通道下发；设为 `true` 仅用于本地开发（无邮件服务） |
+| `COOKIE_SAMESITE` | 不设置（默认 `lax`） | 设为 `none` 会移除唯一 CSRF 防线，后端将**拒绝启动**，除非同时设置 `ALLOW_INSECURE_SAMESITE_NONE=1` |
 | `ALLOW_DEFAULT_SECRET_KEY` | 不设置 | 仅设为 `1` 时才允许在生产使用默认 `SECRET_KEY`；默认会在生产硬失败，避免弱密钥上线 |
 | `PORT` | Render 自动注入（默认无） | Dockerfile 监听 `$PORT`，未设置则 8000 |
 
