@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn.linear_model import Ridge
+from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import StandardScaler
 
 # Feature columns expected in the meal-level table (see build_dataset.py).
@@ -87,6 +88,70 @@ def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Metrics:
         rmse=float(np.sqrt(np.mean(resid**2))),
         mae=float(np.mean(np.abs(resid))),
     )
+
+
+def discrimination_auc(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """ROC-AUC for a **median split** of the observed response.
+
+    A common PPGR reporting style treats the task as classification ("will this
+    meal produce an above- or below-typical response?"). We binarise the
+    observed target at its median and score the continuous predictions, giving
+    a threshold-free discrimination number that is comparable across targets.
+    A constant predictor scores 0.5 by construction.
+    """
+    y = np.asarray(y_true, dtype=float)
+    p = np.asarray(y_pred, dtype=float)
+    mask = np.isfinite(y) & np.isfinite(p)
+    y, p = y[mask], p[mask]
+    if y.size == 0:
+        return float("nan")
+    labels = (y > np.median(y)).astype(int)
+    if labels.min() == labels.max():
+        return float("nan")
+    return float(roc_auc_score(labels, p))
+
+
+def within_between(
+    df: pd.DataFrame,
+    target: str,
+    preds: np.ndarray,
+    subject_col: str = "sub",
+) -> tuple[float, float, int]:
+    """Decompose predictive skill into within- and between-subject components.
+
+    A pooled Pearson *r* mixes two very different questions:
+
+    - **within-subject** — for a given person, does the model rank *their own*
+      meals correctly? Computed by subtracting each subject's mean from both the
+      observed and the predicted values, then correlating the centred series.
+    - **between-subject** — does the model recover *who* tends to respond more?
+      Computed by correlating per-subject mean observed vs. mean predicted
+      values (one point per subject).
+
+    Returns ``(within_r, between_r, n_subjects)``.
+    """
+    y = df[target].to_numpy(dtype=float)
+    p = np.asarray(preds, dtype=float)
+    subs = df[subject_col].to_numpy()
+    mask = np.isfinite(y) & np.isfinite(p)
+    frame = pd.DataFrame({"sub": subs[mask], "y": y[mask], "p": p[mask]})
+
+    y_centred = frame["y"] - frame.groupby("sub")["y"].transform("mean")
+    p_centred = frame["p"] - frame.groupby("sub")["p"].transform("mean")
+    yc, pc = y_centred.to_numpy(), p_centred.to_numpy()
+    within = (
+        float(stats.pearsonr(yc, pc).statistic)
+        if yc.std() > 0 and pc.std() > 0
+        else float("nan")
+    )
+
+    by_subject = frame.groupby("sub")[["y", "p"]].mean()
+    between = (
+        float(stats.pearsonr(by_subject["y"], by_subject["p"]).statistic)
+        if len(by_subject) > 2 and by_subject["y"].std() > 0 and by_subject["p"].std() > 0
+        else float("nan")
+    )
+    return within, between, int(len(by_subject))
 
 
 def lopo_predict(
@@ -175,7 +240,16 @@ def xgb_model(
 
 
 def run_suite(df: pd.DataFrame, target: str) -> pd.DataFrame:
-    """Evaluate the baseline trio plus XGBoost on one target."""
+    """Evaluate the baseline trio plus XGBoost on one target.
+
+    Besides the pooled Pearson/R²/RMSE, each row carries two extra views that
+    were added after the initial report (see §4.5 of the technical report):
+
+    - ``roc_auc``  — median-split discrimination of the continuous predictions;
+    - ``within_r`` / ``between_r`` — the variance decomposition that separates
+      "does the model rank this person's own meals?" from "does it recover who
+      responds more?".
+    """
     carb_only = ["carbs_g"]
     energy_only = ["carbs_g", "protein_g", "fat_g"]
     rows = []
@@ -191,6 +265,11 @@ def run_suite(df: pd.DataFrame, target: str) -> pd.DataFrame:
     ]
     for name, feats, fp in specs:
         preds = lopo_predict(df, feats, target, fp)
-        rows.append(_metrics(df[target].to_numpy(), preds).as_dict(name, target))
+        row = _metrics(df[target].to_numpy(), preds).as_dict(name, target)
+        row["roc_auc"] = round(discrimination_auc(df[target].to_numpy(), preds), 4)
+        within, between, _ = within_between(df, target, preds)
+        row["within_r"] = round(within, 4)
+        row["between_r"] = round(between, 4)
+        rows.append(row)
 
     return pd.DataFrame(rows)

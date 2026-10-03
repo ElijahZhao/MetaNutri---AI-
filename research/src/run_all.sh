@@ -47,7 +47,7 @@ step "build CGMacros meal-level table"      "$PY" src/build_dataset.py
 step "LOPO evaluation (baselines + XGBoost)" "$PY" src/experiment.py
 step "build BIG IDEAs meal-level table"     "$PY" src/build_external.py
 step "cross-cohort validation"              "$PY" src/external_validate.py
-step "figures 1-5"                          "$PY" src/make_figures.py
+step "figures 1-6"                          "$PY" src/make_figures.py
 step "freeze model for the demo"            "$PY" src/train_final.py
 step "render report PDF"                    "$PY" src/export_report_pdf.py
 

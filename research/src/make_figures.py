@@ -207,6 +207,47 @@ def fig5_external_validation() -> None:
     plt.close(fig)
 
 
+def fig6_within_between() -> None:
+    """Split the headline correlation into within- and between-subject parts.
+
+    A pooled Pearson r can be high simply because the model knows *who* tends to
+    respond more, without ranking a person's own meals well. This figure shows
+    both components next to the pooled number for the LOPO XGBoost model.
+    """
+    res = pd.read_csv(RESULTS_CSV)
+    subsets = {
+        "breakfast (official replication)": "Breakfast only (replication)",
+        "all meals (extension)": "All meals (extension)",
+    }
+    targets = ["auc", "iauc", "peak_rise"]
+    series = [("pooled r", "pearson_r", "#9aa0a6"),
+              ("within-subject r", "within_r", "#2c6fbb"),
+              ("between-subject r", "between_r", "#66a182")]
+
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2), sharey=True)
+    width = 0.26
+    x = np.arange(len(targets))
+    for ax, (subset, title) in zip(axes, subsets.items()):
+        sub = res[(res["subset"] == subset)
+                  & (res["model"] == "xgboost (official baseline)")]
+        for i, (label, col, colour) in enumerate(series):
+            vals = [
+                sub[sub["target"] == t][col].iloc[0] for t in targets
+            ]
+            ax.bar(x + (i - 1) * width, vals, width, label=label, color=colour)
+        ax.axhline(0, color="#333", linewidth=0.8)
+        ax.set_xticks(x)
+        ax.set_xticklabels([TARGET_LABELS[t] for t in targets])
+        ax.set_title(title)
+        ax.set_ylabel("Pearson r (LOPO)" if ax is axes[0] else "")
+    axes[0].legend(fontsize=8, loc="upper right")
+    fig.suptitle("Pooled skill vs. within- and between-subject skill (XGBoost)",
+                 fontsize=11)
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    fig.savefig(os.path.join(FIG_DIR, "fig6_within_between.png"))
+    plt.close(fig)
+
+
 def main() -> None:
     os.makedirs(FIG_DIR, exist_ok=True)
     df = load_meals()
@@ -217,6 +258,7 @@ def main() -> None:
     fig4_feature_importance(df)
     if os.path.exists(EXTERNAL_CSV) and os.path.exists(BIGIDEAS_CSV):
         fig5_external_validation()
+    fig6_within_between()
     print("Figures written to", FIG_DIR)
 
 
