@@ -47,6 +47,29 @@
 
 前期审查（`docs/AUDIT-FINDINGS.md`，13 轮）覆盖了工程与文档一致性，并将权重未加载记为"死代码"。**偏差在于**：把"模型没接线"当成清理项，而没有意识到它**使全部 AI 宣传失效**。本路线图修正该判断。
 
+### 1.4 补充审查（第 9–10 轮）
+
+**测试覆盖现实**（`frontend/tests/e2e/smoke.spec.ts`、`frontend/vitest.config.mjs`）
+
+- E2E **用 `page.route('**/api/**')` 打桩**，不依赖真实后端 → **不验证前后端真实集成**，只验证 UI 与路由行为
+- E2E 断言覆盖：landing 渲染、未登录访问 `/dashboard` 重定向到 `/login`、登录后进入 dashboard、受保护路由的 app shell
+- Vitest 仅匹配 `src/**/*.{test,spec}.*`；已确认的单元测试文件为 `authStore.test.ts`、`BodyMetricsCard.test.tsx`、`OmicsCards.test.tsx`、`Navbar.test.tsx`、`i18n.test.tsx`
+- 判断：**核心 AI / 预测路径无任何测试**
+
+**根工具链与新增目录的兼容性**
+
+- 根 `package.json` 仅含 husky（`prepare: husky`）；`.husky/pre-commit` 内容为 `cd frontend && npx lint-staged`
+- 但 `core.hooksPath` 未设置、`.husky/_/` 不存在 → **husky 实际未激活**，且 `lint-staged` 并非任何依赖 → 该钩子当前处于休眠状态
+- `start.sh` 只引用 `backend/` 与 `frontend/`，`docker-compose.yml` 同理 → **新增 `research/` 不会产生冲突**
+- 唯一需注意：根 `.gitignore` 不含 `research/data/`，而 CGMacros 解压后 628 MB+ → **必须为研究数据单独加忽略规则，绝不能提交进仓库**
+
+**认证实现（公开仓库前参考）**
+
+- JWT：access token 默认 15 分钟过期；`decode_token` 校验 `type` 与 `sub`，防 token 类型混淆
+- Cookie：`httponly=True`，`secure` / `samesite` 由配置控制
+- token 同时写入 Redis 并做一致性校验
+- CSRF 防护是否存在：**未取证确认**，公开仓库前建议单独核
+
 ---
 
 ## 2. 战略决策
@@ -92,6 +115,18 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 - 备选/外部验证：BIG IDEAs（同任务、不同人群）、ShanghaiT2DM（跨人群 T2D）
 - 已知局限：CGMacros 同时佩戴两台 CGM，两者存在系统性差异（Dexcom G6 读数偏高，最大约 58.7 mg/dL），选哪台会影响结果，须在报告中说明
 
+**已实证（第 9 轮：真实抓取，2026-10-02）**
+
+- **可访问性**：无需凭据、无登录页。但 `physionet.org/files/` 实测限速约 68 KB/s（627 MB 全量不可行）；走官方开放端点 `physionet-open.s3.amazonaws.com/cgmacros/1.0.0/` 实测 264–885 KB/s，**这是唯一可行的下载通道**
+- **包结构**：ZIP 657,187,340 字节（626.7 MB），内含 3593 个条目 —— 45 个 `CGMacros-0XX/CGMacros-0XX.csv` + 约 3545 张餐食照片 + `bio.csv` / `microbes.csv` / `gut_health_test.csv`（**这些 CSV 未作为独立顶层文件暴露，只能从 ZIP 内取**）
+- **主表真实列名（逐字）**：
+  `Unnamed: 0, Timestamp, Libre GL, Dexcom GL, HR, Calories (Activity), METs, Meal Type, Calories, Carbs, Protein, Fat, Fiber, Amount Consumed , Image path`
+- **餐食标记方式**：进餐起始行填 `Meal Type`，同一行给出该餐的 Calories/Carbs/Protein/Fat/Fiber/Amount Consumed/Image path，非进餐行为空。实测取值含 `Snacks`（**数据字典只写了 Breakfast/Lunch/Dinner，已过时**）
+- **时间戳**：`YYYY-MM-DD HH:MM:SS`，1 分钟网格（Libre 原生 15 min、Dexcom 原生 5 min，均插值到 1 min）
+- **样本**：45 人（受试者 24 / 25 / 37 / 40 未完成研究，编号跳空）
+- **补充表**：`bio.csv` 45 行（年龄/性别/BMI/A1c/空腹血糖/胰岛素/血脂全套/3 次指尖血糖）；`microbes.csv` 45 行 × 1980 列（1979 个菌种，0/1 二值）；`gut_health_test.csv` 45 行 × 23 列（Viome 肠道健康评分）
+- **合规注意**：ZIP 内 `LICENSE.txt` 为 **0 字节空文件**，许可仅以网页声明形式存在（CC BY-NC-SA 4.0）；引用与再分发时需注意此不一致
+
 ### 3.3 评估协议（避免数据泄漏，这是报告的核心卖点）
 
 - **划分**：Leave-One-Subject-Out / grouped k-fold。绝不用随机按样本划分。
@@ -122,6 +157,19 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 
 > 报告中的目标表述范式：
 > "相比碳水-only 启发式（R ≈ 0.38），训练后的模型在**未见个体**上把校准相关系数提升到 R ≈ 0.6x–0.7x。"
+
+#### 官方基线实证与切入点（第 9 轮：读取 `PSI-TAMU/CGMacros/parse_data.ipynb`）
+
+- **模型**：`XGBRegressor(max_depth=1, n_estimators=80, learning_rate=0.2, reg_alpha=1, reg_lambda=0)`
+- **特征（19 个）**：Carbs / Protein / Fat / Fiber（按热量换算）、Baseline_Libre（餐前基线血糖）、Age、Gender、BMI、A1c、HOMA-IR、Insulin、TG、Cholesterol、HDL、Non-HDL、LDL、VLDL、CHO/HDL、Fasting BG
+- **评估**：留一受试者交叉验证（LOSO），`StandardScaler` 仅拟合训练折，逐受试者预测后拼接
+- **指标**：`scipy.stats.pearsonr`；目标为餐后 2 小时 iAUC 与 AUC
+- **关键切入点**：官方基线**只使用了 Breakfast 一餐**。因此一个诚实且有价值的研究贡献链是：
+  1. **复现**官方基线，确认 r ≈ 0.89 / 0.64 可被独立复现
+  2. **扩展**到全部餐次（含 Lunch / Dinner / Snacks），把"餐型"作为特征，检验跨餐型泛化
+  3. **对比**不同目标（iAUC / AUC / Glu_max）与不同模型（浅层 XGB / 更深模型 / 线性基线），报告 Δ
+  - 基线模型刻意极浅（`max_depth=1`）→ 存在**真实、非吹嘘**的提升空间
+- 注意：GitHub 仓库 README 的数据链接已过期（写 "under review"），仓库不含数据；基线 notebook 期望特定的解压目录结构
 
 ### 3.5 建模策略（小数据现实）
 
@@ -161,6 +209,7 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 - 不重构、不删除现有前后端与数据库的任何逻辑
 - 不为"显得高级"而引入 Transformer / GNN / VAE（小数据下它们不占优，且会重演"名不副实"）
 - 不在报告中虚构数据、引用或性能数字
+- 不把研究数据提交进仓库（CGMacros 解压后 628 MB+，`research/data/` 必须加入忽略规则）
 
 ---
 
