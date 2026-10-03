@@ -141,6 +141,21 @@ npm test            # Vitest 单元测试
 npm run test:e2e    # Playwright 端到端（需先 npm run build）
 ```
 
+### 研究模块测试
+
+`research/app/test_app.py` 用 Streamlit 自带的 `AppTest` 无头启动 PPGR Demo，
+验证预测与 TreeSHAP 面板（无需服务器、无需网络）：
+
+```bash
+cd research/app
+pip install -r requirements.txt
+python test_app.py      # 打印每个用例；装了 pytest 也可 pytest test_app.py
+```
+
+以上三项（backend / frontend / research）都会在 CI 中运行；见
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml)。研究管线的完整复现见
+[`research/README.md`](research/README.md)。
+
 确保所有检查通过后再提交 Pull Request。
 
 ## 📄 文档
