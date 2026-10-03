@@ -16,6 +16,8 @@
 [![CI](https://github.com/ElijahZhao/MetaNutri---AI-/actions/workflows/ci.yml/badge.svg)](https://github.com/ElijahZhao/MetaNutri---AI-/actions/workflows/ci.yml)
 [![Issues](https://img.shields.io/github/issues/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=f59e0b)](https://github.com/ElijahZhao/MetaNutri---AI-/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981?style=for-the-badge)](CONTRIBUTING.md)
+[![Latest tag](https://img.shields.io/github/v/tag/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=10b981&label=v)](https://github.com/ElijahZhao/MetaNutri---AI-/tags)
+[![Last commit](https://img.shields.io/github/last-commit/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=64748b)](https://github.com/ElijahZhao/MetaNutri---AI-/commits/main)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -29,6 +31,8 @@
 [![Render](https://img.shields.io/badge/Render-已部署-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-技术支持-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 
+**🔬 `research/` 中真实数据训练的 ML · 🧪 43 个 REST 接口 · 🍎 8 个精选数据集 · 🌐 完整英 / 中双语 · 📄 16 页技术报告**
+
 </div>
 
 ---
@@ -37,6 +41,7 @@
 
 - [项目简介](#-项目简介)
 - [📌 项目状态](#-项目状态)
+- [🔬 研究亮点](#-研究亮点)
 - [🧩 两仓库关系](#-两仓库关系)
 - [📸 截图展示](#-截图展示)
 - [✨ 核心功能](#-核心功能)
@@ -78,6 +83,26 @@
 | 📊 健康数据分散在不同 App | 统一面板整合基因组、微生物组、代谢组 |
 | 🤖 AI 推荐像"黑盒"一样难以理解 | 透明的规则化评分展示**哪些因素**影响了这条建议 |
 | ⚠️ 被动式医疗模式 | 早期营养缺乏检测与健康风险预警 |
+
+---
+
+## 🔬 研究亮点
+
+平台上的 AI 接口是刻意保持诚实的启发式（见[局限与边界](#️-局限与边界)）。**真正的机器学习**在自包含的 [`research/`](research/) 模块中：一条可复现的流水线，在**真实公开数据**上预测**餐后 2 小时血糖响应（PPGR）**，并按受试者划分评估——同一个人绝不会同时出现在训练集与测试集。
+
+| 阶段 | 核心结果 |
+|------|---------|
+| **复现已发表基线** —— CGMacros，早餐，留一受试者（LOPO） | **AUC r = 0.890 · iAUC r = 0.655**（论文 ≈ 0.89 / ≈ 0.64） |
+| **扩展到全部餐次** —— 1,557 餐、45 名受试者 | **AUC r = 0.838 · iAUC r = 0.451** |
+| **把冻结模型迁移到独立队列** —— BIG IDEAs，16 名受试者、656 餐、不同 CGM 设备 | **AUC r = 0.569**（部分迁移；iAUC/峰值抬升降至 ≈ 0.22 → 域偏移） |
+| **超越单点估计** | 保形预测区间 · 受试者内/间分解 · 受试者随机截距混合效应模型 |
+
+- **方法：** 严格的留一受试者（LOPO）交叉验证；XGBoost 对照均值预测器与两个仅用宏量营养的 Ridge 基线。
+- **成果物：** [16 页技术报告（PDF）](research/reports/technical_report.pdf) · [可复现流水线](research/src/) · [结果 CSV](research/experiments/) · [图表](research/reports/figures/)。
+- **在线 Demo（运行真实训练的模型）：** <https://metanutri-ai-ppgr-predictor.streamlit.app>
+- **一条命令复现：** `cd research && bash src/run_all.sh`
+
+> 以上每个数字都由 [`research/experiments/*.csv`](research/experiments/) 重新生成，且必须与技术报告一致——无估算、无四舍五入、无推断。
 
 ---
 
@@ -220,6 +245,20 @@
 | [Pandas](https://pandas.pydata.org/) | 2.2 | 数据处理（导入 / 导出） |
 | [requests](https://docs.python-requests.org/) | 2.32 | HTTP 客户端（内置参考数据由本地生成，非下载） |
 
+### 🔬 研究（真实 ML —— `research/`）
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| [XGBoost](https://xgboost.readthedocs.io/) | 3.4 | 梯度提升 PPGR 模型 |
+| [scikit-learn](https://scikit-learn.org/) | 1.9 | 基线、指标与预处理 |
+| [SciPy](https://scipy.org/) | 1.18 | 统计 |
+| [statsmodels](https://www.statsmodels.org/) | 0.15 | 混合效应模型 |
+| [NumPy](https://numpy.org/) | 2.5 | 数值计算 |
+| [pandas](https://pandas.pydata.org/) | 3.0 | 表格数据 |
+| [Matplotlib](https://matplotlib.org/) | 3.11 | 报告图表 |
+| [Streamlit](https://streamlit.io/) | 1.65 | 交互式 PPGR Demo |
+| [WeasyPrint](https://weasyprint.org/) | 70 | 技术报告 PDF |
+
 ---
 
 ## 🚀 快速开始
@@ -276,6 +315,23 @@ docker-compose logs -f
 # 停止服务
 docker-compose down
 ```
+
+### 🔬 研究模块
+
+研究流水线**独立于**平台——它有自己的依赖与部署：
+
+```bash
+cd research
+python -m venv .venv && source .venv/bin/activate   # 需要 Python ≥ 3.12
+pip install -r requirements.txt
+bash src/run_all.sh      # 下载 CGMacros（约 627 MB）、构建数据集、运行 LOPO 评估，写出 experiments/ + reports/
+
+# ……或只启动交互式 Demo（运行冻结模型，无需训练栈）
+pip install -r app/requirements.txt
+python -m streamlit run app/app.py
+```
+
+CGMacros 数据集约 627 MB，**从不提交**（见 [`research/data/README.md`](research/data/README.md)）。
 
 ---
 
@@ -485,6 +541,15 @@ MetaNutri---AI-/
 │   ├── playwright.config.ts          # 端到端测试配置
 │   ├── Dockerfile / Dockerfile.dev   # 生产 / 开发容器
 │   └── package.json                  # 依赖与脚本
+
+├── research/                         # 🔬 研究模块（真正的 ML；独立）
+│   ├── src/                          # 可复现流水线（下载 → 构建 → LOPO → 图表）
+│   ├── app/                          # Streamlit PPGR Demo（运行冻结模型）
+│   ├── experiments/                  # 结果 CSV，由流水线重新生成
+│   ├── reports/                      # 技术报告（MD + 16 页 PDF）与图表
+│   ├── data/                         # 占位——原始数据集从不提交
+│   ├── requirements.txt / -dev.txt   # 固定的研究依赖
+│   └── README.md
 │
 ├── docs/                             # 📚 文档与资源
 │   ├── assets/                       # Banner 与截图
@@ -505,6 +570,8 @@ MetaNutri---AI-/
 ├── start.sh                          # 一键启动脚本
 ├── CONTRIBUTING.md                   # 贡献指南
 ├── CODE_OF_CONDUCT.md                # 社区行为准则
+├── SECURITY.md                       # 安全策略
+├── CITATION.cff                      # 引用方式
 ├── LICENSE                           # MIT 许可证
 ├── README.md                         # 英文版（默认展示）
 └── README.zh-CN.md                   # 👈 中文版
@@ -540,6 +607,8 @@ MetaNutri---AI-/
 ## 📄 许可证
 
 基于 MIT 许可证开源。更多信息请参阅 [LICENSE](LICENSE)。
+
+如需引用本项目，请见 [`CITATION.cff`](CITATION.cff)。
 
 ---
 

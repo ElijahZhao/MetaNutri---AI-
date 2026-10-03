@@ -16,6 +16,8 @@
 [![CI](https://github.com/ElijahZhao/MetaNutri---AI-/actions/workflows/ci.yml/badge.svg)](https://github.com/ElijahZhao/MetaNutri---AI-/actions/workflows/ci.yml)
 [![Issues](https://img.shields.io/github/issues/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=f59e0b)](https://github.com/ElijahZhao/MetaNutri---AI-/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981?style=for-the-badge)](CONTRIBUTING.md)
+[![Latest tag](https://img.shields.io/github/v/tag/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=10b981&label=v)](https://github.com/ElijahZhao/MetaNutri---AI-/tags)
+[![Last commit](https://img.shields.io/github/last-commit/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=64748b)](https://github.com/ElijahZhao/MetaNutri---AI-/commits/main)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -29,6 +31,8 @@
 [![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Powered-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 
+**🔬 Real, data-trained ML in `research/` · 🧪 43 REST endpoints · 🍎 8 curated datasets · 🌐 Full EN / 中文 · 📄 16-page technical report**
+
 </div>
 
 ---
@@ -37,6 +41,7 @@
 
 - [About the Project](#-about-the-project)
 - [📌 Project Status](#-project-status)
+- [🔬 Research Highlights](#-research-highlights)
 - [🧩 Related Repositories](#-related-repositories)
 - [📸 Screenshots](#-screenshots)
 - [✨ Key Features](#-key-features)
@@ -78,6 +83,26 @@ This repository is primarily a **full-stack engineering project**: a production-
 | 📊 Scattered health data across apps | Unified dashboard for genomics, microbiome, metabolomics |
 | 🤖 "Black box" AI recommendations | Transparent rule-based scoring shows *which* factors drive each suggestion |
 | ⚠️ Reactive healthcare | Early nutritional deficiency detection and risk alerts |
+
+---
+
+## 🔬 Research Highlights
+
+The AI endpoints on the platform are deliberately honest heuristics (see [Limitations & Scope](#️-limitations--scope)). The **genuine machine learning** lives in the self-contained [`research/`](research/) module: a reproducible pipeline that predicts the **2-hour postprandial glucose response (PPGR)** on **real open data**, evaluated subject-wise so that no person is ever in both train and test.
+
+| Stage | Headline result |
+|-------|-----------------|
+| **Reproduces the published baseline** — CGMacros, breakfast, leave-one-subject-out | **AUC r = 0.890 · iAUC r = 0.655** (paper ≈ 0.89 / ≈ 0.64) |
+| **Extends it to every meal** — 1,557 meals, 45 subjects | **AUC r = 0.838 · iAUC r = 0.451** |
+| **Transfers the frozen model to an independent cohort** — BIG IDEAs, 16 subjects, 656 meals, a different CGM device | **AUC r = 0.569** (partial; iAUC/peak-rise drop to ≈ 0.22 → domain shift) |
+| **Goes beyond a point estimate** | Conformal prediction intervals · within/between-subject decomposition · subject-random-intercept mixed-effects model |
+
+- **Method:** strict leave-one-subject-out cross-validation; XGBoost benchmarked against a mean predictor and two macronutrient-only Ridge baselines.
+- **Artifacts:** [16-page technical report (PDF)](research/reports/technical_report.pdf) · [reproducible pipeline](research/src/) · [result CSVs](research/experiments/) · [figures](research/reports/figures/).
+- **Live demo (runs the real trained model):** <https://metanutri-ai-ppgr-predictor.streamlit.app>
+- **One-command reproduction:** `cd research && bash src/run_all.sh`
+
+> Every number above is regenerated from [`research/experiments/*.csv`](research/experiments/) and must match the technical report — nothing is estimated, rounded up or inferred.
 
 ---
 
@@ -220,6 +245,20 @@ This project spans **two independent GitHub repositories**. They are deliberatel
 | [Pandas](https://pandas.pydata.org/) | 2.2 | Data processing (import / export) |
 | [requests](https://docs.python-requests.org/) | 2.32 | HTTP client (bundled reference data is generated locally, not downloaded) |
 
+### 🔬 Research (real ML — `research/`)
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| [XGBoost](https://xgboost.readthedocs.io/) | 3.4 | Gradient-boosted PPGR model |
+| [scikit-learn](https://scikit-learn.org/) | 1.9 | Baselines, metrics & preprocessing |
+| [SciPy](https://scipy.org/) | 1.18 | Statistics |
+| [statsmodels](https://www.statsmodels.org/) | 0.15 | Mixed-effects model |
+| [NumPy](https://numpy.org/) | 2.5 | Numerical computing |
+| [pandas](https://pandas.pydata.org/) | 3.0 | Tabular data |
+| [Matplotlib](https://matplotlib.org/) | 3.11 | Report figures |
+| [Streamlit](https://streamlit.io/) | 1.65 | Interactive PPGR demo |
+| [WeasyPrint](https://weasyprint.org/) | 70 | Technical-report PDF |
+
 ---
 
 ## 🚀 Getting Started
@@ -276,6 +315,23 @@ docker-compose logs -f
 # Stop services
 docker-compose down
 ```
+
+### 🔬 Research module
+
+The research pipeline is **independent** of the platform — its own dependencies and its own deployment:
+
+```bash
+cd research
+python -m venv .venv && source .venv/bin/activate   # requires Python ≥ 3.12
+pip install -r requirements.txt
+bash src/run_all.sh      # downloads CGMacros (~627 MB), builds the dataset, runs LOPO evaluation, writes experiments/ + reports/
+
+# …or just launch the interactive demo (runs the frozen model — no training stack needed)
+pip install -r app/requirements.txt
+python -m streamlit run app/app.py
+```
+
+The CGMacros dataset is ~627 MB and is **never committed** (see [`research/data/README.md`](research/data/README.md)).
 
 ---
 
@@ -485,6 +541,15 @@ MetaNutri---AI-/
 │   ├── playwright.config.ts          # E2E test config
 │   ├── Dockerfile / Dockerfile.dev   # Production / dev containers
 │   └── package.json                  # Dependencies & scripts
+
+├── research/                         # 🔬 Research module (the real ML; independent)
+│   ├── src/                          # Reproducible pipeline (download → build → LOPO → figures)
+│   ├── app/                          # Streamlit PPGR demo (runs the frozen model)
+│   ├── experiments/                  # Result CSVs, regenerated by the pipeline
+│   ├── reports/                      # Technical report (MD + 16-page PDF) & figures
+│   ├── data/                         # Placeholder — raw datasets are never committed
+│   ├── requirements.txt / -dev.txt   # Pinned research dependencies
+│   └── README.md
 │
 ├── docs/                             # 📚 Documentation & assets
 │   ├── assets/                       # Banner & screenshots
@@ -505,6 +570,8 @@ MetaNutri---AI-/
 ├── start.sh                          # One-click startup script
 ├── CONTRIBUTING.md                   # Contribution guidelines
 ├── CODE_OF_CONDUCT.md                # Community code of conduct
+├── SECURITY.md                       # Security policy
+├── CITATION.cff                      # How to cite this project
 ├── LICENSE                           # MIT License
 └── README.md                         # 👈 You are here
 ```
@@ -539,6 +606,8 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 ## 📄 License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
+
+If you use this work, please cite it — see [`CITATION.cff`](CITATION.cff).
 
 ---
 
