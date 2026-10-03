@@ -74,3 +74,15 @@ venv/
 research/data/raw/
 research/data/interim/
 research/data/processed/
+
+# Local working mirror of the deployment repository
+# (github.com/ElijahZhao/ppgr-predictor). It is an INDEPENDENT git repository,
+# not a submodule of this one: tracking it as a gitlink would leave cloners with
+# an empty directory and no .gitmodules to resolve it. Syncing is a plain file
+# copy, so the mirror never needs to be part of this history.
+.deploy/
+
+# Export produced for the abandoned Hugging Face Space deployment (superseded by
+# Streamlit Community Cloud in docs/ROADMAP.md §6); kept on disk for reference
+# but not part of the repository.
+ppgr-predictor-space.zip

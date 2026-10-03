@@ -39,6 +39,9 @@
 | 25 | PR 模板贡献指南链接失效 | 低 | ✅ 改为 `../../CONTRIBUTING.md` |
 | 26 | 缺 favicon/robots/sitemap | 低 | ✅ 新增 `app/icon.svg`、`app/robots.ts`、`app/sitemap.ts` |
 | 27 | Vercel 区域不一致 | 低 | ✅ 已确认 Render 后端在 Singapore；`vercel.json` 的 `regions` 由 `iad1` 改为 `sin1`，`DEPLOYMENT.md` 同步 |
+| 28 | CSRF 防护核查（`ROADMAP.md §1.4` 遗留："未取证确认"） | 高 | ✅ 已专项取证（见**第六节**）：现有防护充分，**无阻断项**；仅 1 处配置隐患（`COOKIE_SAMESITE=none`）建议加固，按 §0 冻结约束本轮不改代码 |
+| 29 | `.deploy/ppgr-predictor` 被当作 gitlink 提交但无 `.gitmodules` | 中 | ✅ 已 `git rm --cached` 并加入 `.gitignore`（该目录是 `ppgr-predictor` 部署仓库的**本地镜像**，非子模块；原先的描述会让克隆者得到一个空目录） |
+| 30 | 根目录遗留 `ppgr-predictor-space.zip` 被跟踪 | 低 | ✅ 已取消跟踪并加入 `.gitignore`（Hugging Face 方案弃用后的产物，见 `ROADMAP.md §6`；文件保留在本地磁盘） |
 
 **验证**（本沙箱实测）：
 - 后端：`python -m compileall -q app` 通过；`backend/data/kegg_pathways.json` JSON 解析通过（8 条、键 `name`/`prefix`）。
@@ -342,6 +345,90 @@
 8. 清理：删除孤立设计文档；整理 `.gitignore`（第 18、21 条）；补全 `models/__init__.py`（第 19 条）；评估清理 RBAC 三处残留、Bearer 遗留命名、未加载权重与权重加载函数。
 9. 容器/镜像卫生：新增根级与 `frontend/` 的 `.dockerignore`（第 22 条）；删除 5 个模型文件的未使用 `UUID` 导入（第 24 条）。
 10. 文档与 SEO 小修：修正 PR 模板链接为 `../../CONTRIBUTING.md`（第 25 条）；按需补 favicon / `robots.ts` / `sitemap.ts`（第 26 条）；确认并对齐 Vercel 与后端/Supabase 的区域（第 27 条）。
+
+---
+
+## 六、CSRF 专项核查（2026-10-03 · 只读 · 第 28 条）
+
+**缘起**：`docs/ROADMAP.md §1.4` 遗留一条"CSRF 防护是否存在：**未取证确认**，公开仓库前建议单独核"。本节即为该条的取证结果。
+
+### 6.1 结论
+
+**现有防护是充分的，不存在可直接利用的 CSRF 漏洞，不构成公开仓库的阻断项。**
+
+但需明确两点限定：
+1. 本项目认证**确实**由 Cookie 承载，所以 CSRF 在这里是**真问题**，不是可以跳过的那一类；
+2. 整条防线目前只由**一个配置项**（`COOKIE_SAMESITE`）承担，代码里又把"改成 `none`"作为一种可选配置提供——这是唯一需要留意的隐患。
+
+### 6.2 证据
+
+**① 认证由 Cookie 承载 → CSRF 成立，必须核**
+
+- `backend/app/core/security.py:16-22` 注释与常量：浏览器把 JWT 放在 httpOnly cookie（`metanutri_access` / `metanutri_refresh`）；`security.py:82` `token = token or request.cookies.get(ACCESS_TOKEN_COOKIE)`。
+- 反例对照：若认证只走 `Authorization` 头（浏览器不会自动携带），CSRF 天然不成立。本项目**不是**这种情况。
+
+**② 主防线：`SameSite=Lax`（默认值）**
+
+- `backend/app/core/config.py:52` `COOKIE_SAMESITE: str = "lax"`；`config.py:49` `COOKIE_SECURE: bool = True`。
+- `backend/app/api/auth.py:102-111` 的 `_cookie_kwargs()` 将 `httponly` / `secure` / `samesite` 落到两个 cookie 上（`auth.py:114-127`、`auth.py:130-133`）。
+- 效果：跨站发起的 POST/PUT/PATCH/DELETE **不会携带**该 cookie，攻击者站点无法借用受害者登录态写数据。这是当前抵御 CSRF 的主力。
+
+**③ 放大器：前端同源代理，使 Lax 得以成立（无需放宽 SameSite）**
+
+- `frontend/next.config.ts:49-62` 把 `/api/:path*` 与 `/health` 重写到后端；前端 `baseURL` 为空（相对路径）。
+- 也就是说浏览器侧始终是**同源**请求，cookie 是第一方（first-party）。本项目因此**不需要**为了跨域把 SameSite 放宽到 `none`——`config.py:50-51` 的注释正是这个意思。
+
+**④ CORS 收敛（不依赖通配符）**
+
+- `backend/app/main.py:54-64`：显式 origin 列表 + `allow_origin_regex=^https://([a-z0-9-]+\.)*vercel\.app$`，`allow_credentials=True`；默认列表见 `main.py:43-47`（生产别名 + localhost）。
+
+**⑤ 关键前提：写操作全在非 GET 方法上，GET 无副作用**
+
+这一点比 ①–④ 更要紧：**SameSite=Lax 仍会在"顶级 GET 导航"时携带 cookie**，所以只要存在会写库的 GET，Lax 就挡不住。
+
+- 全量清点 `backend/app/api/*.py`：**43 条路由 = 20 条 GET + 23 条写操作（POST/PUT/DELETE）**。
+- 以 `db.commit()` 作为**持久化判据**（异步 session 下未 commit 的变更不落库）逐条定位：全仓库共 **28 处**写入调用（`db.add` / `db.add_all` / `db.commit` / `db.delete` / `db.flush`），**28 处全部落在 POST/PUT/DELETE 处理器内，无一落在 GET 处理器内**：
+
+  | 文件 | 写入行 | 所属处理器（方法） |
+  |---|---|---|
+  | `auth.py` | 92、94 | `register`（POST） |
+  | `auth.py` | 298 | `reset_password`（POST） |
+  | `genomic.py` | 25、27 | `upload`（POST） |
+  | `import_export.py` | 72、81、92、99 | `import_data`（POST） |
+  | `datasets.py` | 167、170、201、204、233、236、264、267 | `import_dataset`（POST） |
+  | `metabolomics.py` | 65、67 | `upload`（POST） |
+  | `metabolomics.py` | 187、188 | `delete_metabolomics_data`（DELETE） |
+  | `recommendation.py` | 123、124 | `generate_meal_plan`（POST） |
+  | `users.py` | 35 | `change_password`（POST） |
+  | `users.py` | 69、71 | `update_profile`（PUT） |
+  | `microbiome.py` | 26、28 | `upload`（POST） |
+
+- 20 条 GET 全部为读取；对其中最可能产生副作用的 `GET /api/metabolomics/analysis`（`metabolomics.py:104-169`）读了完整实现确认：只 `SELECT` + 内存计算，不写库（其 `np.random` 属于已知的"演示用随机数"问题，见 C6，与 CSRF 无关）。
+- `datasets.py` 中看似"触发下载/导入"的路径**全部是 POST**（`datasets.py:98`、`112`、`138`、`357`）。
+- 因此：**不存在可被 Lax 放行的写操作 GET**。
+
+### 6.3 隐患（唯一一项，供决策）
+
+**`COOKIE_SAMESITE=none` 会一次性移除全部 CSRF 防护，且没有补偿控制。**
+
+- `config.py:50-51` 明确把 `none` 作为"需要跨站调用时才用"的选项提供；但仓库中**不存在第二道防线**：全仓库检索 `csrf` / `origin` / `referer` 无任何命中——没有 CSRF token、没有 double-submit cookie、没有 Origin/Referer 校验中间件。
+- 危险组合：若有人为了"前端换域名直连后端"而设 `COOKIE_SAMESITE=none`，则任意站点都能让受害者浏览器带上 cookie 发请求；而 `main.py:60` 的 `allow_origin_regex` **放行了全部 `*.vercel.app`**（任何人都可免费注册 `anything.vercel.app`）。两者叠加即为可利用的 CSRF。
+- **当前未触发**：默认 `lax`，且前端走同源代理，两个前提都不需要改。
+- 按 `ROADMAP.md §0`「平台冻结、只做文案级修正」的约束，**本轮不改代码**。若日后解除冻结，最小修复二选一：
+  - (a) 启动时若 `COOKIE_SAMESITE=none` 直接硬失败——与 `config.py:77-83` 的 `SECRET_KEY` 硬失败同一风格；
+  - (b) 增加一个校验 `Origin`/`Referer` 的中间件。
+- 附带（低）：`allow_origin_regex` 覆盖全部 `*.vercel.app` 本身偏宽（`main.py:57-60` 已注释说明是为了 Vercel preview 部署）。默认 Lax 下无实际影响，但属于不必要的信任面。
+
+### 6.4 已核、不构成问题（无需处理）
+
+- `POST /api/auth/logout` 不要求有效 token（`auth.py:220-236`）：有意为之（过期会话也要能清 cookie）。"登出 CSRF"影响极低，且跨站 POST 本就带不上 cookie。
+- `POST /api/auth/refresh`：刷新即轮换 + 复用即失效（`auth.py:189-217`），不构成固定会话风险。
+- Cookie 无 `Domain`（`config.py:53` 默认空）→ host-only，减少子域写入面。未使用 `__Host-` 前缀属可选加固。
+
+### 6.5 判定
+
+- **是否阻断公开仓库：否。** CSRF 取决于**运行中的部署**，与仓库可见性无关；当前部署的默认配置是安全的。
+- **需要交接的**：`COOKIE_SAMESITE=none` 这一配置陷阱（本节已记录）。`config.py:50-51` 的原注释提示了方向，但未说明"一旦改成 `none`，没有任何 CSRF token 兜底"。
 
 ---
 
