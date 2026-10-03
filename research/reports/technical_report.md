@@ -1,11 +1,12 @@
 # Predicting Postprandial Glycemic Response from Meal Composition and Subject Phenotype
 
-**A leave-one-subject-out study on the CGMacros cohort**
+**A leave-one-subject-out study on the CGMacros cohort, with external validation on BIG IDEAs**
 
 > Research module of the MetaNutri project. This is an independent, reproducible
 > analysis — not a clinical tool, and not wired into the MetaNutri application.
-> Dataset: CGMacros (PhysioNet, DOI `10.13026/3z8q-x658`), licensed
-> **CC BY-NC-SA 4.0**; see §9 for attribution.
+> Datasets: CGMacros (PhysioNet, DOI `10.13026/3z8q-x658`), licensed
+> **CC BY-NC-SA 4.0**, and BIG IDEAs (PhysioNet, DOI `10.13026/zthx-5212`),
+> licensed **ODC-By 1.0**; see §9 for attribution.
 
 ---
 
@@ -25,10 +26,17 @@ baseline (≈0.89 / ≈0.64), which validates the pipeline. Extending the same
 features and model to all meal types (1,557 meals) yields **r = 0.838 (AUC)**
 and **r = 0.451 (iAUC)**. A mean predictor and two macronutrient-only Ridge
 regressions are far weaker (best linear r = 0.255 for breakfast iAUC), showing
-that most of the signal is non-linear or subject-specific. We report
-limitations candidly: small cohort, pooled-observation metrics that mix
-between- and within-subject variance, and no external validation. Code,
-figures and a fixed-seed experiment are included for full reproducibility.
+that most of the signal is non-linear or subject-specific. We then test
+cross-cohort generalisation by freezing the CGMacros model and applying it,
+unchanged, to the independent **BIG IDEAs** cohort (16 subjects, 656 meals,
+different CGM device and free-living self-reported food logs). AUC transfers
+partially (**r = 0.569**), but iAUC and peak rise collapse to r ≈ 0.22 — and a
+simple carbohydrate-only regression transfers *better* (r = 0.36) than the
+tree ensemble, a cautionary result about non-linear models that fit
+cohort-specific structure. We report limitations candidly: small cohorts,
+pooled-observation metrics that mix between- and within-subject variance, and a
+large domain gap between the two studies. Code, figures and fixed-seed
+experiments are included for full reproducibility.
 
 ---
 
@@ -113,6 +121,36 @@ foreshadowing the modest ceiling of any meal-composition-only model.
 
 **Figure 3 — Data overview.** iAUC by meal type; carbohydrate content versus
 iAUC; meal counts per type.
+
+### 2.3 External cohort: BIG IDEAs
+
+To test whether the model generalises beyond CGMacros, we use the **BIG IDEAs
+Lab Glycemic Variability and Wearable Device** dataset as an independent
+external cohort. It contributes 16 subjects with Dexcom G6 CGM (5-minute) and a
+free-living food log. Three differences from CGMacros matter for the analysis:
+
+1. **Meals are not annotated.** The release provides a per-item food log; we
+   group items logged within 20 minutes into one eating event and sum their
+   macronutrients, matching the CGMacros target window (2 h, 9-point sampling).
+2. **A narrower feature set.** BIG IDEAs does not record the CGMacros blood
+   panel, so only the five shared features (carbohydrate, protein, meal-time
+   baseline glucose, sex, HbA1c) are used for the primary comparison — complete
+   for all 16 subjects. A seven-feature variant adding fat and fibre covers 13
+   subjects (three subjects log fat/fibre sparsely or not at all) and is reported
+   as a sensitivity check.
+3. **Food-log dates are misaligned in the version we could obtain.** The
+   dataset's own 1.1.3 release notes state *"Updated misaligned food log
+   dates"*, confirming the defect. Because 1.1.3 was not retrievable (HTTP 403)
+   and the open mirror carries only 1.1.2, we use 1.1.2 and repair the dates
+   ourselves: for each subject we search integer day offsets and pick the shift
+   that maximises the median post-meal glucose rise, subject to retaining ≥ 90 %
+   of the maximum achievable event coverage. This yields no shift for 12
+   subjects and a roughly five-month shift for four (007, 013, 015, 016),
+   consistent with the reported defect. As an independent check, the study's
+   standardised-breakfast days show a higher morning glucose rise than other
+   days after correction (median Δ ≈ +14 mg/dL).
+
+After correction, the BIG IDEAs table contains **656 meals across 16 subjects**.
 
 ---
 
@@ -249,11 +287,62 @@ lipid panel contribute little once these are present.
 **Figure 4 — Feature importance for iAUC.** Descriptive fit on all available
 data (not LOPO); shown for interpretation, never used for model selection.
 
+### 4.4 External validation on BIG IDEAs
+
+The frozen CGMacros model (same 80 depth-1 trees, same five shared features) is
+applied to the 656 BIG IDEAs meals without any retraining or refitting of the
+preprocessing beyond the CGMacros-fitted scaler. We report three quantities side
+by side: the model's **internal** LOPO score on each cohort, and its **external
+transfer** score. Table 4 and Figure 5 show the outcome.
+
+**Table 4 — XGBoost Pearson r, 5 shared features.**
+
+| Cohort / protocol | iAUC r | AUC r | Peak r |
+|---|---|---|---|
+| CGMacros (LOPO, internal) | 0.487 | 0.816 | 0.508 |
+| BIG IDEAs (LOPO, internal) | 0.463 | 0.625 | 0.483 |
+| **BIG IDEAs (external transfer)** | **0.227** | **0.569** | **0.223** |
+| BIG IDEAs (external, carb-only Ridge) | 0.362 | 0.288 | 0.357 |
+| BIG IDEAs (external, mean predictor) | — (R² < 0) | — (R² ≈ 0) | — (R² < 0) |
+
+Two things stand out. First, **AUC transfers far better than iAUC**. A
+correlation of 0.569 for AUC across studies that differ in participants, device
+and meal annotation is a genuine, if modest, positive result: part of the AUC
+signal is a portable, physiology-level relationship (glucose level and long-run
+control). Second, **iAUC and peak rise do not transfer**: r falls from 0.487 and
+0.508 internally to 0.227 and 0.223 externally, and R² is near zero. The model
+has learned CGMacros-specific structure for the *excursion* that does not
+generalise to free-living meals in another cohort.
+
+The internal BIG IDEAs LOPO column is the important control. It shows that
+BIG IDEAs itself is *not* unlearnable — a model trained and tested within that
+cohort reaches r = 0.463 for iAUC. The drop to 0.227 is therefore attributable
+to **domain shift across cohorts**, not to noise in the external data.
+
+The most uncomfortable result is the baseline comparison. On external iAUC and
+peak rise, the **carbohydrate-only Ridge regression transfers better**
+(r = 0.362 and 0.357) than the XGBoost model (0.227 and 0.223). The tree
+ensemble, which wins decisively inside CGMacros, appears to have fit
+cohort-specific interactions that do not survive the transfer, whereas the
+single, near-universal "more carbohydrate → larger excursion" relationship is
+more robust. The seven-feature variant adding fat and fibre changes little
+(external AUC r = 0.581, iAUC r = 0.272, n = 558). We treat this as a cautionary
+finding rather than a failure: it is exactly the kind of result that an external
+test is meant to expose, and it would be invisible under any within-cohort
+evaluation.
+
+![External validation on BIG IDEAs](figures/fig5_external_validation.png)
+
+**Figure 5 — External validation.** Left: XGBoost Pearson r by cohort and target
+under the five shared features; the red bars are the frozen-model transfer.
+Right: predicted versus observed for the transferred model — the AUC cloud
+follows the diagonal loosely, while iAUC and peak rise are nearly flat.
+
 ---
 
 ## 5. Discussion
 
-Three findings are worth stating plainly.
+Four findings are worth stating plainly.
 
 First, **the published baseline reproduces**, and the extension is credible.
 Matching r ≈ 0.89 (AUC) and r ≈ 0.64 (iAUC) on breakfast means subsequent
@@ -272,6 +361,15 @@ depends on the meal and on individual handling of it — and that is harder. Thi
 distinction is often blurred in PPGR reporting, where a high AUC correlation
 can be mistaken for good meal-response modelling.
 
+Fourth, **external validation changes the story in a useful way**. Inside
+CGMacros, XGBoost dominates the linear baselines on every target. Across
+cohorts, the ranking partly reverses: the tree model still transfers for AUC
+(r = 0.569) but loses to a one-variable carbohydrate regression on iAUC and peak
+rise. The lesson is not that gradient boosting is wrong — it is that a model
+whose advantage comes from cohort-specific interactions carries a hidden
+generalisation risk, and only an external test reveals it. We would rather
+report this than present a single-cohort number that flatters the method.
+
 ---
 
 ## 6. Limitations
@@ -286,10 +384,14 @@ We state these explicitly; they bound every claim above.
   within-subject evaluation. A per-subject standardised variant would be
   stricter and would likely lower the numbers; we report the comparable metric
   but flag the effect.
-- **No external validation.** Everything uses one cohort from one study.
-  Cross-cohort generalisation (different devices, populations and meal
-  annotation practices) is untested. BIG IDEAs is a natural external test set
-  and remains a stretch goal, deliberately not claimed here.
+- **External validation is narrow and imperfect.** We test one external cohort
+  (BIG IDEAs, 16 subjects, 656 meals) with only five shared features, because
+  that cohort lacks the CGMacros blood panel. The two studies differ
+  simultaneously in participants, CGM device (Libre Pro vs Dexcom G6) and meal
+  annotation (expert-annotated vs free-living self-report), so the drop in
+  performance cannot be attributed to any single factor. The BIG IDEAs meals are
+  also derived from a 1.1.2 food log whose dates required our own repair
+  procedure, which is validated but not ground truth.
 - **No uncertainty quantification.** Point predictions are reported without
   calibrated intervals; for a health-adjacent setting, that is a real gap.
 - **Observational and non-causal.** Associations between features and response
@@ -304,8 +406,11 @@ We state these explicitly; they bound every claim above.
 
 ## 7. Future work
 
-1. **External validation on BIG IDEAs**, reporting the same LOPO metrics to
-   test cross-cohort transfer.
+1. **More external cohorts and domain adaptation**, building on the BIG IDEAs
+   result. Re-calibration or a small amount of target-cohort data may recover
+   the iAUC signal that the frozen model loses; testing a third cohort
+   (e.g. a T2D population) would separate device effects from population
+   effects.
 2. **Within-subject evaluation** in addition to pooled metrics, to separate
    "who is this person" from "what did they eat".
 3. **Uncertainty estimates** (quantile or conformal prediction) so a prediction
@@ -323,12 +428,15 @@ All results are produced by a small, dependency-pinned pipeline
 (`research/`), independent of the MetaNutri platform:
 
 ```
-src/download_data.py   # parallel-chunk download + SHA256 verification
-src/build_dataset.py   # CGM → meal-level table (targets + features)
-src/iauc.py            # iAUC / AUC / peak-rise definitions
-src/evaluate.py        # LOPO protocol, imputation, baselines, XGBoost
-src/experiment.py      # runs both subsets × three targets → results.csv
-src/make_figures.py    # figures 1–4
+src/download_data.py     # parallel-chunk download + SHA256 verification
+src/build_dataset.py     # CGM → meal-level table (targets + features)
+src/iauc.py              # iAUC / AUC / peak-rise definitions
+src/evaluate.py          # LOPO protocol, imputation, baselines, XGBoost
+src/experiment.py        # runs both subsets × three targets → results.csv
+src/download_bigideas.py # fetch the 33 small BIG IDEAs files (2.4 MB)
+src/build_external.py    # BIG IDEAs → meal-level table (date-offset repair)
+src/external_validate.py # cross-cohort transfer → external_results.csv
+src/make_figures.py      # figures 1–5
 ```
 
 Pinned versions: Python 3.12, `numpy==2.5.3`, `pandas==3.0.6`,
@@ -351,3 +459,13 @@ This work uses the **CGMacros** dataset:
 Use is non-commercial (research and portfolio). This analysis is a derivative
 work and is distributed under the same license, with attribution to the
 original authors. Raw data is never redistributed in this repository.
+
+External validation uses the **BIG IDEAs Lab Glycemic Variability and Wearable
+Device Data** dataset:
+
+- Source: PhysioNet — https://physionet.org/content/big-ideas-glycemic-wearable/1.1.2/
+- DOI (version 1.1.2, used here): `10.13026/zthx-5212`
+- Reference: Cho, P., Kim, J., Bent, B., & Dunn, J., *BIG IDEAs Lab Glycemic
+  Variability and Wearable Device Data*, PhysioNet.
+- License: **Open Data Commons Attribution License 1.0 (ODC-By 1.0)**, which
+  permits reuse with attribution.
