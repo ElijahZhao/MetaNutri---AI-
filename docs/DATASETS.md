@@ -1,6 +1,8 @@
 # 数据集文档（MetaNutri）
 
-MetaNutri 使用多种公共数据集来支持精准营养代谢预测。数据集的实际管理入口是后端 `/api/datasets/*` 路由（对应 [`backend/app/api/datasets.py`](../backend/app/api/datasets.py)）、底层下载器（[`backend/app/ml/dataset_downloader.py`](../backend/app/ml/dataset_downloader.py)）。下载后的 JSON 落在 [`backend/data/`](../backend/data/) 目录，典型样例已随仓库提交。
+MetaNutri 使用多种公共数据集来支持精准营养代谢预测。数据集的实际管理入口是后端 `/api/datasets/*` 路由（对应 [`backend/app/api/datasets.py`](../backend/app/api/datasets.py)）、底层的本地生成脚本（[`backend/app/ml/dataset_downloader.py`](../backend/app/ml/dataset_downloader.py)）。生成的 JSON 落在 [`backend/data/`](../backend/data/) 目录，典型样例已随仓库提交。
+
+> ⚠️ **诚实说明（演示性质）**：所谓"下载器"**并不联网**——它只是把内置的小型样例/参考数据写入 `backend/data/*.json`，数据量很小、仅供演示，**不是**来自 USDA / KEGG / HMP 的完整数据集。天池（TianChi）客户端返回的是**模拟占位结果**，真实接入需要阿里云 AK/SK 与数据授权。这些接口用于演示数据管理流程与工程结构，**不代表**真实的第三方数据接入。
 
 > 所有 datasets 接口都需要**登录认证**（httpOnly Cookie），公有数据集本身是只读的参考数据，下载和导入会被记录为请求。
 
@@ -21,7 +23,7 @@ MetaNutri 使用多种公共数据集来支持精准营养代谢预测。数据�
 
 对应落地文件（`backend/data/*.json`）：`usda_food_database.json`、`kegg_pathways.json`、`hmp_reference.json`、`metabolomics_reference.json`、`gene_nutrition_interactions.json`、`microbiome_samples.json`、`dietary_guidelines.json`、`disease_markers.json`。
 
-> 这些参考数据由脚本生成/下载得到，真实训练所用权重位于 `backend/app/ml/weights/`。详情见 [API.md](./API.md)。
+> 这些参考数据由脚本**本地生成**（非联网下载）。`backend/app/ml/weights/` 下的权重是在**合成随机数据**上训练得到的，且**从未被线上 API 加载**，请勿视为真实训练成果。详情见 [API.md](./API.md)。
 
 ## 2. API 入口
 
@@ -38,7 +40,7 @@ curl -b cookies.txt "$BASE/api/datasets"
 按分类归组返回数据集。
 
 ### POST `/api/datasets/download` · POST `/api/datasets/download/{dataset_id}`
-下载全部 / 指定数据集（写入 `backend/data/*.json`）。`dataset_id` 为上表 key。
+（重新）生成全部 / 指定数据集的**内置样例**文件（写入 `backend/data/*.json`）。**此接口不访问网络**；`dataset_id` 为上表 key。
 
 ```bash
 curl -b cookies.txt -X POST "$BASE/api/datasets/download/usda"
@@ -57,7 +59,7 @@ curl -b cookies.txt -X POST "$BASE/api/datasets/download/usda"
 - `GET /api/datasets/tianchi/{dataset_id}` — 详情
 - `POST /api/datasets/tianchi/download/{dataset_id}` — 下载
 
-> 说明：TianChi 客户端为接入框架（映射 [`TianChiDatasetClient`](../backend/app/ml/dataset_downloader.py)）。真实下载需要阿里云 AK/SK + 数据授权，未配置时会返回 mock 数据提示。
+> 说明：TianChi 客户端为**占位框架**（映射 [`TianChiDatasetClient`](../backend/app/ml/dataset_downloader.py)）：`search` / `detail` / `list` 返回的是**硬编码的模拟数据集清单**，并非真实天池检索结果；真实下载需要阿里云 AK/SK + 数据授权。
 
 ## 3. 直接运行下载器（本地/非 HTTP）
 

@@ -36,6 +36,7 @@
 ## 📑 Table of Contents
 
 - [About the Project](#-about-the-project)
+- [📌 Project Status](#-project-status)
 - [📸 Screenshots](#-screenshots)
 - [✨ Key Features](#-key-features)
 - [🏗️ Architecture](#️-architecture)
@@ -45,6 +46,7 @@
 - [🧪 Testing & CI](#-testing--ci)
 - [☁️ Cloud Deployment](#️-cloud-deployment)
 - [📁 Project Structure](#-project-structure)
+- [⚠️ Limitations & Scope](#️-limitations--scope)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [📮 Contact](#-contact)
@@ -55,7 +57,16 @@
 
 **MetaNutri** is an AI-powered precision nutrition metabolic digital twin platform that integrates **genomics**, **microbiome**, and **metabolomics** data to deliver personalized nutritional recommendations and health management solutions.
 
-By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, **VAEs**) and SHAP/LIME explainability, MetaNutri bridges the gap between multi-omics research and practical dietary guidance.
+This repository is primarily a **full-stack engineering project**: a production-style Next.js frontend, a FastAPI backend and a managed PostgreSQL database, wired end to end and deployed to Vercel / Render / Supabase. The live API serves **transparent, deterministic rule-based analytics**; the PyTorch model code under `backend/app/ml/` is research scaffolding and is **not wired into the live API**. Real, data-trained models are developed in a separate research module.
+
+### 📌 Project Status
+
+> **This repository is an engineering demo with a separate research track.**
+>
+> - **What runs live:** authentication, database CRUD, food search, import/export — plus **deterministic, rule-based heuristics** for glucose and nutrient estimates. A few endpoints additionally use random values and are illustrative only.
+> - **Research scaffolding (not live):** the PyTorch model code in `backend/app/ml/` is **not trained on real data** and is **never loaded at runtime**.
+> - **Where the real AI is:** a self-contained research module — postprandial glucose-response prediction on **real open data**, with rigorous subject-wise evaluation — developed and deployed **independently** of this platform. See [docs/ROADMAP.md](docs/ROADMAP.md).
+> - **Not a medical device.** Nothing here is medical advice; never use it to make clinical decisions.
 
 ### 🎯 Why MetaNutri?
 
@@ -64,7 +75,7 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | 🍎 Generic diet advice ignores individual biology | Personalized recommendations based on YOUR omics profile |
 | 🧬 Genomics data is hard to interpret | AI translates complex data into actionable insights |
 | 📊 Scattered health data across apps | Unified dashboard for genomics, microbiome, metabolomics |
-| 🤖 "Black box" AI recommendations | SHAP/LIME explainability shows *why* each suggestion |
+| 🤖 "Black box" AI recommendations | Transparent rule-based scoring shows *which* factors drive each suggestion |
 | ⚠️ Reactive healthcare | Early nutritional deficiency detection and risk alerts |
 
 ---
@@ -88,8 +99,8 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 | | Feature | Description |
 |---|---------|-------------|
 | 🧬 | **Tri-Omics Integration** | Genomics + Microbiome + Metabolomics data analysis in a unified pipeline |
-| 🤖 | **Deep Learning Models** | PyTorch model code for metabolic response, gene-nutrition (GNN) and microbiome (VAE) — research code; the live API currently serves deterministic heuristics |
-| 🔍 | **Explainable AI** | SHAP and LIME feature importance for every recommendation |
+| 🤖 | **Metabolic Analytics** | Deterministic, rule-based glucose and nutrient estimates — transparent by construction. PyTorch model code is research scaffolding and is not wired into the live API |
+| 🔍 | **Transparent Scoring** | Every recommendation exposes its contributing factors (heuristic contribution weights, not SHAP) |
 | 📊 | **Interactive Dashboards** | Health score, body-metrics and risk-radar cards backed by ECharts visualizations |
 | 🚨 | **Health Alerts** | Real-time nutritional deficiency detection and health risk assessment |
 | 🍎 | **Food & Nutrition Explorer** | Searchable food database with per-user food scoring |
@@ -130,9 +141,9 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 │  │  Auth  ││ Users  ││ Foods  ││ Omics  ││ Predict  │              │
 │  └────────┘└────────┘└────────┘└────────┘└──────────┘              │
 │  ┌────────┐┌──────────┐┌────────┐┌──────────────┐                  │
-│  │ Alerts ││ Datasets ││ Import ││ ML (PyTorch) │                  │
+│  │ Alerts ││ Datasets ││ Import ││ Analytics    │                  │
 │  └────────┘└──────────┘└────────┘└──────────────┘                  │
-│   SQLAlchemy 2.0 async ORM · SHAP / LIME · optional Redis cache     │
+│   SQLAlchemy 2.0 async ORM · rule-based · optional Redis cache      │
 └──────────────────────────────────┬──────────────────────────────────┘
                                    │
                                    ▼
@@ -180,13 +191,13 @@ By leveraging advanced deep learning architectures (**Transformers**, **GNNs**, 
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| [PyTorch](https://pytorch.org/) | 2.x | Deep learning framework |
+| [PyTorch](https://pytorch.org/) | 2.x | Research scaffolding for model prototypes (not loaded by the live API) |
 | [scipy](https://scipy.org/) | 1.14 | Scientific / statistical computing |
-| [SHAP](https://shap.readthedocs.io/) | 0.46 | Model explainability |
+| [SHAP](https://shap.readthedocs.io/) | 0.46 | Declared for the research track; the live API does not run SHAP |
 | [NumPy](https://numpy.org/) | 1.26 | Numerical computing |
 | [Pandas](https://pandas.pydata.org/) | 2.2 | Data processing |
-| [scikit-learn](https://scikit-learn.org/) | 1.5 | Feature scaling & baseline models (SHAP explainability) |
-| [requests](https://docs.python-requests.org/) | 2.32 | HTTP client (reference data is generated locally, not downloaded) |
+| [scikit-learn](https://scikit-learn.org/) | 1.5 | Feature scaling & baseline models (research scaffolding) |
+| [requests](https://docs.python-requests.org/) | 2.32 | HTTP client (bundled reference data is generated locally, not downloaded) |
 
 ---
 
@@ -267,7 +278,7 @@ Set-Cookie: metanutri_refresh=...; HttpOnly; SameSite=Lax
 2. **Upload omics data**: `POST /api/genomic/upload`, `/api/microbiome/upload`, `/api/metabolomics/upload`.
 3. **Run predictions**: `POST /api/predict/glucose-response` or `GET /api/predict/risk-assessment`.
 4. **Get recommendations / meal plans**: `POST /api/recommendations/meal-plan`.
-5. **Read the explanation**: prediction responses include a nutritional interpretation and `feature_contributions` (SHAP).
+5. **Read the explanation**: prediction responses include a nutritional interpretation and `feature_contributions` — heuristic contribution weights, **not** SHAP values.
 
 ```bash
 BASE=https://metanutri-backend.onrender.com
@@ -287,12 +298,12 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
 
 | Module | Capability |
 |--------|------------|
-| `ml/metabolic_response_model.py` | Glucose response / nutrient absorption predictor |
-| `ml/gene_nutrition_model.py` | Gene–nutrition association (GNN) |
-| `ml/microbiome_vae.py` | Microbiome health (VAE) |
-| `ml/explainability.py` | SHAP + custom LIME explainability |
-| `ml/train_models.py` | Model training scripts |
-| `ml/weights/` | Pre-trained model weights |
+| `ml/metabolic_response_model.py` | Research prototype: glucose response / nutrient absorption predictor (not wired to the live API) |
+| `ml/gene_nutrition_model.py` | Research prototype: gene–nutrition association (GNN) |
+| `ml/microbiome_vae.py` | Research prototype: microbiome health (VAE) |
+| `ml/explainability.py` | Research prototype: SHAP / LIME wrappers (the live API returns heuristic contribution weights instead) |
+| `ml/train_models.py` | Prototype training scripts (train on synthetic tensors) |
+| `ml/weights/` | Weights trained on synthetic data; never loaded at runtime |
 
 ---
 
@@ -373,13 +384,13 @@ MetaNutri---AI-/
 │   │   ├── db/
 │   │   │   └── session.py            # SQLAlchemy async engine
 │   │   ├── ml/                       # 🧠 Machine learning models
-│   │   │   ├── metabolic_response_model.py   # Transformer predictor
-│   │   │   ├── gene_nutrition_model.py       # GNN gene-nutrition
-│   │   │   ├── microbiome_vae.py             # VAE microbiome health
-│   │   │   ├── explainability.py             # SHAP / LIME explainer
-│   │   │   ├── dataset_downloader.py         # Reference dataset fetcher
-│   │   │   ├── train_models.py               # Training scripts
-│   │   │   └── weights/                      # Pre-trained model weights
+│   │   │   ├── metabolic_response_model.py   # Research prototype (not wired to live API)
+│   │   │   ├── gene_nutrition_model.py       # Research prototype (GNN)
+│   │   │   ├── microbiome_vae.py             # Research prototype (VAE)
+│   │   │   ├── explainability.py             # Research prototype explainers
+│   │   │   ├── dataset_downloader.py         # Generates bundled sample data (no network fetch)
+│   │   │   ├── train_models.py               # Prototype training scripts (synthetic data)
+│   │   │   └── weights/                      # Weights trained on synthetic data (unused at runtime)
 │   │   ├── models/                   # SQLAlchemy ORM models
 │   │   ├── schemas/                  # Pydantic request / response schemas
 │   │   ├── services/                 # Business logic (seed data, import / export)
@@ -473,6 +484,17 @@ MetaNutri---AI-/
 ├── LICENSE                           # MIT License
 └── README.md                         # 👈 You are here
 ```
+
+---
+
+## ⚠️ Limitations & Scope
+
+This project is built for **demonstration and portfolio purposes**. In the interest of honesty, here is what it is and isn't:
+
+- **Bundled datasets are curated samples, not full third-party dumps.** The files under `backend/data/` are small, hand-prepared reference sets. The dataset "download" endpoints simply (re)generate these local sample files — they do **not** fetch from USDA / KEGG / HMP. The TianChi client returns **mock placeholder listings**.
+- **Predictions are heuristics, not clinical models.** Glucose, nutrient-absorption and risk outputs come from deterministic rules (and, in a few endpoints, random values). They are **illustrative only** and must **not** be used for medical decisions.
+- **Model weights are unused.** The `.pt` files under `backend/app/ml/weights/` were trained on synthetic random tensors and are never loaded by the running API.
+- **The real AI lives elsewhere.** Serious, data-trained models are developed in a separate research module on real open datasets — see [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ---
 

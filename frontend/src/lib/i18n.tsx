@@ -26,7 +26,7 @@ const getStoredLanguage = (): Language => {
 const en = {
   title: 'Build Your Metabolic Digital Twin',
   subtitle:
-    'Integrate genomic, microbiome, and metabolomic data to unlock personalized nutrition insights. Powered by deep learning for accurate metabolic response predictions.',
+    'Integrate genomic, microbiome, and metabolomic data into one personalized-nutrition platform — a full-stack engineering project with transparent, rule-based analytics.',
   tagline: 'AI Precision Nutrition',
   tagline2: 'Metabolic Digital Twin',
   tagline3: 'Multi-Omics Integration',
@@ -37,9 +37,9 @@ const en = {
   feature1Title: 'Multi-Omics Integration',
   feature1Desc:
     'Combine genomic, microbiome, and metabolic data for a holistic view of your nutrition needs.',
-  feature2Title: 'Deep Learning Models',
+  feature2Title: 'Metabolic Analytics',
   feature2Desc:
-    'Predict metabolic responses to foods using state-of-the-art neural networks and attention mechanisms.',
+    'Estimate metabolic responses to foods with transparent, deterministic heuristics. Real, data-trained models live in a separate research module.',
   feature3Title: 'Precision Recommendations',
   feature3Desc:
     'Receive tailored dietary suggestions backed by scientific evidence and your unique biology.',
@@ -47,10 +47,10 @@ const en = {
   feature4Desc:
     'Your health data is encrypted and stored securely. Complete control over your personal information.',
   feature5Title: 'Real-Time Analysis',
-  feature5Desc: 'Get instant insights from your data with optimized AI models and cached results.',
-  feature6Title: 'Continuous Learning',
+  feature5Desc: 'Get fast insights from your data through a responsive API and cached results.',
+  feature6Title: 'Active Development',
   feature6Desc:
-    'The AI models continuously improve with new data, adapting to your evolving health needs.',
+    'The platform is under active development, with a separate research track for real, data-trained models.',
   ctaSectionTitle: 'Ready to Transform Your Nutrition?',
   ctaSectionSubtitle:
     'Join thousands of users who are using AI to optimize their health through personalized nutrition',
@@ -354,7 +354,7 @@ export type Translations = typeof en;
 const zh: Translations = {
   title: '构建您的代谢数字孪生',
   subtitle:
-    '整合基因组、微生物组和代谢组数据，解锁个性化营养洞察。基于深度学习实现精准的代谢反应预测。',
+    '整合基因组、微生物组和代谢组数据，打造个性化营养平台——一个采用透明规则化分析的全栈工程项目。',
   tagline: 'AI 精准营养',
   tagline2: '代谢数字孪生',
   tagline3: '多组学整合',
@@ -364,16 +364,16 @@ const zh: Translations = {
   whySubtitle: '前沿技术与个性化营养的完美结合，助力最佳健康成果',
   feature1Title: '多组学整合',
   feature1Desc: '结合基因组、微生物组和代谢数据，全面了解您的营养需求。',
-  feature2Title: '深度学习模型',
-  feature2Desc: '使用最先进的神经网络和注意力机制预测食物的代谢反应。',
+  feature2Title: '代谢分析',
+  feature2Desc: '使用透明、确定性的启发式方法估算食物代谢反应。真实的数据训练模型在独立研究模块中开发。',
   feature3Title: '精准推荐',
   feature3Desc: '获得基于科学证据和您独特生物学特征的个性化膳食建议。',
   feature4Title: '隐私与安全',
   feature4Desc: '您的健康数据经过加密并安全存储。完全掌控您的个人信息。',
   feature5Title: '实时分析',
-  feature5Desc: '通过优化的 AI 模型和缓存结果，即时获取数据洞察。',
-  feature6Title: '持续学习',
-  feature6Desc: 'AI 模型通过新数据不断改进，适应您不断变化的健康需求。',
+  feature5Desc: '通过响应式 API 与缓存结果，快速获取数据洞察。',
+  feature6Title: '持续开发',
+  feature6Desc: '平台持续开发中，真实的数据训练模型在独立研究线中推进。',
   ctaSectionTitle: '准备好改变您的营养方式了吗？',
   ctaSectionSubtitle: '加入数千名用户的行列，使用 AI 通过个性化营养优化健康',
   ctaFree: '免费开始',

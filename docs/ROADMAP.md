@@ -2,9 +2,9 @@
 
 > 目的：把 MetaNutri 从"工程成熟、AI 空缺"的作品集，升级为**工程 + 真实 AI 研究**双叙事，用于 AI / AI+交叉 方向硕士申请。
 >
-> 状态：**草案（待确认后执行）**。本文档不涉及任何代码改动，仅记录审查结论与执行计划。
+> 状态：**执行中（P0 已完成，P1 待启动）**。P0 为文案级诚实化，不涉及任何逻辑改动。
 >
-> 最后更新：2026-10-02
+> 最后更新：2026-10-03
 
 ---
 
@@ -19,7 +19,7 @@
 
 ---
 
-## 1. 审查结论（8 轮，含 4 路并行仓库审查 + 2 路外部调研 + 逐条复核）
+## 1. 审查结论（11 轮，含 4 路并行仓库审查 + 2 路外部调研 + 逐条复核 + 2 轮实证）
 
 ### 1.1 分层评级
 
@@ -69,6 +69,21 @@
 - Cookie：`httponly=True`，`secure` / `samesite` 由配置控制
 - token 同时写入 Redis 并做一致性校验
 - CSRF 防护是否存在：**未取证确认**，公开仓库前建议单独核
+
+### 1.5 第 11 轮增量发现（2026-10-03）
+
+| # | 问题 | 证据位置 |
+|---|---|---|
+| N1 | 假下载器 / 假天池**已暴露为线上鉴权 API**（`POST /api/datasets/download`、`/download/{id}`、`GET /tianchi*`、`POST /tianchi/download/{id}`） | `backend/app/api/datasets.py:98-135,315-378` |
+| N2 | `TianChiDatasetClient.search_datasets()` 返回**编造的数据集 ID + 网址**；`authenticate()` 不发任何请求即 `return True` | `backend/app/ml/dataset_downloader.py:651-693` |
+| N3 | `LIMEExplainer._generate_lime_explanation()` 用 `np.random.uniform(-0.1,0.1)*values[i]` 造贡献——连"解释器"本身都是噪声 | `backend/app/ml/explainability.py:90-101` |
+| N4 | README **自相矛盾**：L91 有诚实披露，但 L58/L67/L92/L270 仍写 Transformer/GNN/VAE、SHAP-LIME | `README.md`（本轮已修正） |
+
+**处置决定（已与项目所有者确认）**：
+
+- A 线（前端 / 后端 / 数据库）**除首页 i18n 的 6 个纯文本字符串外，全部冻结**，不碰任何逻辑。
+- N1 / N2 的线上 API **不改代码**，仅在 `README` / `docs/API.md` / `docs/DATASETS.md` 标注为**演示占位**。
+- 诚实化统一叙事：**平台 = 工程演示；真 AI 在独立 `research/` 线**。
 
 ---
 
@@ -194,7 +209,7 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 
 | 阶段 | 内容 | 交付物 | 验收标准 |
 |---|---|---|---|
-| **P0 · 诚实化止血** | 修正 README / README.zh-CN / docs 的 AI 措辞；新增 `Project Status` 与 `Limitations` 区块；i18n 六处文案降级 | 诚实、专业的现状表述 | 文档中不再出现"线上运行深度学习 / SHAP / LIME"的暗示 |
+| **P0 · 诚实化止血** ✅ | 修正 README / README.zh-CN / docs 的 AI 措辞；新增 `Project Status` 与 `Limitations` 区块；i18n 六处文案降级；数据集接口标注为演示占位 | 诚实、专业的现状表述 | 文档中不再出现"线上运行深度学习 / SHAP / LIME"的暗示 |
 | **P1 · 研究管线**（核心） | 下载 CGMacros → 清洗（餐-CGM 对齐、iAUC 计算）→ EDA → LOPO 划分 → 三基线 → 树模型 → 评估 | `research/` 可复现管线 + 结果表与图 | 一条命令重训；固定种子；结果可复现 |
 | **P2 · 技术报告** | Problem → Data → Method → Results（对比三基线）→ Limitations → Future Work | 技术报告（Markdown/PDF） | 可直接作为写作样本提交 |
 | **P3 · 交互 Demo** | Streamlit（HF Spaces）：输入餐食 + 画像 → 输出预测曲线 + **真实 SHAP** 解释 | 公开可点链接 | 加载训练好的模型，解释为真 `shap.TreeExplainer`，非比例摊派 |
@@ -217,7 +232,7 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 
 - [ ] 数据集最终采用 CGMacros 为主、是否叠加 BIG IDEAs 做外部验证
 - [ ] 是否接受 CC BY-NC-SA 的非商业限制（作品集用途合规）
-- [ ] P0 的 i18n 文案改动是否最终放行
+- [x] P0 的 i18n 文案改动已放行并完成（**仅改 6 个纯文本字符串**，未碰任何逻辑）
 - [ ] 技术报告的产出语言（中文 / 英文）与篇幅
 - [ ] P4 是否需要（回接线上平台）
 

@@ -36,6 +36,7 @@
 ## 📑 目录
 
 - [项目简介](#-项目简介)
+- [📌 项目状态](#-项目状态)
 - [📸 截图展示](#-截图展示)
 - [✨ 核心功能](#-核心功能)
 - [🏗️ 系统架构](#️-系统架构)
@@ -45,6 +46,7 @@
 - [🧪 测试与 CI](#-测试与-ci)
 - [☁️ 云端部署](#️-云端部署)
 - [📁 项目结构](#-项目结构)
+- [⚠️ 局限与边界](#️-局限与边界)
 - [🤝 参与贡献](#-参与贡献)
 - [📄 许可证](#-许可证)
 - [📮 联系方式](#-联系方式)
@@ -55,7 +57,16 @@
 
 **MetaNutri** 是一个基于 AI 的精准营养代谢数字孪生平台，通过整合**基因组学**、**微生物组学**和**代谢组学**数据，为用户提供个性化的营养建议和健康管理方案。
 
-通过利用先进的深度学习架构（**Transformer**、**GNN**、**VAE**）以及 SHAP/LIME 可解释性技术，MetaNutri 搭建了多组学研究与实用饮食指导之间的桥梁。
+本仓库**首先是一个全栈工程项目**：一个生产级别的 Next.js 前端、一个 FastAPI 后端与一个托管 PostgreSQL 数据库，端到端打通并部署在 Vercel / Render / Supabase 上。线上 API 提供的是**透明、确定性的规则化分析**；`backend/app/ml/` 下的 PyTorch 模型代码属于研究脚手架，**并未接入线上 API**。真实的数据训练模型在独立的研究模块中开发。
+
+### 📌 项目状态
+
+> **本仓库是一个工程演示项目，并配有一条独立的研究线。**
+>
+> - **线上实际运行的内容：** 认证、数据库 CRUD、食物检索、导入导出——以及血糖/营养估算所用的**确定性规则化启发式**。另有少数接口使用了随机数，仅供演示。
+> - **研究脚手架（非线上）：** `backend/app/ml/` 下的 PyTorch 模型代码**未用真实数据训练**，且在运行时**从不加载**。
+> - **真正的 AI 在哪里：** 一个自包含的研究模块——在**真实公开数据**上做餐后血糖响应预测，并采用严格的按受试者划分评估——**独立于本平台**开发与部署。见 [docs/ROADMAP.md](docs/ROADMAP.md)。
+> - **非医疗器械。** 本项目不构成任何医疗建议，切勿用于临床决策。
 
 ### 🎯 为什么选择 MetaNutri？
 
@@ -64,7 +75,7 @@
 | 🍎 通用饮食建议忽视个体生物差异 | 基于**你的**组学特征提供个性化推荐 |
 | 🧬 基因组数据晦涩难懂 | AI 将复杂数据转化为可执行的洞察 |
 | 📊 健康数据分散在不同 App | 统一面板整合基因组、微生物组、代谢组 |
-| 🤖 AI 推荐像"黑盒"一样难以理解 | SHAP/LIME 可解释性展示**为什么**给出这个建议 |
+| 🤖 AI 推荐像"黑盒"一样难以理解 | 透明的规则化评分展示**哪些因素**影响了这条建议 |
 | ⚠️ 被动式医疗模式 | 早期营养缺乏检测与健康风险预警 |
 
 ---
@@ -88,8 +99,8 @@
 | | 功能 | 描述 |
 |---|------|------|
 | 🧬 | **三重组学整合** | 基因组 + 微生物组 + 代谢组数据统一分析流程 |
-| 🤖 | **深度学习模型** | 代谢响应、基因-营养（GNN）与微生物组（VAE）的 PyTorch 模型代码——研究代码；线上 API 目前采用确定性启发式 |
-| 🔍 | **可解释 AI** | 每条建议都附带 SHAP 和 LIME 特征重要性分析 |
+| 🤖 | **代谢分析** | 确定性的规则化血糖与营养估算——天生透明。PyTorch 模型代码属于研究脚手架，未接入线上 API |
+| 🔍 | **透明评分** | 每条建议都展示其贡献因素（启发式贡献权重，并非 SHAP） |
 | 📊 | **交互式仪表盘** | 健康评分、身体指标与风险雷达卡片，由 ECharts 图表支撑 |
 | 🚨 | **健康预警** | 实时营养缺乏检测与健康风险评估 |
 | 🍎 | **食物与营养探索** | 可检索的食物数据库，并提供个性化食物评分 |
@@ -130,9 +141,9 @@
 │  │  认证  ││  用户  ││  饮食  ││  组学  ││  预测    │              │
 │  └────────┘└────────┘└────────┘└────────┘└──────────┘              │
 │  ┌────────┐┌──────────┐┌────────┐┌──────────────┐                  │
-│  │  预警  ││  数据集   ││  导入  ││  ML (PyTorch)│                  │
+│  │  预警  ││  数据集   ││  导入  ││  规则分析     │                  │
 │  └────────┘└──────────┘└────────┘└──────────────┘                  │
-│   SQLAlchemy 2.0 异步 ORM · SHAP / LIME · 可选 Redis 缓存             │
+│   SQLAlchemy 2.0 异步 ORM · 规则化分析 · 可选 Redis 缓存              │
 └──────────────────────────────────┬──────────────────────────────────┘
                                    │
                                    ▼
@@ -180,13 +191,13 @@
 
 | 技术 | 版本 | 用途 |
 |------|------|------|
-| [PyTorch](https://pytorch.org/) | 2.x | 深度学习框架 |
+| [PyTorch](https://pytorch.org/) | 2.x | 模型原型的研究脚手架（线上 API 不加载） |
 | [scipy](https://scipy.org/) | 1.14 | 科学 / 统计计算 |
-| [SHAP](https://shap.readthedocs.io/) | 0.46 | 模型可解释性 |
+| [SHAP](https://shap.readthedocs.io/) | 0.46 | 为研究线声明；线上 API 不运行 SHAP |
 | [NumPy](https://numpy.org/) | 1.26 | 数值计算 |
 | [Pandas](https://pandas.pydata.org/) | 2.2 | 数据处理 |
-| [scikit-learn](https://scikit-learn.org/) | 1.5 | 特征缩放与基线模型（SHAP 可解释性） |
-| [requests](https://docs.python-requests.org/) | 2.32 | HTTP 客户端（参考数据由本地生成，非下载） |
+| [scikit-learn](https://scikit-learn.org/) | 1.5 | 特征缩放与基线模型（研究脚手架） |
+| [requests](https://docs.python-requests.org/) | 2.32 | HTTP 客户端（内置参考数据由本地生成，非下载） |
 
 ---
 
@@ -267,7 +278,7 @@ Set-Cookie: metanutri_refresh=...; HttpOnly; SameSite=Lax
 2. **上传组学数据**：`POST /api/genomic/upload`、`/api/microbiome/upload`、`/api/metabolomics/upload`。
 3. **跑预测**：`POST /api/predict/glucose-response` 或 `GET /api/predict/risk-assessment`。
 4. **拿推荐/饮食计划**：`POST /api/recommendations/meal-plan`。
-5. **获取可解释性**：预测返回里含营养解读与 `feature_contributions`（SHAP）。
+5. **获取可解释性**：预测返回里含营养解读与 `feature_contributions`——启发式贡献权重，**并非** SHAP 值。
 
 ```bash
 BASE=https://metanutri-backend.onrender.com
@@ -287,12 +298,12 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
 
 | 模块 | 能力 |
 |------|------|
-| `ml/metabolic_response_model.py` | 血糖响应 / 营养吸收预测器 |
-| `ml/gene_nutrition_model.py` | 基因-营养关联（GNN） |
-| `ml/microbiome_vae.py` | 微生物组健康（VAE） |
-| `ml/explainability.py` | SHAP + 自定义 LIME 可解释性 |
-| `ml/train_models.py` | 模型训练脚本 |
-| `ml/weights/` | 预训练权重 |
+| `ml/metabolic_response_model.py` | 研究原型：血糖响应 / 营养吸收预测器（未接入线上 API） |
+| `ml/gene_nutrition_model.py` | 研究原型：基因-营养关联（GNN） |
+| `ml/microbiome_vae.py` | 研究原型：微生物组健康（VAE） |
+| `ml/explainability.py` | 研究原型：SHAP / LIME 封装（线上 API 返回的是启发式贡献权重） |
+| `ml/train_models.py` | 原型训练脚本（在合成张量上训练） |
+| `ml/weights/` | 在合成数据上训练的权重；运行时从不加载 |
 
 ---
 
@@ -373,13 +384,13 @@ MetaNutri---AI-/
 │   │   ├── db/
 │   │   │   └── session.py            # SQLAlchemy 异步引擎
 │   │   ├── ml/                       # 🧠 机器学习模型
-│   │   │   ├── metabolic_response_model.py   # Transformer 预测器
-│   │   │   ├── gene_nutrition_model.py       # GNN 基因-营养
-│   │   │   ├── microbiome_vae.py             # VAE 微生物健康
-│   │   │   ├── explainability.py             # SHAP / LIME 解释器
-│   │   │   ├── dataset_downloader.py         # 参考数据集获取器
-│   │   │   ├── train_models.py               # 训练脚本
-│   │   │   └── weights/                      # 预训练模型权重
+│   │   │   ├── metabolic_response_model.py   # 研究原型（未接入线上 API）
+│   │   │   ├── gene_nutrition_model.py       # 研究原型（GNN）
+│   │   │   ├── microbiome_vae.py             # 研究原型（VAE）
+│   │   │   ├── explainability.py             # 研究原型解释器
+│   │   │   ├── dataset_downloader.py         # 生成内置样例数据（不做网络请求）
+│   │   │   ├── train_models.py               # 原型训练脚本（合成数据）
+│   │   │   └── weights/                      # 在合成数据上训练的权重（运行时未使用）
 │   │   ├── models/                   # SQLAlchemy ORM 模型
 │   │   ├── schemas/                  # Pydantic 请求 / 响应 Schema
 │   │   ├── services/                 # 业务逻辑（种子数据、导入 / 导出）
@@ -474,6 +485,17 @@ MetaNutri---AI-/
 ├── README.md                         # 英文版（默认展示）
 └── README.zh-CN.md                   # 👈 中文版
 ```
+
+---
+
+## ⚠️ 局限与边界
+
+本项目面向**演示与作品集用途**。为保持诚实，以下是它**是**什么、**不是**什么：
+
+- **内置数据集是精选样例，并非完整的第三方数据。** `backend/data/` 下的文件都是人工整理的小型参考集。数据集"下载"接口只是（重新）生成这些本地样例文件——**不会**从 USDA / KEGG / HMP 抓取。天池客户端返回的是**模拟的占位清单**。
+- **预测是启发式，并非临床模型。** 血糖、营养吸收与风险输出来自确定性规则（少数接口还掺入随机值），**仅供演示**，**不得**用于任何医疗决策。
+- **模型权重未被使用。** `backend/app/ml/weights/` 下的 `.pt` 文件是在合成随机张量上训练的，运行中的 API 从不加载它们。
+- **真正的 AI 在别处。** 严肃的、经数据训练的模型在独立的研究模块中、基于真实公开数据集开发——见 [docs/ROADMAP.md](docs/ROADMAP.md)。
 
 ---
 
