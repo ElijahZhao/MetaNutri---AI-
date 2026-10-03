@@ -17,8 +17,16 @@ from __future__ import annotations
 import os
 import re
 
-import markdown
-from weasyprint import HTML
+# Pin the build timestamp so the PDF is byte-for-byte reproducible. Without
+# this, both WeasyPrint (document date) and fontTools/FreeType (the subset
+# font's ``head.modified`` field) stamp the current wall-clock time, so every
+# regeneration produces a content-identical but byte-different PDF — a dirty
+# diff for anyone who re-runs the pipeline. Honours a caller-provided
+# SOURCE_DATE_EPOCH; defaults to 2024-01-01T00:00:00Z.
+os.environ.setdefault("SOURCE_DATE_EPOCH", "1704067200")
+
+import markdown  # noqa: E402  (must follow the SOURCE_DATE_EPOCH pin above)
+from weasyprint import HTML  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPORT_DIR = os.path.abspath(os.path.join(HERE, "..", "reports"))
