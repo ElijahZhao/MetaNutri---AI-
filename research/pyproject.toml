@@ -1,0 +1,19 @@
+# Test and coverage configuration for the research module.
+# Lint configuration lives in ruff.toml; dependencies in requirements*.txt.
+
+[tool.pytest.ini_options]
+testpaths = ["app"]
+# app.py does `from inference import ...`, so app/ must be importable.
+pythonpath = ["app"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/tests/*", "app/test_app.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+# Current coverage of app/ is ~95%; gate a little below so real regressions fail
+# without the threshold being brittle.
+fail_under = 90
