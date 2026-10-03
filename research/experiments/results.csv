@@ -1,0 +1,25 @@
+subset,model,target,n,pearson_r,p_value,spearman_r,r2,rmse,mae
+breakfast (official replication),mean,iauc,423,-0.8204,3.11e-104,-0.8007,-0.0315,3474.029,2700.274
+breakfast (official replication),carb-only linear,iauc,423,0.1073,0.0274,-0.3057,0.0041,3413.623,2648.724
+breakfast (official replication),energy-only linear,iauc,423,0.2554,1e-07,0.1685,0.062,3312.851,2535.297
+breakfast (official replication),xgboost (official baseline),iauc,423,0.6545,4.38e-53,0.7148,0.427,2589.203,1844.446
+breakfast (official replication),mean,auc,423,-0.924,7.22e-178,-0.9313,-0.0391,6318.048,4947.761
+breakfast (official replication),carb-only linear,auc,423,-0.0144,0.769,-0.4267,-0.022,6265.769,4923.672
+breakfast (official replication),energy-only linear,auc,423,0.0996,0.0406,-0.0093,-0.0006,6199.752,4866.272
+breakfast (official replication),xgboost (official baseline),auc,423,0.8896,2.29e-145,0.9137,0.7865,2864.175,2049.93
+breakfast (official replication),mean,peak_rise,423,-0.8263,5.33e-107,-0.8093,-0.0318,42.914,34.359
+breakfast (official replication),carb-only linear,peak_rise,423,0.0789,0.105,-0.3357,-0.003,42.312,33.743
+breakfast (official replication),energy-only linear,peak_rise,423,0.2469,2.72e-07,0.1264,0.0575,41.015,32.626
+breakfast (official replication),xgboost (official baseline),peak_rise,423,0.6315,1.87e-48,0.6584,0.3915,32.955,24.852
+all meals (extension),mean,iauc,1557,-0.5527,2.89e-125,-0.5148,-0.0142,2734.97,2052.223
+all meals (extension),carb-only linear,iauc,1557,0.1473,5.21e-09,0.2333,0.0178,2691.542,2000.444
+all meals (extension),energy-only linear,iauc,1557,0.1428,1.51e-08,0.2602,0.0142,2696.512,2000.842
+all meals (extension),xgboost (official baseline),iauc,1557,0.4505,1.11e-78,0.4779,0.1986,2431.167,1770.858
+all meals (extension),mean,auc,1557,-0.7802,3.7e-319,-0.7867,-0.0273,4958.56,3733.341
+all meals (extension),carb-only linear,auc,1557,-0.0316,0.212,-0.0327,-0.0192,4938.957,3713.765
+all meals (extension),energy-only linear,auc,1557,-0.0354,0.163,-0.0198,-0.0225,4946.725,3717.985
+all meals (extension),xgboost (official baseline),auc,1557,0.8382,0.0,0.8363,0.6995,2681.671,1962.255
+all meals (extension),mean,peak_rise,1557,-0.5519,7.56e-125,-0.523,-0.0144,35.18,26.646
+all meals (extension),carb-only linear,peak_rise,1557,0.1501,2.62e-09,0.2394,0.0184,34.606,26.006
+all meals (extension),energy-only linear,peak_rise,1557,0.1455,8.02e-09,0.2679,0.0145,34.674,26.009
+all meals (extension),xgboost (official baseline),peak_rise,1557,0.5418,1.61e-119,0.5375,0.2926,29.377,21.869
