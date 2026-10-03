@@ -569,7 +569,8 @@ MetaNutri---AI-/
 │   ├── ARCHITECTURE.md               # Architecture & design decisions
 │   ├── ROADMAP.md                    # Roadmap & decision history
 │   ├── APPLICATION-SUMMARY.md        # One-page project summary
-│   └── AUDIT-FINDINGS.md             # Repository audit log
+│   ├── AUDIT-FINDINGS.md             # Repository audit log
+│   └── TODO.md                       # Pending manual GitHub settings
 │
 ├── .github/                          # GitHub config
 │   ├── workflows/                    # CI & keep-alive workflows
