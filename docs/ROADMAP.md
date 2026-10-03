@@ -4,7 +4,9 @@
 >
 > 状态：**P0–P3 已完成**。P3 Demo 已部署至 Streamlit Community Cloud（`ElijahZhao/ppgr-predictor`），并在页面上提供只读的**外部验证面板**；BIG IDEAs 外部验证（stretch goal）已完成；**P4 回接平台已决定不做**。P0 为文案级诚实化，不涉及任何逻辑改动。
 >
-> 尚存未收口项（均不影响 P0–P3 的交付）：公开仓库前的 **CSRF 防护核查**（§1.4）、技术报告 **PDF 导出**（P2 交付物注明 Markdown/PDF）。
+> 遗留项状态：CSRF 专项核查 ✅ 已完成（无阻断项，1 处配置隐患已记入 `AUDIT-FINDINGS.md` 第六节）；技术报告 PDF ✅ 已导出；`.deploy` 误当子模块、遗留 `ppgr-predictor-space.zip` 两处版本库卫生问题 ✅ 已修复。
+>
+> 两仓库关系（本仓库 ↔ `ElijahZhao/ppgr-predictor`）见两份 README 的 "Related Repositories" 章节。
 >
 > 最后更新：2026-10-03
 
@@ -70,7 +72,7 @@
 - JWT：access token 默认 15 分钟过期；`decode_token` 校验 `type` 与 `sub`，防 token 类型混淆
 - Cookie：`httponly=True`，`secure` / `samesite` 由配置控制
 - token 同时写入 Redis 并做一致性校验
-- CSRF 防护是否存在：**未取证确认**，公开仓库前建议单独核
+- CSRF 防护：**已专项取证（2026-10-03，见 `docs/AUDIT-FINDINGS.md` 第六节）。结论：防护充分，无阻断项。** 要点：认证确实由 Cookie 承载（故 CSRF 是真问题）→ 主防线是 `COOKIE_SAMESITE=lax`（默认）+ 前端同源代理（无需放宽）→ 关键前提是**20 条 GET 全部只读**（28 处写调用全在 POST/PUT/DELETE 内），Lax 不会被"顶级 GET 导航"绕过。**唯一隐患**：`COOKIE_SAMESITE=none` 会一次性移除全部 CSRF 防护且无 token 兜底，叠加 `allow_origin_regex` 放行全部 `*.vercel.app` 即为可利用；当前默认未触发，按 §0 冻结约束不改代码，已记入交接。
 
 ### 1.5 第 11 轮增量发现（2026-10-03）
 

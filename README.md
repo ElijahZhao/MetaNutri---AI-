@@ -37,6 +37,7 @@
 
 - [About the Project](#-about-the-project)
 - [📌 Project Status](#-project-status)
+- [🧩 Related Repositories](#-related-repositories)
 - [📸 Screenshots](#-screenshots)
 - [✨ Key Features](#-key-features)
 - [🏗️ Architecture](#️-architecture)
@@ -77,6 +78,29 @@ This repository is primarily a **full-stack engineering project**: a production-
 | 📊 Scattered health data across apps | Unified dashboard for genomics, microbiome, metabolomics |
 | 🤖 "Black box" AI recommendations | Transparent rule-based scoring shows *which* factors drive each suggestion |
 | ⚠️ Reactive healthcare | Early nutritional deficiency detection and risk alerts |
+
+---
+
+## 🧩 Related Repositories
+
+This project spans **two independent GitHub repositories**. They are deliberately **not** linked by git — no submodule, no subtree, no `.gitmodules`. The coupling is by **provenance**, not by tooling.
+
+| | **This repository** | **[`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)** |
+|---|---|---|
+| **What it is** | The whole project: the full-stack platform (`backend/`, `frontend/`) **and** the research module (`research/`) | The **deployment** of the research module's demo — a self-contained Streamlit app |
+| **Live** | <https://meta-nutri-ai.vercel.app> | <https://metanutri-ai-ppgr-predictor.streamlit.app> |
+| **Size** | ~17 MB | ~690 KB |
+| **Role** | Source of truth | Curated, read-only copy |
+
+**Flow is one way: this repository → `ppgr-predictor`.** Nothing flows back. The demo repo holds a *curated subset* — `app.py`, `inference.py`, `model/*.json`, `assets/`, `src/`, `reports/`, `experiments/` — and imports nothing from the platform.
+
+**The rule that keeps them consistent.** `research/` here is the source of truth. Every number in the demo repo (and in its README) is generated from `research/experiments/*.csv` and must match the [technical report](research/reports/technical_report.md). The demo repo is **never edited independently**; if the two ever disagree, this repository wins and the demo is regenerated.
+
+**Why not link them as a submodule.** Streamlit Community Cloud builds the **repository root** of whichever repo you point it at and expects `app.py` + `requirements.txt` there. Pointing it at this repository would mean either dragging the whole platform into that build, or relying on a subdirectory entrypoint the free tier does not let you choose. A submodule would add a second checkout step and a new failure mode to that build without removing the need for the curated subset anyway. Different consumers, different runtimes, different size budgets — two repositories is the correct design.
+
+**Do they interact at runtime? No.** There is no API call, no shared package and no data exchange between them. The demo is standalone: it loads exported JSON boosters and predicts locally.
+
+> `ppgr-predictor` is kept working locally at `.deploy/ppgr-predictor/` as an **untracked** mirror (see `.gitignore`). That mirror is a convenience for pushing; it is not part of this repository.
 
 ---
 

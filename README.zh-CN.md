@@ -37,6 +37,7 @@
 
 - [项目简介](#-项目简介)
 - [📌 项目状态](#-项目状态)
+- [🧩 两仓库关系](#-两仓库关系)
 - [📸 截图展示](#-截图展示)
 - [✨ 核心功能](#-核心功能)
 - [🏗️ 系统架构](#️-系统架构)
@@ -77,6 +78,29 @@
 | 📊 健康数据分散在不同 App | 统一面板整合基因组、微生物组、代谢组 |
 | 🤖 AI 推荐像"黑盒"一样难以理解 | 透明的规则化评分展示**哪些因素**影响了这条建议 |
 | ⚠️ 被动式医疗模式 | 早期营养缺乏检测与健康风险预警 |
+
+---
+
+## 🧩 两仓库关系
+
+本项目横跨**两个互相独立的 GitHub 仓库**。二者**刻意不做 git 层面的绑定**——没有 submodule、没有 subtree、没有 `.gitmodules`。它们之间的耦合靠**溯源关系**，而不是靠工具链。
+
+| | **本仓库** | **[`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)** |
+|---|---|---|
+| **它是什么** | 完整项目：全栈平台（`backend/`、`frontend/`）**以及**研究模块（`research/`） | 研究模块 Demo 的**部署产物**——一个自包含的 Streamlit 应用 |
+| **线上地址** | <https://meta-nutri-ai.vercel.app> | <https://metanutri-ai-ppgr-predictor.streamlit.app> |
+| **体积** | 约 17 MB | 约 690 KB |
+| **角色** | 唯一事实来源（source of truth） | 筛选后的只读副本 |
+
+**流向是单向的：本仓库 → `ppgr-predictor`。** 没有任何东西反向流动。部署仓库只包含一个*筛选后的子集*——`app.py`、`inference.py`、`model/*.json`、`assets/`、`src/`、`reports/`、`experiments/`——并且**不 import 平台侧的任何代码**。
+
+**保证二者一致的那条规则。** 本仓库的 `research/` 是唯一事实来源。部署仓库（及其 README）里的每一个数字，都由 `research/experiments/*.csv` 生成，且必须与[技术报告](research/reports/technical_report.md)一致。部署仓库**永不单独修改**；一旦两边出现分歧，以本仓库为准，重新生成部署仓库。
+
+**为什么不把它们用 submodule 绑起来。** Streamlit Community Cloud 构建的是你指定仓库的**仓库根目录**，并要求 `app.py` + `requirements.txt` 就在根目录。若直接指向本仓库，要么把整个平台拖进那次构建，要么依赖一个免费档不允许你指定的子目录入口。而用 submodule 会给那次构建增加一次额外 checkout 和一个新的失败点，同时还**不能**免除"需要筛选子集"这件事。消费方不同、运行时不同、体积预算不同——两个仓库才是正确设计。
+
+**它们在运行时需要互相调用吗？不需要。** 两者之间没有任何 API 调用、没有共享包、没有数据交换。Demo 是完全自包含的：它加载导出的 JSON 模型文件，在本地完成预测。
+
+> `ppgr-predictor` 在本地以 `.deploy/ppgr-predictor/` 的形式保留一份**未被 git 跟踪**的镜像（见 `.gitignore`）。那份镜像只是为了推送方便，**不属于**本仓库。
 
 ---
 
