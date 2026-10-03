@@ -6,6 +6,8 @@
 >
 > 遗留项状态：CSRF 专项核查 ✅ 已完成（无阻断项，1 处配置隐患已记入 `AUDIT-FINDINGS.md` 第六节）；技术报告 PDF ✅ 已导出；`.deploy` 误当子模块、遗留 `ppgr-predictor-space.zip` 两处版本库卫生问题 ✅ 已修复。
 >
+> 评估强化（2026-10-03）：技术报告新增 §4.5，把汇总相关系数拆成**个体内 / 个体间**两部分，并补上**中位数二分 ROC-AUC**；结论：AUC 的高相关主要来自"认出谁反应更高"，iAUC 才更接近真实的餐次信号。对应代码 `research/src/evaluate.py`、图 6、`experiments/results.csv`。
+>
 > 两仓库关系（本仓库 ↔ `ElijahZhao/ppgr-predictor`）见两份 README 的 "Related Repositories" 章节。
 >
 > 最后更新：2026-10-03
