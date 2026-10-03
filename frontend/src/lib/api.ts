@@ -6,7 +6,6 @@ import type {
   DatasetList,
   DatasetStats,
   DeficiencyReport,
-  Food,
   FoodScore,
   FoodScoreRequest,
   FoodSearchResult,
@@ -26,11 +25,9 @@ import type {
   MicrobiomeEntryInput,
   NutrientAbsorptionPrediction,
   NutrientAbsorptionRequest,
-  NutritionSummary,
   Recommendation,
   RegisterPayload,
   RiskAssessment,
-  TianchiDataset,
   TianchiDatasetList,
   User,
   UserProfile,
@@ -216,7 +213,6 @@ export const userAPI = {
 export const foodAPI = {
   search: (q: string, params: Record<string, unknown> = {}) =>
     api.get<FoodSearchResult>('/api/foods/search', { params: { q, ...params } }),
-  getById: (id: string) => api.get<Food>(`/api/foods/${id}`),
 };
 
 export const genomicAPI = {
@@ -258,43 +254,14 @@ export const predictAPI = {
 
 export const datasetAPI = {
   list: () => api.get<DatasetList>('/api/datasets'),
-  // The backend returns `{ categories: { <name>: [{ id, name, description }] } }`,
-  // not a flat array of `{ category, count }` as this was typed before.
-  categories: () =>
-    api.get<{ categories: Record<string, Array<{ id: string; name: string; description: string }>> }>(
-      '/api/datasets/categories'
-    ),
   download: (datasetId: string) =>
     api.post<{ message: string }>(`/api/datasets/download/${datasetId}`),
   downloadAll: () => api.post<{ message: string }>('/api/datasets/download'),
   import: (datasetId: string) => api.post<{ message: string }>(`/api/datasets/import/${datasetId}`),
   stats: () => api.get<DatasetStats>('/api/datasets/stats'),
   tianchiList: () => api.get<TianchiDatasetList>('/api/datasets/tianchi'),
-  // Wrapped in an envelope (`{ results, count }`), not a bare array.
-  tianchiSearch: (keyword: string, category?: string) =>
-    api.get<{ results: TianchiDataset[]; count: number }>('/api/datasets/tianchi/search', {
-      params: { keyword, category },
-    }),
-  // Detail payload (files/license/version/...) differs from the list item shape.
-  tianchiDetail: (datasetId: string) =>
-    api.get<Record<string, unknown>>(`/api/datasets/tianchi/${datasetId}`),
 };
 
 export const nutritionAlertAPI = {
   getDeficiencies: () => api.get<DeficiencyReport>('/api/nutrition-alerts/deficiencies'),
-  getSummary: () => api.get<NutritionSummary>('/api/nutrition-alerts/summary'),
-};
-
-export const importExportAPI = {
-  importData: (dataType: string, file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return api.post<{ message: string }>(`/api/import-export/import/${dataType}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      timeout: 60000,
-    });
-  },
-  exportData: (dataType: string, format = 'json') =>
-    api.get<unknown>(`/api/import-export/export/${dataType}?format=${format}`),
-  getTemplate: (dataType: string) => api.get<unknown>(`/api/import-export/templates/${dataType}`),
 };

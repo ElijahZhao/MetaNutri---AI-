@@ -1,4 +1,4 @@
-import type { AxiosError, AxiosResponse } from 'axios';
+import type { AxiosError } from 'axios';
 
 /**
  * FastAPI returns `detail` as a string for explicit HTTPExceptions but as an
@@ -19,6 +19,3 @@ export type ApiErrorLike = AxiosError<{ detail?: ApiErrorDetail; message?: strin
   isNetworkError?: boolean;
   isTimeout?: boolean;
 };
-
-/** Convenience alias for the resolved `data` of an axios call. */
-export type ApiResult<T> = AxiosResponse<T>;

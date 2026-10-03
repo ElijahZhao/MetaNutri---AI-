@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { recommendationAPI } from '@/lib/api';
+import { useLanguage } from '@/lib/i18n';
 import { Utensils, Check, RefreshCw, Loader2 } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 import { toast } from 'react-hot-toast';
@@ -14,6 +15,7 @@ interface PlanItem {
 }
 
 export default function MealPlanPage() {
+  const { t } = useLanguage();
   const [plan, setPlan] = useState<Recommendation | null>(null);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
@@ -41,7 +43,7 @@ export default function MealPlanPage() {
       setPlan(res.data);
       setSelected([]);
     } catch (err) {
-      toast.error((err as ApiErrorLike).userMessage || 'Failed to generate meal plan');
+      toast.error((err as ApiErrorLike).userMessage || t.mealPlan.generateFailed);
     } finally {
       setLoading(false);
     }
@@ -54,8 +56,20 @@ export default function MealPlanPage() {
     target > 0 ? Math.min(100, Math.round((value / target) * 100)) : 0;
 
   const totals = [
-    { label: 'Calories', value: totalCalories, target: calorieTarget, unit: 'kcal', bar: 'bg-red-500' },
-    { label: 'Protein', value: totalProtein, target: proteinTarget, unit: 'g', bar: 'bg-blue-500' },
+    {
+      label: t.mealPlan.calories,
+      value: totalCalories,
+      target: calorieTarget,
+      unit: 'kcal',
+      bar: 'bg-red-500',
+    },
+    {
+      label: t.mealPlan.protein,
+      value: totalProtein,
+      target: proteinTarget,
+      unit: 'g',
+      bar: 'bg-blue-500',
+    },
   ];
 
   return (
@@ -64,8 +78,8 @@ export default function MealPlanPage() {
         <ScrollReveal>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Meal Plan</h1>
-              <p className="text-slate-600">Personalized dietary recommendations</p>
+              <h1 className="text-2xl font-bold text-slate-900">{t.mealPlan.title}</h1>
+              <p className="text-slate-600">{t.mealPlan.subtitle}</p>
             </div>
             <button
               onClick={generateMealPlan}
@@ -77,7 +91,7 @@ export default function MealPlanPage() {
               ) : (
                 <RefreshCw className="w-5 h-5" />
               )}
-              {loading ? 'Generating...' : 'Generate Plan'}
+              {loading ? t.mealPlan.generating : t.mealPlan.generate}
             </button>
           </div>
         </ScrollReveal>
@@ -92,11 +106,11 @@ export default function MealPlanPage() {
                       <Utensils className="w-5 h-5" />
                     </div>
                     <div>
-                      <h2 className="font-semibold">Recommended Foods</h2>
+                      <h2 className="font-semibold">{t.mealPlan.recommendedFoods}</h2>
                       <p className="text-sm text-indigo-100">
                         {items.length > 0
-                          ? `${items.length} items selected for your plan`
-                          : 'Lower-GI foods picked for your calorie target'}
+                          ? `${items.length} ${t.mealPlan.itemsSelected}`
+                          : t.mealPlan.planHint}
                       </p>
                     </div>
                   </div>
@@ -145,7 +159,7 @@ export default function MealPlanPage() {
                                 <p className="font-bold text-slate-700">
                                   {food.protein ? Math.round(food.protein) : '--'}
                                 </p>
-                                <p className="text-slate-500">g protein</p>
+                                <p className="text-slate-500">g</p>
                               </div>
                             </div>
                           </div>
@@ -155,7 +169,7 @@ export default function MealPlanPage() {
                   ) : (
                     <div className="text-center py-12 text-slate-500">
                       <Utensils className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                      <p>Click "Generate Plan" to get personalized recommendations</p>
+                      <p>{t.mealPlan.emptyHint}</p>
                     </div>
                   )}
                 </div>
@@ -164,7 +178,7 @@ export default function MealPlanPage() {
 
             <div className="space-y-6">
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                <h3 className="font-semibold text-slate-900 mb-4">Today's Totals</h3>
+                <h3 className="font-semibold text-slate-900 mb-4">{t.mealPlan.todaysTotals}</h3>
                 {plan ? (
                   <div className="space-y-4">
                     {totals.map((item) => (
@@ -186,9 +200,7 @@ export default function MealPlanPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500">
-                    Generate a plan to see your totals against the targets.
-                  </p>
+                  <p className="text-sm text-slate-500">{t.mealPlan.totalsEmpty}</p>
                 )}
               </div>
 
@@ -198,23 +210,23 @@ export default function MealPlanPage() {
                     <Check className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">Meal Summary</h3>
-                    <p className="text-sm text-emerald-100">Based on the generated plan</p>
+                    <h3 className="font-semibold">{t.mealPlan.mealSummary}</h3>
+                    <p className="text-sm text-emerald-100">{t.mealPlan.summarySubtitle}</p>
                   </div>
                 </div>
                 <div className="space-y-2 text-sm">
                   <p className="flex justify-between">
-                    <span>Selected Items</span>
+                    <span>{t.mealPlan.selectedItems}</span>
                     <span className="font-bold">
                       {selected.length}/{items.length}
                     </span>
                   </p>
                   <p className="flex justify-between">
-                    <span>Total Calories</span>
+                    <span>{t.mealPlan.totalCalories}</span>
                     <span className="font-bold">{Math.round(totalCalories)} kcal</span>
                   </p>
                   <p className="flex justify-between">
-                    <span>Total Protein</span>
+                    <span>{t.mealPlan.totalProtein}</span>
                     <span className="font-bold">{Math.round(totalProtein)} g</span>
                   </p>
                 </div>
