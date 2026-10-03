@@ -2,11 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from typing import List, Optional
 from datetime import datetime
-import json
 import csv
-from io import StringIO, BytesIO
+from io import StringIO
 
 from app.db.session import get_db
 from app.core.security import get_current_active_user
@@ -14,8 +12,7 @@ from app.models.user import User
 from app.models.genomic import GenomicData
 from app.models.microbiome import MicrobiomeData
 from app.models.metabolomics import MetabolomicsData
-from app.models.food import FoodNutrition
-from app.services.data_import_export import DataExporter, DataImporter, validate_data
+from app.services.data_import_export import DataImporter
 
 router = APIRouter(prefix="/api/import-export", tags=["import-export"])
 

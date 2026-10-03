@@ -1,5 +1,4 @@
 import asyncio
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.session import AsyncSessionLocal
 from app.models.food import FoodNutrition

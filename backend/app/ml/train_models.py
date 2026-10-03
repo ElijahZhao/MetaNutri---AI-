@@ -6,7 +6,6 @@ For demonstration, it creates synthetic data and trains the model architectures.
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
 import os
 from app.ml.metabolic_response_model import MetabolicResponseModel
 from app.ml.gene_nutrition_model import GeneNutritionGNN

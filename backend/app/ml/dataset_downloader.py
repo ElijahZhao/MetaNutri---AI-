@@ -4,15 +4,10 @@ Sources: USDA Food Database, KEGG Pathways, Human Microbiome Project, etc.
 Supports: Direct downloads, API access, and TianChi integration
 """
 import json
-import csv
-import io
 import re
 import requests
-import zipfile
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-from datetime import datetime
-from urllib.parse import urljoin
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -92,7 +87,7 @@ class DatasetDownloader:
     def download_usda_food_database() -> str:
         usda_json_path = DATA_DIR / "usda_food_database.json"
         if usda_json_path.exists():
-            print(f"✅ USDA food data already downloaded")
+            print("✅ USDA food data already downloaded")
             return str(usda_json_path)
 
         print("📥 Creating comprehensive USDA food database...")
@@ -188,7 +183,7 @@ class DatasetDownloader:
     def download_kegg_pathways() -> str:
         pathways_path = DATA_DIR / "kegg_pathways.json"
         if pathways_path.exists():
-            print(f"✅ KEGG pathways already downloaded")
+            print("✅ KEGG pathways already downloaded")
             return str(pathways_path)
 
         print("📥 Downloading KEGG pathway data...")
@@ -212,7 +207,7 @@ class DatasetDownloader:
     def download_human_microbiome_reference() -> str:
         microbiome_path = DATA_DIR / "hmp_reference.json"
         if microbiome_path.exists():
-            print(f"✅ HMP reference already downloaded")
+            print("✅ HMP reference already downloaded")
             return str(microbiome_path)
 
         print("📥 Creating HMP reference dataset...")
@@ -249,7 +244,7 @@ class DatasetDownloader:
     def download_metabolomics_reference() -> str:
         metabolomics_path = DATA_DIR / "metabolomics_reference.json"
         if metabolomics_path.exists():
-            print(f"✅ Metabolomics reference already downloaded")
+            print("✅ Metabolomics reference already downloaded")
             return str(metabolomics_path)
 
         print("📥 Creating metabolomics reference dataset...")
@@ -294,7 +289,7 @@ class DatasetDownloader:
     def download_gene_nutrition_interactions() -> str:
         gene_path = DATA_DIR / "gene_nutrition_interactions.json"
         if gene_path.exists():
-            print(f"✅ Gene-nutrition data already downloaded")
+            print("✅ Gene-nutrition data already downloaded")
             return str(gene_path)
 
         print("📥 Creating gene-nutrition interaction dataset...")
@@ -322,7 +317,7 @@ class DatasetDownloader:
     def download_microbiome_samples() -> str:
         microbiome_samples_path = DATA_DIR / "microbiome_samples.json"
         if microbiome_samples_path.exists():
-            print(f"✅ Microbiome samples already downloaded")
+            print("✅ Microbiome samples already downloaded")
             return str(microbiome_samples_path)
 
         print("📥 Creating microbiome sample datasets...")
@@ -380,7 +375,7 @@ class DatasetDownloader:
     def download_dietary_guidelines() -> str:
         guidelines_path = DATA_DIR / "dietary_guidelines.json"
         if guidelines_path.exists():
-            print(f"✅ Dietary guidelines already downloaded")
+            print("✅ Dietary guidelines already downloaded")
             return str(guidelines_path)
 
         print("📥 Creating dietary guidelines dataset...")
@@ -435,7 +430,7 @@ class DatasetDownloader:
     def download_disease_markers() -> str:
         markers_path = DATA_DIR / "disease_markers.json"
         if markers_path.exists():
-            print(f"✅ Disease markers already downloaded")
+            print("✅ Disease markers already downloaded")
             return str(markers_path)
 
         print("📥 Creating disease biomarkers dataset...")

@@ -507,4 +507,23 @@
 
 ---
 
+## 九、第十六轮审查（2026-10-03 · 前端 API 契约 / 死代码二次清理）
+
+**范围**：再次全量筛查前端 `src/`、后端 `app/`、依赖与构建。**结论：发现 2 处用户可见的功能性缺陷（均为请求体字段与后端契约不符导致 422），1 组死导入、1 组类型契约错误；均已按最小改动修复，未新增功能。**
+
+| # | 严重度 | 问题 | 证据（改动前） | 处置 |
+|---|--------|------|----------------|------|
+| P1 | 高 | **修改密码 / 重置密码接口不可用**：前端请求体用 camelCase（`oldPassword`/`newPassword`），后端 pydantic 模型为 snake_case（`old_password`/`new_password`）。pydantic v2 对缺失的必填字段直接 422，故两个接口**每次调用都失败** | `frontend/src/lib/api.ts`（`changePassword`/`resetPassword`）vs `backend/app/schemas/user.py:48-56` | 前端改为 `old_password`/`new_password`（已用 pydantic 复核：camelCase 必失败、snake_case 通过；`npm run build` 通过） |
+| P2 | 高 | **个人资料无法保存**：表单把 `dietary_goals`/`dietary_restrictions` 作为**字符串数组**提交，而后端 schema 为 `Optional[dict]`、DB 为 JSONB `'{}'`（字典）。pydantic 对「list 给 dict 字段」直接 422 → **任何一次保存都失败**；反向读取时把字典当数组 `.includes()` 还会抛异常 | `frontend/src/app/(app)/profile/content.tsx` vs `backend/app/schemas/user.py:58-69`、`models/profile.py:17-18`、`schema.sql:34-35` | 前端在回填/提交处做 dict↔array 转换（`selectedKeys` / `flagsFromKeys`），与既有 schema 一致 |
+| P3 | 低 | 后端 47 处未使用导入（F401）、8 处无占位符 f-string（F541）、1 处未使用局部变量（F841，`predict.py` 的 `n = len(foods)`） | `ruff check app --select F` | 全部清除；`ruff check app --select F` 已 **All checks passed** |
+| P4 | 低 | 前端 `datasetAPI` 三个**未被调用**的方法返回类型与后端不符：`categories`（后端返回 `{categories:{...}}`，原标注为数组）、`tianchiSearch`（后端返回 `{results,count}` 信封，原标注为数组）、`tianchiDetail`（返回含 files/license 的详情对象，原标注为 `Dataset`） | `frontend/src/lib/api.ts` vs `backend/app/api/datasets.py` | 修正类型标注（仅类型层，无行为变化） |
+
+**未处置（记录待议，不属本轮修缮范围）**：
+- `/meal-plan` 页面把 `recommendationAPI.mealPlan()` 的返回值（一条含扁平 `food_items` 的记录）强转为按 `breakfast/lunch/dinner/snack` 分组的对象，因此**生成后不会渲染任何菜品**；且该页图表/合计值为静态演示数据，页面亦未出现在导航栏。修复需重设计该页的数据映射，属「扩展」范畴，留待后续。
+- `/api/datasets/import/{id}` 仅支持 `usda`/`sample`/`hmp`/`metabolomics`/`microbiome_samples`，但数据集页对全部 `available` 条目都显示「导入」，其余 4 个（kegg / gene_nutrition / dietary_guidelines / disease_markers）会返回 404；新增导入分支属新增功能，未做。
+
+**验证**：后端 `python -m compileall -q app` 通过、`ruff check app --select F` 通过；前端 `npm run typecheck`、`npm run lint`（0 error）、`npm test`（12 passed）、`npm run build`（20 条静态路由全部生成）均通过。
+
+---
+
 > 备注：本文档仅为审查记录，上述事项处理完毕后可一并删除，避免成为新的过时文件。

@@ -2,7 +2,7 @@ import csv
 import json
 import pandas as pd
 from io import StringIO, BytesIO
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from datetime import datetime
 
 class DataExporter:
