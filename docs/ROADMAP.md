@@ -2,7 +2,9 @@
 
 > 目的：把 MetaNutri 从"工程成熟、AI 空缺"的作品集，升级为**工程 + 真实 AI 研究**双叙事，用于 AI / AI+交叉 方向硕士申请。
 >
-> 状态：**P0–P2 已完成；P3 demo 已部署至 Streamlit Community Cloud（`ElijahZhao/ppgr-predictor`）；外部验证（BIG IDEAs stretch goal）已完成；P4 回接平台已决定不做**。P0 为文案级诚实化，不涉及任何逻辑改动。
+> 状态：**P0–P3 已完成**。P3 Demo 已部署至 Streamlit Community Cloud（`ElijahZhao/ppgr-predictor`），并在页面上提供只读的**外部验证面板**；BIG IDEAs 外部验证（stretch goal）已完成；**P4 回接平台已决定不做**。P0 为文案级诚实化，不涉及任何逻辑改动。
+>
+> 尚存未收口项（均不影响 P0–P3 的交付）：公开仓库前的 **CSRF 防护核查**（§1.4）、技术报告 **PDF 导出**（P2 交付物注明 Markdown/PDF）。
 >
 > 最后更新：2026-10-03
 
@@ -212,7 +214,7 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 | **P0 · 诚实化止血** ✅ | 修正 README / README.zh-CN / docs 的 AI 措辞；新增 `Project Status` 与 `Limitations` 区块；i18n 六处文案降级；数据集接口标注为演示占位 | 诚实、专业的现状表述 | 文档中不再出现"线上运行深度学习 / SHAP / LIME"的暗示 |
 | **P1 · 研究管线**（核心） ✅ | 下载 CGMacros → 清洗（餐-CGM 对齐、iAUC 计算）→ EDA → LOPO 划分 → 三基线 → 树模型 → 评估 | `research/` 可复现管线 + 结果表与图 | 一条命令重训；固定种子；结果可复现 |
 | **P2 · 技术报告** ✅ | Problem → Data → Method → Results（对比三基线）→ Limitations → Future Work | 技术报告（Markdown/PDF） | 可直接作为写作样本提交 |
-| **P3 · 交互 Demo** 🔄 | Streamlit（**Streamlit Community Cloud**）：输入餐食 + 画像 → 输出三个标量预测 + 示意曲线 + **真实 TreeSHAP** 解释 | 公开可点链接 | 加载训练好的模型；解释为精确 TreeSHAP（XGBoost `pred_contribs`，与 `shap.TreeExplainer` 同算法），非比例摊派 |
+| **P3 · 交互 Demo** ✅ | Streamlit（**Streamlit Community Cloud**）：输入餐食 + 画像 → 输出三个标量预测 + 示意曲线 + **真实 TreeSHAP** 解释；并含只读的**外部验证面板**（BIG IDEAs，冻结模型跨队列结果） | 公开可点链接 | 加载训练好的模型；解释为精确 TreeSHAP（XGBoost `pred_contribs`，与 `shap.TreeExplainer` 同算法），非比例摊派。**已达成**：<https://metanutri-ai-ppgr-predictor.streamlit.app/> |
 | **P4 ·（可选）回接平台** ❌ | 评估把轻量模型（ONNX）接回现有后端 | 可选 | **已决定不做**（违反"冻结后端"约束，且 Render 512 MB 承载不了） |
 
 > 说明：P0–P3 是**一条按序推进的链**，非并行任务。

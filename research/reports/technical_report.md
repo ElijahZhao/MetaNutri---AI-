@@ -437,6 +437,7 @@ src/download_bigideas.py # fetch the 33 small BIG IDEAs files (2.4 MB)
 src/build_external.py    # BIG IDEAs → meal-level table (date-offset repair)
 src/external_validate.py # cross-cohort transfer → external_results.csv
 src/make_figures.py      # figures 1–5
+src/export_report_pdf.py # this report → reports/technical_report.pdf
 ```
 
 Pinned versions: Python 3.12, `numpy==2.5.3`, `pandas==3.0.6`,
