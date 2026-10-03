@@ -104,6 +104,16 @@
 
 > 以上每个数字都由 [`research/experiments/*.csv`](research/experiments/) 重新生成，且必须与技术报告一致——无估算、无四舍五入、无推断。
 
+**图表（直接来自[技术报告](research/reports/technical_report.pdf)流水线）：**
+
+| 预测值 vs 实测值 | 模型对比 |
+|:---:|:---:|
+| ![预测值 vs 实测值](research/reports/figures/fig1_pred_vs_actual.png) | ![模型对比](research/reports/figures/fig2_model_comparison.png) |
+
+| 外部验证（BIG IDEAs） | 保形预测区间 |
+|:---:|:---:|
+| ![外部验证](research/reports/figures/fig5_external_validation.png) | ![保形预测区间](research/reports/figures/fig7_conformal.png) |
+
 ---
 
 ## 🧩 两仓库关系

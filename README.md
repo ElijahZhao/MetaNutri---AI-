@@ -104,6 +104,16 @@ The AI endpoints on the platform are deliberately honest heuristics (see [Limita
 
 > Every number above is regenerated from [`research/experiments/*.csv`](research/experiments/) and must match the technical report — nothing is estimated, rounded up or inferred.
 
+**Figures (straight from the [technical report](research/reports/technical_report.pdf) pipeline):**
+
+| Predictions vs actual | Model comparison |
+|:---:|:---:|
+| ![Predictions vs actual](research/reports/figures/fig1_pred_vs_actual.png) | ![Model comparison](research/reports/figures/fig2_model_comparison.png) |
+
+| External validation (BIG IDEAs) | Conformal prediction intervals |
+|:---:|:---:|
+| ![External validation](research/reports/figures/fig5_external_validation.png) | ![Conformal prediction intervals](research/reports/figures/fig7_conformal.png) |
+
 ---
 
 ## 🧩 Related Repositories
