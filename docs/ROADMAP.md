@@ -2,7 +2,7 @@
 
 > 目的：把 MetaNutri 从"工程成熟、AI 空缺"的作品集，升级为**工程 + 真实 AI 研究**双叙事，用于 AI / AI+交叉 方向硕士申请。
 >
-> 状态：**方案已闭环（决策已确认，见 §6）；P0 已完成，P1 待启动**。P0 为文案级诚实化，不涉及任何逻辑改动。
+> 状态：**P0–P2 已完成；P3 demo 已部署至 Streamlit Community Cloud（`ElijahZhao/ppgr-predictor`）；外部验证（BIG IDEAs stretch goal）已完成；P4 回接平台已决定不做**。P0 为文案级诚实化，不涉及任何逻辑改动。
 >
 > 最后更新：2026-10-03
 
@@ -210,10 +210,10 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 | 阶段 | 内容 | 交付物 | 验收标准 |
 |---|---|---|---|
 | **P0 · 诚实化止血** ✅ | 修正 README / README.zh-CN / docs 的 AI 措辞；新增 `Project Status` 与 `Limitations` 区块；i18n 六处文案降级；数据集接口标注为演示占位 | 诚实、专业的现状表述 | 文档中不再出现"线上运行深度学习 / SHAP / LIME"的暗示 |
-| **P1 · 研究管线**（核心） | 下载 CGMacros → 清洗（餐-CGM 对齐、iAUC 计算）→ EDA → LOPO 划分 → 三基线 → 树模型 → 评估 | `research/` 可复现管线 + 结果表与图 | 一条命令重训；固定种子；结果可复现 |
-| **P2 · 技术报告** | Problem → Data → Method → Results（对比三基线）→ Limitations → Future Work | 技术报告（Markdown/PDF） | 可直接作为写作样本提交 |
-| **P3 · 交互 Demo** | Streamlit（HF Spaces）：输入餐食 + 画像 → 输出预测曲线 + **真实 SHAP** 解释 | 公开可点链接 | 加载训练好的模型，解释为真 `shap.TreeExplainer`，非比例摊派 |
-| **P4 ·（可选）回接平台** | 评估把轻量模型（ONNX）接回现有后端 | 可选 | 需先评估 Render 免费层 512MB 内存与冷启动影响 |
+| **P1 · 研究管线**（核心） ✅ | 下载 CGMacros → 清洗（餐-CGM 对齐、iAUC 计算）→ EDA → LOPO 划分 → 三基线 → 树模型 → 评估 | `research/` 可复现管线 + 结果表与图 | 一条命令重训；固定种子；结果可复现 |
+| **P2 · 技术报告** ✅ | Problem → Data → Method → Results（对比三基线）→ Limitations → Future Work | 技术报告（Markdown/PDF） | 可直接作为写作样本提交 |
+| **P3 · 交互 Demo** 🔄 | Streamlit（**Streamlit Community Cloud**）：输入餐食 + 画像 → 输出三个标量预测 + 示意曲线 + **真实 TreeSHAP** 解释 | 公开可点链接 | 加载训练好的模型；解释为精确 TreeSHAP（XGBoost `pred_contribs`，与 `shap.TreeExplainer` 同算法），非比例摊派 |
+| **P4 ·（可选）回接平台** ❌ | 评估把轻量模型（ONNX）接回现有后端 | 可选 | **已决定不做**（违反"冻结后端"约束，且 Render 512 MB 承载不了） |
 
 > 说明：P0–P3 是**一条按序推进的链**，非并行任务。
 
@@ -230,11 +230,13 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 
 ## 6. 已确认决策（2026-10-03）
 
-- [x] **数据集**：以 **CGMacros 为主**；BIG IDEAs 仅作为可选 stretch goal（外部验证），**非 P1 必需**
+- [x] **数据集**：以 **CGMacros 为主**；BIG IDEAs 作为可选 stretch goal（外部验证），**非 P1 必需**。**已完成**：使用 1.1.2（1.1.3 沙箱 403 不可下载，自行修复食物日志日期错位），16 人 / 656 餐；结论为 AUC 跨队列可迁移（r≈0.57）、iAUC 与峰值血糖显著衰减（r≈0.22），详见技术报告 §4.4
 - [x] **许可**：**接受 CC BY-NC-SA 4.0**（非商业、学术与作品集用途合规）；报告与 Demo 中必须注明数据来源与许可
 - [x] **技术报告**：**英文为主**，正文约 2000 词 + 4–6 图 + 3–4 表
 - [x] **P4（回接线上平台）**：**不做**（违反"冻结后端"约束，且 Render 512 MB 承载不了）
 - [x] P0 的 i18n 文案改动已放行并完成（**仅改 6 个纯文本字符串**，未碰任何逻辑）
+- [x] **Demo 托管平台：HF Spaces → Streamlit Community Cloud**（2026-10-03 调整）。原因：Hugging Face 免费档的 Space SDK 仅剩 **Static**，**Gradio / Docker 需付费 PRO**，且已不提供 Streamlit SDK，原定 `space_sdk="streamlit"` 方案不可行。Streamlit Community Cloud 免费且原生支持 Streamlit，代码经 GitHub（`ElijahZhao/ppgr-predictor`）托管后一键部署。代价：免费实例空闲会休眠（冷启动 30–60 s）。
+- [x] **SHAP 实现：用 XGBoost 原生 `pred_contribs`（精确 TreeSHAP）**，不引入 `shap` 依赖 —— 算法与 `shap.TreeExplainer` 一致，且省去一个重依赖，更适合 Demo 环境。
 
 ---
 
@@ -243,7 +245,7 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 - **P1 主线（XGBoost + LOPO）**：**CPU 即可**。45 人 / 约 135 餐的表格数据，分钟级完成，无需 GPU。
 - **AutoDL（可选）**：仅在需要**深度序列模型对比实验**（LSTM / TCN）或本地算力不足时使用。注意：
   - 实例为临时环境 → 代码走 Git，数据放数据盘，模型/图表等产物及时同步出来；
-  - **不作为 Demo 的常驻托管**（无稳定公网地址）→ Demo 仍部署 Hugging Face Spaces；
+  - **不作为 Demo 的常驻托管**（无稳定公网地址）→ Demo 部署在 **Streamlit Community Cloud**（原计划 HF Spaces 因免费档限制已弃用，见 §6）；
   - 按量计费，用完及时关机 / 释放。
 - 许可为 CC BY-NC-SA：使用付费算力训练**不构成**"商业使用数据"，合规。
 
@@ -256,7 +258,7 @@ Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉
 **外部文献与数据集**：
 - PhysioNet CGMacros — https://physionet.org/content/cgmacros/1.0.0/
 - Das et al., *Sci Data* 12, 1557 (2025) — https://www.nature.com/articles/s41597-025-05851-7
-- PhysioNet BIG IDEAs — https://physionet.org/content/big-ideas-glycemic-wearable/1.1.2/
+- PhysioNet BIG IDEAs — https://physionet.org/content/big-ideas-glycemic-wearable/1.1.2/ （DOI 1.1.2：`10.13026/zthx-5212`，ODC-By 1.0）
 - Zeevi et al., *Cell* 163(5):1079-1094 (2015) — https://pubmed.ncbi.nlm.nih.gov/26590418/
 - Shen et al., *JDST* 2025（SOTA 汇总表）— https://pmc.ncbi.nlm.nih.gov/articles/PMC11883769/
 - Leakage-Controlled Evaluation (medRxiv 2026) — https://www.medrxiv.org/content/10.64898/2026.08.03.26359550v1.full

@@ -39,3 +39,38 @@ data/processed/  # analysis-ready tables
 
 The ZIP is 627 MB and contains ~3,545 meal photos. Datasets must never be
 pushed to the repository.
+
+---
+
+# Data provenance — BIG IDEAs (external validation)
+
+- **Dataset:** BIG IDEAs Lab Glycemic Variability and Wearable Device Data
+- **Source:** PhysioNet — https://physionet.org/content/big-ideas-glycemic-wearable/1.1.2/
+- **DOI (version 1.1.2, used here):** `10.13026/zthx-5212`
+- **Reference:** Cho, P., Kim, J., Bent, B., & Dunn, J., PhysioNet.
+- **License:** **ODC-By 1.0** (attribution).
+
+## Why version 1.1.2
+
+Release notes for 1.1.3 state *"Updated misaligned food log dates"*, i.e. 1.1.3
+fixes a defect in 1.1.2. However the 1.1.3 `/files/` tree returns HTTP 403 for
+anonymous clients and the open mirror carries only up to 1.1.2, so we use 1.1.2
+and repair the food-log dates ourselves (`src/build_external.py`).
+
+## How to obtain
+
+```bash
+python research/src/download_bigideas.py
+```
+
+Only the 33 small files needed for this analysis are fetched (2.4 MB):
+16 × `Dexcom_0XX.csv`, 16 × `Food_Log_0XX.csv` and `Demographics.csv`. The rest
+of the release (Empatica wristband streams, ~34 GB unpacked) is not used.
+
+## Notes
+
+- 16 subjects with Dexcom G6 CGM (5-minute) and a free-living food log.
+- Meals are not annotated; items logged within 20 minutes are grouped into one
+  eating event.
+- BIG IDEAs lacks the CGMacros blood panel, so external validation uses the five
+  shared features (carbohydrate, protein, baseline glucose, sex, HbA1c).
