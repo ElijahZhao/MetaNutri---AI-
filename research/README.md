@@ -8,14 +8,22 @@ for the full plan.
 
 Postprandial glucose-response prediction (PPGR) on **CGMacros**: given a meal's
 macronutrients plus subject features, predict the 2-hour incremental area under
-the glucose curve (iAUC) and peak glucose rise.
+the glucose curve (iAUC) and peak glucose rise. The frozen model is then tested
+for cross-cohort generalisation on **BIG IDEAs**.
 
 ## Status
 
 - [x] P0 — honesty pass (platform docs)
 - [x] P1 — pipeline: download → clean → EDA → LOPO split → baselines → XGBoost → evaluation
 - [x] P2 — technical report ([`reports/technical_report.md`](reports/technical_report.md))
-- [ ] P3 — Streamlit demo (Hugging Face Spaces)
+- [x] P3 — Streamlit demo: built and validated (in-process `AppTest`), pushed to
+      [`ElijahZhao/ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)
+  - deployed on **Streamlit Community Cloud** — Hugging Face's free tier no longer
+    offers a Streamlit SDK (Gradio/Docker require PRO)
+  - live: <https://metanutri-ai-ppgr-predictor.streamlit.app/>
+- [x] P4 — external validation on **BIG IDEAs** (16 subjects, 656 meals):
+      `download_bigideas.py` → `build_external.py` → `external_validate.py`,
+      reported in §4.4 of the technical report.
 
 ## Quick start
 
@@ -41,4 +49,5 @@ research/
 ## License
 
 CGMacros is **CC BY-NC-SA 4.0** — non-commercial research/portfolio use only;
-attribute the source. See [`data/README.md`](data/README.md).
+attribute the source. BIG IDEAs is **ODC-By 1.0** (attribution). See
+[`data/README.md`](data/README.md).
