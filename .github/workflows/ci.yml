@@ -98,24 +98,31 @@ jobs:
         run: python -c "from app.main import app; print('FastAPI app OK:', app.title)"
 
   research:
-    name: Research (demo smoke test)
+    name: Research (lint + tests)
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: research/app
+        working-directory: research
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          # numpy 2.5 / pandas 3 pin Python >=3.12 (see research/requirements.txt).
+          python-version: '3.12'
           cache: pip
-          cache-dependency-path: research/app/requirements.txt
+          cache-dependency-path: |
+            research/app/requirements.txt
+            research/requirements-dev.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r app/requirements.txt -r requirements-dev.txt
 
-      # Headless Streamlit AppTest over the frozen model bundle in model/.
-      # No server, no network, no training stack — a few seconds.
-      - name: Demo smoke test (AppTest)
-        run: python test_app.py
+      - name: Lint (ruff)
+        run: ruff check src app
+
+      # Streamlit AppTest (app/test_app.py) + inference unit tests
+      # (app/tests/). The 90% coverage gate is set in pyproject.toml; this
+      # needs no training stack, no dataset and no network.
+      - name: Tests (pytest + coverage)
+        run: pytest --cov --cov-report=term-missing
