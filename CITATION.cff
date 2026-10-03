@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software or the results in research/reports, please cite it as below."
+title: "MetaNutri---AI-: predicting postprandial glycemic response from meal composition and subject phenotype"
+abstract: >-
+  A leave-one-subject-out machine-learning study on the CGMacros cohort (45
+  subjects, 1,557 meals) with external validation on BIG IDEAs, plus a Streamlit
+  demo that serves the frozen models. Predicts 2-hour iAUC, 2-hour AUC and peak
+  glucose rise from meal macronutrients and subject phenotype. Not a clinical
+  tool.
+type: software
+authors:
+  - family-names: "Zhao"
+    given-names: "Yulin"
+    alias: "ElijahZhao"
+    email: "yulinzhao04@gmail.com"
+repository-code: "https://github.com/ElijahZhao/MetaNutri---AI-"
+url: "https://meta-nutri-ai.vercel.app"
+version: "1.0.0"
+date-released: "2026-10-03"
+license: MIT
+keywords:
+  - postprandial glucose
+  - continuous glucose monitoring
+  - precision nutrition
+  - machine learning
+  - CGMacros
+  - leave-one-subject-out
