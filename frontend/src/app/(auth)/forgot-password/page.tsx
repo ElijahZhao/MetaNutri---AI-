@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Content from './content';
 
 export const metadata = {
@@ -7,5 +8,11 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <Content />;
+  // Content reads the ?token= query param via useSearchParams, which Next.js
+  // requires to sit inside a Suspense boundary for the page to prerender.
+  return (
+    <Suspense fallback={null}>
+      <Content />
+    </Suspense>
+  );
 }

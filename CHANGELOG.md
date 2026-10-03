@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (all 1,699 meals, vs. the 1,557-meal `iauc > 0` subset in §4.2) in both
   `external_validate.py` and the technical report, so the two "internal" numbers
   are not mistakenly compared.
+- The `forgot-password` page now reads the `?token=` query parameter, so a reset
+  link delivered out of band opens the new-password form directly instead of
+  being ignored. Covered by a new `content.test.tsx` regression test.
 
 ### Security
 

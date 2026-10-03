@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,9 +14,14 @@ import type { ApiErrorLike } from '@/types';
 export default function ForgotPasswordPage() {
   const { t } = useLanguage();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // A reset token may arrive via the emailed link (/forgot-password?token=...).
+  // When it does, skip the email step and show the new-password form directly.
+  const urlToken = searchParams.get('token')?.trim() ?? '';
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [resetToken, setResetToken] = useState('');
+  const [sent, setSent] = useState(urlToken !== '');
+  const [resetToken, setResetToken] = useState(urlToken);
+  const [viaLink, setViaLink] = useState(urlToken !== '');
   const [resetting, setResetting] = useState(false);
 
   const emailSchema = z.object({
@@ -54,6 +59,7 @@ export default function ForgotPasswordPage() {
     try {
       const res = await authAPI.forgotPassword(data.email);
       setResetToken(res.data?.reset_token || '');
+      setViaLink(false);
       toast.success(t.resetLinkSent);
       setSent(true);
     } catch (err) {
@@ -115,13 +121,21 @@ export default function ForgotPasswordPage() {
           <div className="space-y-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                {viaLink ? (
+                  <KeyRound className="w-8 h-8 text-emerald-600" />
+                ) : (
+                  <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                )}
               </div>
-              <h2 className="text-xl font-semibold text-slate-900 mb-2">{t.resetLinkSent}</h2>
-              <p className="text-slate-600 text-sm">{t.forgotPasswordSubtitle}</p>
+              <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                {viaLink ? t.resetPasswordTitle : t.resetLinkSent}
+              </h2>
+              <p className="text-slate-600 text-sm">
+                {viaLink ? t.resetPasswordSubtitle : t.forgotPasswordSubtitle}
+              </p>
             </div>
 
-            {resetToken && (
+            {!viaLink && resetToken && (
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
