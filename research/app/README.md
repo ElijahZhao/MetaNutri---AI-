@@ -1,15 +1,3 @@
----
-title: PPGR Predictor
-emoji: 🩸
-colorFrom: indigo
-colorTo: red
-sdk: streamlit
-sdk_version: "1.65.0"
-app_file: app.py
-pinned: false
-license: cc-by-nc-sa-4.0
----
-
 # PPGR Predictor — CGMacros research demo
 
 Interactive demo for the MetaNutri research module: predict the 2-hour

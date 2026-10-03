@@ -41,7 +41,7 @@
 | 27 | Vercel 区域不一致 | 低 | ✅ 已确认 Render 后端在 Singapore；`vercel.json` 的 `regions` 由 `iad1` 改为 `sin1`，`DEPLOYMENT.md` 同步 |
 | 28 | CSRF 防护核查（`ROADMAP.md §1.4` 遗留："未取证确认"） | 高 | ✅ 已专项取证（见**第六节**）：现有防护充分，**无阻断项**；仅 1 处配置隐患（`COOKIE_SAMESITE=none`）建议加固，按 §0 冻结约束本轮不改代码 |
 | 29 | `.deploy/ppgr-predictor` 被当作 gitlink 提交但无 `.gitmodules` | 中 | ✅ 已 `git rm --cached` 并加入 `.gitignore`（该目录是 `ppgr-predictor` 部署仓库的**本地镜像**，非子模块；原先的描述会让克隆者得到一个空目录） |
-| 30 | 根目录遗留 `ppgr-predictor-space.zip` 被跟踪 | 低 | ✅ 已取消跟踪并加入 `.gitignore`（Hugging Face 方案弃用后的产物，见 `ROADMAP.md §6`；文件保留在本地磁盘） |
+| 30 | 根目录遗留 `ppgr-predictor-space.zip` 被跟踪 | 低 | ✅ 已取消跟踪并加入 `.gitignore`；HF 方案整体弃用后，该产物（含文件本体与忽略规则）已彻底删除 |
 
 **验证**（本沙箱实测）：
 - 后端：`python -m compileall -q app` 通过；`backend/data/kegg_pathways.json` JSON 解析通过（8 条、键 `name`/`prefix`）。

@@ -81,8 +81,3 @@ research/data/processed/
 # an empty directory and no .gitmodules to resolve it. Syncing is a plain file
 # copy, so the mirror never needs to be part of this history.
 .deploy/
-
-# Export produced for the abandoned Hugging Face Space deployment (superseded by
-# Streamlit Community Cloud in docs/ROADMAP.md §6); kept on disk for reference
-# but not part of the repository.
-ppgr-predictor-space.zip
