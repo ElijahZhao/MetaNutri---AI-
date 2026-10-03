@@ -1,0 +1,191 @@
+# MetaNutri 提升路线图（Roadmap）
+
+> 目的：把 MetaNutri 从"工程成熟、AI 空缺"的作品集，升级为**工程 + 真实 AI 研究**双叙事，用于 AI / AI+交叉 方向硕士申请。
+>
+> 状态：**草案（待确认后执行）**。本文档不涉及任何代码改动，仅记录审查结论与执行计划。
+>
+> 最后更新：2026-10-02
+
+---
+
+## 0. 两条硬约束（已与项目所有者确认）
+
+1. **现有前端、后端、数据库全部保留，逻辑不做改动**——这是费了大力气建成的工程主体，不推翻。
+2. **真实 AI 的工作走旁路新建**：独立目录、独立依赖、独立部署，与现有平台解耦。
+
+允许的例外（仅限"诚实化"，均为文案级、零逻辑风险）：
+- `README.md` / `README.zh-CN.md` / `docs/*.md` 的措辞修正
+- `frontend/src/lib/i18n.tsx` 中若干**文案字符串**（不碰任何组件、接口、状态逻辑）
+
+---
+
+## 1. 审查结论（8 轮，含 4 路并行仓库审查 + 2 路外部调研 + 逐条复核）
+
+### 1.1 分层评级
+
+| 层级 | 内容 | 判断 |
+|---|---|---|
+| **A · 真材实料** | 后端认证/食物检索/导入导出（真 DB 逻辑）、前端 11 个页面与 ECharts 可视化、CI/Docker/云部署/SEO | ✅ 可放心写入文书 |
+| **B · 规则实现** | 血糖响应（确定性公式）、风险评估（启发式）、餐食规划（贪心规则）、"SHAP 解释"（比例摊派） | ⚠️ 诚实但措辞需修正 |
+| **C · 名不副实** | 数据集"下载器"不联网、数据为手写样例、权重由随机噪声训练、模型从未被调用、三个端点掺随机数、首页宣称 deep learning | ❌ 必须处理（申请风险点） |
+
+### 1.2 C 级问题证据清单
+
+| # | 问题 | 证据位置 | 说明 |
+|---|---|---|---|
+| C1 | "下载器"不下载 | `backend/app/ml/dataset_downloader.py:91-185` | `download_usda_food_database()` 把硬编码列表写入本地文件，无任何网络请求；KEGG / HMP 同理 |
+| C2 | 数据是手写样例 | `backend/data/*.json` | 实测 8 个文件合计约 300 条记录：usda 75 / metabolomics 25 / hmp 16 / gene_nutrition 8 / kegg 8 / disease_markers 4 / microbiome_samples 3 / dietary_guidelines 2 |
+| C3 | 权重由噪声训练 | `backend/app/ml/train_models.py:19-97` | 全部输入为 `torch.randn` / `torch.rand`，50 epoch，无真实数据、无验证集、无指标 |
+| C4 | 模型从未被调用 | `backend/app/ml/weights/`、`backend/app/api/predict.py:93-127` | `get_predictor()` / `get_gnn_model()` / `get_vae_model()` 仅定义未调用；线上走确定性启发式。<br>**项目自身审查已记录此点**（`docs/AUDIT-FINDINGS.md:215-218`），但归类为"低优先级 · 死代码" |
+| C5 | 即便调用，输入也是伪造 | `backend/app/ml/metabolic_response_model.py:73-130` | `predict()` 内 genomic / microbiome 输入为 `torch.randn` 现场生成；`microbiome_vae.py:49-90` 的 `suggest_diet()` 返回硬编码文本 |
+| C6 | 端点掺随机数 | `api/metabolomics.py:104-148`、`api/predict.py:186-222`、`api/recommendation.py:37-67` | 代谢组 p 值 / 营养素吸收率 / 食物评分均含 `np.random`、`random` |
+| C7 | 文档夸大 | `README.md:58,91,92,270,295,376-382`、`docs/DATASETS.md:24`、`docs/API.md:96-104` | README L91 有诚实披露，但被其余措辞淹没；DATASETS.md L24 称"真实训练所用权重"，比 README 更失真 |
+| C8 | 首页用户可见夸大 | `frontend/src/lib/i18n.tsx:29,40,42,50,51,53` | "Powered by deep learning" / "state-of-the-art neural networks and attention mechanisms" / "Continuous Learning" |
+| C9 | CI 完全不覆盖 ML | `.github/workflows/ci.yml:91-98` | 后端 job 仅 `compileall` + import 冒烟，ML 代码从未被执行 |
+
+### 1.3 为什么此前会得出"竣工"结论
+
+前期审查（`docs/AUDIT-FINDINGS.md`，13 轮）覆盖了工程与文档一致性，并将权重未加载记为"死代码"。**偏差在于**：把"模型没接线"当成清理项，而没有意识到它**使全部 AI 宣传失效**。本路线图修正该判断。
+
+---
+
+## 2. 战略决策
+
+```
+MetaNutri---AI-/
+├── backend/ frontend/ docs/     ← 冻结（仅允许 §0 的文案级修正）
+└── research/                    ← 新建：真实 AI 研究模块，独立依赖 / 独立部署
+    ├── data/          真实公开数据集（下载脚本 + provenance 说明）
+    ├── src/           数据管线 / 特征 / 模型 / 评估
+    ├── experiments/   可复现实验（固定种子，一条命令重训）
+    ├── reports/       技术报告（可作为写作样本）
+    └── app/           Streamlit Demo（独立部署）
+```
+
+**叙事分工**：平台 = 工程与产品能力；`research/` = 研究能力。二者互不牵连、互不污染。
+
+Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉的 Streamlit，同时获得社区曝光与现成算力。
+
+---
+
+## 3. 研究方向：餐后血糖响应预测（PPGR）
+
+### 3.1 为什么选它
+
+1. **直接对撞项目最大软肋**：现有 `_predict_glucose_response()` 是手调公式。研究报告可写成"把人工启发式替换为真数据训练的模型，性能提升 ΔR"。
+2. **有真实、开放、可对标的数据**（见 §3.2）。
+3. **天然要求严谨评估**（按受试者划分、跨个体泛化），正是 AI 硕士看重的成熟度。
+
+### 3.2 数据集决策
+
+| 数据集 | 规模 | 餐次宏量营养素 | CGM | 获取 | 许可 | 体积 |
+|---|---|---|---|---|---|---|
+| **CGMacros（首选）** | 45 人（15 健康 / 16 糖尿病前期 / 14 T2D），10 天，每日早中晚三餐 | ✅ 精确（热量/碳水/蛋白/脂肪/纤维） | Libre Pro 15min + Dexcom G6 Pro 5min，插值至 1min | **开放** | CC BY-NC-SA 4.0（**非商业**） | 628 MB |
+| BIG IDEAs Lab | 16 人，8–10 天 | ✅（自由生活自报） | Dexcom G6 5min，mg/dL | **开放** | ODC-BY 1.0 | 4.7 GB（解压 34.1 GB） |
+| ShanghaiT2DM | 100 人 T2D | ❌ 仅食物名 + 克数 | 15min | **开放** | — | — |
+| OhioT1DM | 12 人，8 周 | ❌ 仅碳水估计 | 5min | ❌ 需 DUA + 机构邮箱 | 受限 | — |
+| Zeevi 2015（Cell） | 800 人 | 有 | — | ❌ **不公开** | — | — |
+
+- CGMacros：PhysioNet DOI `10.13026/3z8q-x658`；论文 Das et al., *Sci Data* 12, 1557 (2025)
+- 关键点：**CGMacros 是唯一同时具备"餐次时间戳 + 精确宏量营养素 + CGM"的开放数据集**，且自带可复现基线代码
+- 注意：CC BY-NC-SA 为非商业许可，作品集用途合规，但需在使用时注明
+- 备选/外部验证：BIG IDEAs（同任务、不同人群）、ShanghaiT2DM（跨人群 T2D）
+- 已知局限：CGMacros 同时佩戴两台 CGM，两者存在系统性差异（Dexcom G6 读数偏高，最大约 58.7 mg/dL），选哪台会影响结果，须在报告中说明
+
+### 3.3 评估协议（避免数据泄漏，这是报告的核心卖点）
+
+- **划分**：Leave-One-Subject-Out / grouped k-fold。绝不用随机按样本划分。
+  - 依据：有研究证明同一数据在随机划分下 RMSE 11.9 mg/dL，而按受试者划分（LOPO）为 21.22 mg/dL——**误差近乎翻倍，即随机划分严重高估性能**
+  - 预处理（标准化等）只能在训练折上拟合
+- **指标**：
+  - 主指标：**R / R²**（预测反应 vs 观测反应，领域标准）
+  - 响应量：**iAUC**（2 小时增量曲线下面积）与 **Glu_max / peak rise**
+  - 判别能力：以中位数二分类的 **ROC-AUC**
+  - 若报告 RMSE/MAE，必须说明是对"血糖值"还是对"反应量"求误差
+  - 单位：mg/dL（美国惯例）或 mmol/L，换算 1 mmol/L ≈ 18 mg/dL
+- **基线三件套**（缺一不可）：
+  1. mean predictor（预测训练集均值）
+  2. carb-only 线性模型（"升糖负荷式"启发式的操作化）
+  3. energy-only 线性模型
+- **重复餐处理**：混合效应模型（subject 随机截距）+ 个体内中心化；分层报告个体内 / 个体间指标
+
+### 3.4 可对标的公开数字
+
+| 来源 | 模型 | 协议 | 性能 |
+|---|---|---|---|
+| Zeevi 2015 (Cell) | 梯度提升 | LOPO CV | R = 0.68 |
+| Zeevi 2015 | 梯度提升 | 100 人独立队列 | R = 0.70 |
+| Zeevi 2015 | carb-only | LOPO CV | R = 0.38 |
+| Zeevi 2015 | energy-only | LOPO CV | R = 0.33 |
+| **CGMacros (Sci Data 2025)** | **XGBoost** | **LOSO** | **2h AUC r = 0.89；iAUC r = 0.64** |
+| Mendes-Soares 2019 | XGBoost | — | R = 0.62（carb-only 0.40） |
+
+> 报告中的目标表述范式：
+> "相比碳水-only 启发式（R ≈ 0.38），训练后的模型在**未见个体**上把校准相关系数提升到 R ≈ 0.6x–0.7x。"
+
+### 3.5 建模策略（小数据现实）
+
+- CGMacros 仅 45 人 → **优先树模型**（XGBoost / LightGBM）
+- 依据：在 15 人量级数据上，线性回归 ≈ 梯度提升 ≈ 全卷积 ≈ TCN，作者称之为"information ceiling rather than a modelling limitation"
+- 结论：**不要为了"看起来像深度学习"而上 Transformer**。先把树模型做到严谨可复现，再视结果决定是否加序列模型（LSTM/TCN）作为对比实验
+
+### 3.6 必须写入 Limitations 的陷阱
+
+1. 小样本（45 人）→ 跨人群泛化有限
+2. 个体内反应波动大：重复餐（一周后重复）的组内相关系数仅 0.16–0.31
+3. CGM 传感器滞后：平均时间延迟约 9.5 分钟（SD 3.7）
+4. 跨设备不一致：同人同时佩戴两台 CGM，餐次排序 Kendall 相关系数均值仅 0.43
+5. 自报饮食记录噪声（分量估计误差、需剔除异常记录）
+6. 混淆因素：进餐时段、前一餐间隔、体力活动、睡眠、月经周期
+7. 跨人群泛化：以色列队列模型用于美国人群时性能下降（联合训练后 R 提升至 0.618）
+8. 可复现性现状：一项对 67 篇血糖预测深度学习论文的审计显示，仅 23.9% 公开代码、37.3% 使用私有数据、55.2% 仅用 12 人的 OhioT1DM——**本项目的"真数据 + 开放代码 + 严格评估"本身即是差异化亮点**
+
+---
+
+## 4. 分阶段执行计划
+
+| 阶段 | 内容 | 交付物 | 验收标准 |
+|---|---|---|---|
+| **P0 · 诚实化止血** | 修正 README / README.zh-CN / docs 的 AI 措辞；新增 `Project Status` 与 `Limitations` 区块；i18n 六处文案降级 | 诚实、专业的现状表述 | 文档中不再出现"线上运行深度学习 / SHAP / LIME"的暗示 |
+| **P1 · 研究管线**（核心） | 下载 CGMacros → 清洗（餐-CGM 对齐、iAUC 计算）→ EDA → LOPO 划分 → 三基线 → 树模型 → 评估 | `research/` 可复现管线 + 结果表与图 | 一条命令重训；固定种子；结果可复现 |
+| **P2 · 技术报告** | Problem → Data → Method → Results（对比三基线）→ Limitations → Future Work | 技术报告（Markdown/PDF） | 可直接作为写作样本提交 |
+| **P3 · 交互 Demo** | Streamlit（HF Spaces）：输入餐食 + 画像 → 输出预测曲线 + **真实 SHAP** 解释 | 公开可点链接 | 加载训练好的模型，解释为真 `shap.TreeExplainer`，非比例摊派 |
+| **P4 ·（可选）回接平台** | 评估把轻量模型（ONNX）接回现有后端 | 可选 | 需先评估 Render 免费层 512MB 内存与冷启动影响 |
+
+> 说明：P0–P3 是**一条按序推进的链**，非并行任务。
+
+---
+
+## 5. 明确不做的事
+
+- 不重构、不删除现有前后端与数据库的任何逻辑
+- 不为"显得高级"而引入 Transformer / GNN / VAE（小数据下它们不占优，且会重演"名不副实"）
+- 不在报告中虚构数据、引用或性能数字
+
+---
+
+## 6. 待确认事项
+
+- [ ] 数据集最终采用 CGMacros 为主、是否叠加 BIG IDEAs 做外部验证
+- [ ] 是否接受 CC BY-NC-SA 的非商业限制（作品集用途合规）
+- [ ] P0 的 i18n 文案改动是否最终放行
+- [ ] 技术报告的产出语言（中文 / 英文）与篇幅
+- [ ] P4 是否需要（回接线上平台）
+
+---
+
+## 附：本路线图的证据来源
+
+**仓库内**：`backend/app/ml/*`、`backend/app/api/*`、`backend/data/*`、`frontend/src/lib/i18n.tsx`、`docs/AUDIT-FINDINGS.md`、`.github/workflows/ci.yml`
+
+**外部文献与数据集**：
+- PhysioNet CGMacros — https://physionet.org/content/cgmacros/1.0.0/
+- Das et al., *Sci Data* 12, 1557 (2025) — https://www.nature.com/articles/s41597-025-05851-7
+- PhysioNet BIG IDEAs — https://physionet.org/content/big-ideas-glycemic-wearable/1.1.2/
+- Zeevi et al., *Cell* 163(5):1079-1094 (2015) — https://pubmed.ncbi.nlm.nih.gov/26590418/
+- Shen et al., *JDST* 2025（SOTA 汇总表）— https://pmc.ncbi.nlm.nih.gov/articles/PMC11883769/
+- Leakage-Controlled Evaluation (medRxiv 2026) — https://www.medrxiv.org/content/10.64898/2026.08.03.26359550v1.full
+- Hengist et al. 2023（重复餐 ICC）— https://pmc.ncbi.nlm.nih.gov/articles/PMC10371100.1/
+- Howard et al. 2020（跨设备一致性）— https://pmc.ncbi.nlm.nih.gov/articles/PMC7528568/
+- PLOS Digit Health 复现性审计 — https://journals.plos.org/digitalhealth/article?id=10.1371/journal.pdig.0001633
+- UNC Charlotte OhioT1DM（DUA）— https://webpages.charlotte.edu/rbunescu/data/ohiot1dm/OhioT1DM-dataset.html
