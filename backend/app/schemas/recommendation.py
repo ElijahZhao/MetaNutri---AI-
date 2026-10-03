@@ -26,13 +26,15 @@ class NutritionRecommendationResponse(NutritionRecommendationBase):
 
 
 class PersonalizedRecommendationRequest(BaseModel):
-    user_id: UUID
+    # No user_id: the endpoint scopes everything to the authenticated user, and
+    # the frontend never had a real UUID to send (it sent "me", which the UUID
+    # type rejected with a 422).
     meal_type: Optional[str] = "general"
     calorie_target: Optional[float] = None
 
 
 class FoodScoreRequest(BaseModel):
-    user_id: UUID
+    # No user_id for the same reason as above.
     food_id: UUID
 
 

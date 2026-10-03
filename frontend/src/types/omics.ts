@@ -65,14 +65,6 @@ export interface MetabolomicsEntry {
 
 export type MetabolomicsEntryInput = Omit<MetabolomicsEntry, 'id' | 'created_at'>;
 
-export interface MetabolomicsPathway {
-  id: string;
-  pathway_name: string;
-  enrichment_score: number;
-  p_value: number;
-  num_metabolites: number;
-}
-
 /** `POST /api/metabolomics/analysis`. */
 export interface MetabolomicsAnalysis {
   total_metabolites: number;

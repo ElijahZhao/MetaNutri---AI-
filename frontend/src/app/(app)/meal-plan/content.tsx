@@ -34,9 +34,7 @@ export default function MealPlanPage() {
   const generateMealPlan = async () => {
     setLoading(true);
     try {
-      const res = await recommendationAPI.mealPlan(
-        {} as Parameters<typeof recommendationAPI.mealPlan>[0]
-      );
+      const res = await recommendationAPI.mealPlan({});
       setMealPlan(res.data as unknown as MealPlan);
     } catch (err) {
       console.error(err);

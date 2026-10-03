@@ -16,8 +16,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only the AppTest smoke test.
 - `CITATION.cff`.
 
+### Changed
+
+- `/api/predict/nutrient-absorption` is now fully deterministic. Its absorption
+  rate was jittered with `np.random.uniform`, so identical requests returned
+  different numbers; it now follows a saturating dose-response curve. Both
+  READMEs and `docs/API.md` were updated to drop the "random values" wording.
+- `/api/metabolomics/analysis` no longer fabricates `enrichment_score` /
+  `p_value` with `np.random.uniform`. Both are now deterministic functions of the
+  pathway counts (still illustrative, not a statistical test), so the same
+  upload always reports the same numbers. The response shape is unchanged, so the
+  frontend needs no update.
+- `backend/Dockerfile` now runs as a non-root user (`appuser`), matching the
+  frontend image.
+- `.dockerignore` now excludes `research/` and venv / build artefacts, and the
+  `.trae-html-share-packages` rule is corrected (it was missing the leading dot,
+  so the directory was never ignored).
+
+### Removed
+
+- Dead `SHAPExplainer` / `LIMEExplainer` prototypes in
+  `backend/app/ml/explainability.py` — no endpoint referenced them, and the LIME
+  one fabricated its attributions with `np.random.uniform`.
+- The backend dependencies nothing else used once those classes were gone:
+  `shap==0.46.0`, `scikit-learn==1.5.1`, `scipy==1.14.0`.
+
 ### Fixed
 
+- `FeatureContributionExplainer` grouped contributions by a fixed-size slice, so
+  when every contribution was positive the API interpretation still reported the
+  smallest positives as "main negative factors". Contributions are now grouped
+  by their sign.
+- `calculate_confidence` raised `ZeroDivisionError` on an empty feature dict.
 - The `research` CI job pinned Python 3.11, which cannot install
   `research/requirements.txt` (`numpy 2.5` / `pandas 3` require >=3.12); it now
   uses 3.12, matching the documented requirement.

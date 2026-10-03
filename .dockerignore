@@ -12,6 +12,10 @@ docs
 
 # Other apps in the monorepo
 frontend
+# research/ is a separate module. Its dataset files are gitignored but may be
+# present locally, and it usually has its own .venv, so excluding it keeps the
+# backend build context (context: . in docker-compose.yml) from ballooning.
+research
 
 # Dependencies and build artifacts
 **/node_modules
@@ -19,6 +23,11 @@ frontend
 **/*.pyc
 **/*.pyo
 **/.pytest_cache
+**/.venv
+**/venv
+**/.next
+**/coverage
+**/htmlcov
 backend/*.db
 backend/*.sqlite
 backend/*.sqlite3
@@ -28,6 +37,6 @@ backend/*.sqlite3
 .env.*
 .uploads
 .screenshots
-trae-html-share-packages
+.trae-html-share-packages
 *.log
 .DS_Store

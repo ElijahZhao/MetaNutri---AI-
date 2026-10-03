@@ -477,4 +477,34 @@
 
 ---
 
+## 八、第十五轮审查（2026-10-03 · A 线缺陷修缮 / 死代码清理）
+
+**范围**：再次全量筛查——后端（API / ML / services）、前端 `src/`、CI / Docker / 仓库卫生、依赖。所有者本轮授权在「保证项目正常运行」前提下修缮 A 线的**缺陷与死代码**，不新增功能。
+
+**结论：未发现新的安全漏洞。** 修复 2 处用户可见的正确性缺陷（其中一处为**伪统计量**）、1 个健壮性缺口、1 组死代码及其连带依赖，并做 2 处构建/容器硬化。
+
+| # | 严重度 | 问题 | 证据（改动前） | 处置 |
+|---|--------|------|----------------|------|
+| D1 | 中 | `FeatureContributionExplainer` 用**固定切片** `sorted_contributions[-3:]` 充当「负面因素」，不判正负。血糖路径输入（年龄/体重/GI/碳水…）**全为正**，贡献值也全为正 → 返回文案把「最小的正贡献」标成**主要负面因素**（对用户可见的误导） | `backend/app/ml/explainability.py:57-64` | 改为**按贡献正负分组**；量级排序天然使「最负」居首 |
+| D2 | 低 | `calculate_confidence` 以 `len(input_data)` 为分母，空字典即 `ZeroDivisionError` | `backend/app/ml/explainability.py:151-154` | 空输入直接返回基准置信度 `0.6` |
+| D3 | 中 | `nutrient-absorption` 用 `np.random.uniform` 抖动吸收率 → 同一请求结果不稳定，与「全项目确定性」相悖 | `backend/app/api/predict.py:200-202` | 改为**确定性剂量-吸收曲线**（剂量饱和）；README / README.zh-CN / `docs/API.md` 表述同步修正 |
+| D4 | 低 | `SHAPExplainer` / `LIMEExplainer` 为**死代码**（无任何端点引用）；后者还用 `np.random.uniform` 伪造贡献 | `backend/app/ml/explainability.py:8-113` | 删除。该模块不再依赖 numpy/pandas/shap/sklearn，成为纯标准库模块 |
+| D5 | 低 | 随 D4，`shap==0.46.0`、`scikit-learn==1.5.1`、`scipy==1.14.0` 在 `backend/` **完全无引用**（全库 grep 确认） | `backend/requirements.txt` | 移除，缩小镜像与供应链面 |
+| D6 | 低 | 后端镜像**以 root 运行**（前端镜像已降权至 `nextjs`） | `backend/Dockerfile` | 新增非 root 用户、`chown /app` 后 `USER appuser` |
+| D7 | 低 | `.dockerignore` **未排除 `research/`**（含 `.venv`，本地还可能有数百 MB 数据集），而后端镜像构建上下文是仓库根 → 每次构建都被打包进上下文；另一条 `trae-html-share-packages` 少了点号，实际目录 `.trae-html-share-packages` 从未被忽略 | `.dockerignore` | 补 `research`、`**/.venv`、`**/.next`、`**/coverage` 等；修正拼写 |
+| D8 | 中 | `/api/metabolomics/analysis` 用 `np.random.uniform` 生成 `enrichment_score` 与 **`p_value`** → 每次请求给出**随机 p 值**，前端 `content.tsx` 还以 `p=...` 渲染（**伪统计量被当作显著性展示**）；属 D3 同类缺陷但后果更敏感 | `backend/app/api/metabolomics.py:141-148` | 改为**确定性**：`enrichment_score` = 观测/期望计数比，`p_value` = 其单调函数（`1/(1+分数)`）；字段与类型不变，前端零改动；`docs/API.md` 标注为启发式、非统计检验 |
+
+**文档更正**：`docs/ROADMAP.md` §1.5 称 `lint-staged`「并非任何依赖、husky 处于休眠」——现状已变：`frontend/package.json` 已列 `lint-staged@^15.5.2` 并配规则，根 `package.json` 亦有 `husky` + `prepare`，对跑过 `npm install` 的环境该钩子**生效**。已在 ROADMAP 新增 §1.6 说明（不改写历史记录）。
+
+**确认健康（本轮复核，有证据）**：`npm audit --omit=dev` = **0 漏洞**；`frontend/src` 无任何 XSS 落点（`dangerouslySetInnerHTML` / `innerHTML` / `eval` / `new Function` / `document.write` 均 0 命中）；全库无 `TODO/FIXME/HACK`；未跟踪任何密钥（仅 `.env.example`）；模型加载一律 `torch.load(weights_only=True)`；`users` / `metabolomics` / `recommendation` / `import_export` 均按 `user_id == current_user.id` 过滤；限流、CSP 与安全响应头、CI `permissions: contents: read` 均在位。
+
+**有意保留（未处置）**：
+- N1 / N2：数据集下载器与天池客户端为**演示占位**，按 §1.5 决定不改代码。
+- `predict.py` 请求体 `user_id` 必填却被忽略（实际用 `current_user.id`）——**不是越权、无数据泄漏**，仅 API 语义冗余；改动需前后端联动，记录待议。
+- GitHub Actions 仍以可变 major tag（`@v4` / `@v5`）引用第三方 Action；由 Dependabot 跟进，本轮未改为 SHA 固定。
+
+**验证**：`python -m compileall -q app` 通过；`explainability.py` 已无第三方依赖，本轮以纯 Python 断言其正负号分组（全正输入时 `top_negative` 为空）与空输入置信度，均通过。
+
+---
+
 > 备注：本文档仅为审查记录，上述事项处理完毕后可一并删除，避免成为新的过时文件。

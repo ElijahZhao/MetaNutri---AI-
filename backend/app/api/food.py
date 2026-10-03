@@ -15,10 +15,14 @@ router = APIRouter(prefix="/api/foods", tags=["foods"])
 
 @router.get("/search", response_model=FoodSearchResult)
 async def search_foods(
-    q: str = Query(..., min_length=1),
+    # An empty ``q`` lists the catalogue instead of failing validation. It used to
+    # be ``Query(..., min_length=1)``, so the Explore page — which loads with an
+    # empty query to show every food — got a 422 and rendered an empty list.
+    q: str = Query("", max_length=100),
     category: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 20,
+    # Bound the page window so a caller cannot ask for a negative/unbounded slice.
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):

@@ -44,7 +44,12 @@ export const useAuthStore = create<AuthState>()(
         } catch (err) {
           set({ isLoading: false });
           const apiError = err as ApiErrorLike;
-          const message = apiError.userMessage || apiError.response?.data?.detail || 'Login failed';
+          // `detail` may be an array (422 validation errors); only a string here.
+          const detail = apiError.response?.data?.detail;
+          const message =
+            apiError.userMessage ||
+            (typeof detail === 'string' ? detail : undefined) ||
+            'Login failed';
           return { success: false, error: message };
         }
       },
@@ -64,8 +69,12 @@ export const useAuthStore = create<AuthState>()(
         } catch (err) {
           set({ isLoading: false });
           const apiError = err as ApiErrorLike;
+          // See login: validation errors carry an array, not a string.
+          const detail = apiError.response?.data?.detail;
           const message =
-            apiError.userMessage || apiError.response?.data?.detail || 'Registration failed';
+            apiError.userMessage ||
+            (typeof detail === 'string' ? detail : undefined) ||
+            'Registration failed';
           return { success: false, error: message };
         }
       },

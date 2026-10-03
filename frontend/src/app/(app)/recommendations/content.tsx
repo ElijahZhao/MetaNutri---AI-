@@ -48,7 +48,7 @@ function RecommendationsContent() {
 
   const scoreFood = async (foodId: string, _foodName: string) => {
     try {
-      const res = await recommendationAPI.foodScore({ user_id: 'me', food_id: foodId });
+      const res = await recommendationAPI.foodScore({ food_id: foodId });
       setFoodScore(res.data);
     } catch (e) {
       console.error(e);
@@ -59,7 +59,7 @@ function RecommendationsContent() {
   const generateMeal = async () => {
     setGenerating(true);
     try {
-      await recommendationAPI.mealPlan({} as Parameters<typeof recommendationAPI.mealPlan>[0]);
+      await recommendationAPI.mealPlan({});
       fetchRecs();
       toast.success(t.recommendations.generateSuccess);
     } catch (e) {
