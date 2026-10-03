@@ -7,6 +7,8 @@ Not a clinical tool.
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -18,7 +20,20 @@ from inference import (
     TARGET_LABELS,
 )
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+ASSETS = os.path.join(HERE, "assets")
+EXTERNAL_CSV = os.path.join(ASSETS, "external_results.csv")
+EXTERNAL_FIG = os.path.join(ASSETS, "fig5_external_validation.png")
+
 st.set_page_config(page_title="PPGR Predictor — CGMacros demo", page_icon="🩸", layout="wide")
+
+# Rows shown in the external-validation panel: (display label, cohort, model).
+EXTERNAL_ROWS = [
+    ("CGMacros (LOPO, internal)", "CGMacros (LOPO, internal)", "xgboost"),
+    ("BIG IDEAs (LOPO, internal)", "BIG IDEAs (LOPO, internal)", "xgboost"),
+    ("BIG IDEAs (external, XGBoost)", "BIG IDEAs (external transfer)", "xgboost"),
+    ("BIG IDEAs (external, carb-only Ridge)", "BIG IDEAs (external transfer)", "carb-only linear"),
+]
 
 MEAL_LABELS = {
     "carbs_g": "Carbohydrates (g)",
@@ -46,6 +61,58 @@ SUBJECT_LABELS = {
 @st.cache_resource
 def load_model() -> PPGRModel:
     return PPGRModel()
+
+
+@st.cache_data
+def load_external() -> pd.DataFrame:
+    return pd.read_csv(EXTERNAL_CSV)
+
+
+def _external_table(df: pd.DataFrame) -> pd.DataFrame:
+    """Held-out Pearson r by protocol × target, on the five shared features."""
+    core = df[df["feature_set"] == "core (5 features)"]
+    data: dict[str, dict[str, float]] = {}
+    for label, cohort, model in EXTERNAL_ROWS:
+        sub = core[(core["cohort"] == cohort) & (core["model"] == model)]
+        row: dict[str, float] = {}
+        for target in ("auc", "iauc", "peak_rise"):
+            vals = sub.loc[sub["target"] == target, "pearson_r"]
+            row[TARGET_LABELS[target].split(" (")[0]] = (
+                float(vals.iloc[0]) if len(vals) else float("nan")
+            )
+        data[label] = row
+    return pd.DataFrame.from_dict(data, orient="index")
+
+
+def render_external() -> None:
+    """Read-only summary of the cross-cohort (BIG IDEAs) validation."""
+    if not os.path.exists(EXTERNAL_CSV):
+        st.info("External-validation results are not bundled with this build.")
+        return
+
+    st.markdown(
+        "The CGMacros model above was **frozen** — no retraining — and applied to "
+        "**BIG IDEAs**, an independent cohort (16 subjects, 656 meals, a different "
+        "CGM device and free-living food logs). Only the five features shared by "
+        "both datasets are used (carbohydrate, protein, baseline glucose, sex, HbA1c)."
+    )
+    st.dataframe(
+        _external_table(load_external()).style.format("{:.2f}", na_rep="—"),
+        width="stretch",
+    )
+    st.caption("Pearson r between observed and predicted values. Higher is better.")
+    if os.path.exists(EXTERNAL_FIG):
+        st.image(
+            EXTERNAL_FIG,
+            caption="Figure 5 — external validation (technical report §4.4).",
+        )
+    st.markdown(
+        "Read it honestly: **AUC still transfers** (r ≈ 0.57), but **iAUC and peak "
+        "rise drop** to r ≈ 0.22, and a carbohydrate-only Ridge regression transfers "
+        "*better* on those two targets (r ≈ 0.36). The BIG IDEAs internal LOPO row "
+        "(0.46) shows the drop is a shift between cohorts, not noise in the external "
+        "data — exactly the kind of result only an external test can expose."
+    )
 
 
 def _number_input(name: str, label: str, bounds: dict, medians: dict, step: float) -> float:
@@ -95,6 +162,9 @@ def main() -> None:
             "person's overall glucose level, while iAUC isolates the meal-driven "
             "excursion."
         )
+
+    with st.expander("Does it generalise to another cohort? (external validation)", expanded=False):
+        render_external()
 
     with st.form("inputs"):
         st.subheader("Meal")
