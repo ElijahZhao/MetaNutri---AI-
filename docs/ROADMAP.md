@@ -110,7 +110,7 @@ MetaNutri---AI-/
 
 **叙事分工**：平台 = 工程与产品能力；`research/` = 研究能力。二者互不牵连、互不污染。
 
-Demo 部署平台：**Hugging Face Spaces（Streamlit SDK）**——复用熟悉的 Streamlit，同时获得社区曝光与现成算力。
+Demo 部署平台：**Streamlit Community Cloud**——复用熟悉的 Streamlit，免费且原生支持；代码经 GitHub（`ElijahZhao/ppgr-predictor`）托管后一键部署。（原计划 Hugging Face Spaces 因免费档不再提供 Streamlit SDK 而弃用，见 §6。）
 
 ---
 
