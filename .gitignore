@@ -68,3 +68,9 @@ SECRETS.md
 # Python virtual environments
 venv/
 .venv/
+
+# Research module: dataset files are NEVER committed
+# (CGMacros raw ZIP is 627 MB; extracted data is larger still)
+research/data/raw/
+research/data/interim/
+research/data/processed/
