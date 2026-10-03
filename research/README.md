@@ -26,6 +26,9 @@ is then tested for cross-cohort generalisation on **BIG IDEAs**.
 - [x] External validation (stretch goal) on **BIG IDEAs** (16 subjects, 656
       meals): `download_bigideas.py` → `build_external.py` → `external_validate.py`,
       reported in §4.4 of the technical report.
+- [x] Evaluation hardening: within-/between-subject variance decomposition and a
+      median-split ROC-AUC (`evaluate.py`, report §4.5), plus distribution-free
+      conformal prediction intervals (`uncertainty.py`, report §4.6).
 - [ ] P4 — connect the model back to the platform: **decided against** (violates
       the "freeze the backend" constraint, and the 512 MB host cannot carry it).
 

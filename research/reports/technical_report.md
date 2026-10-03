@@ -36,10 +36,12 @@ tree ensemble, a cautionary result about non-linear models that fit
 cohort-specific structure. A within-/between-subject decomposition shows that
 the high AUC correlation is driven mainly by identifying *who* responds more,
 whereas iAUC's correlation is closer to genuine meal-level ranking; median-split
-ROC-AUC is 0.74–0.96 across targets. We report limitations candidly: small
-cohorts, pooled-observation metrics that mix between- and within-subject
-variance, and a large domain gap between the two studies. Code, figures and
-fixed-seed experiments are included for full reproducibility.
+ROC-AUC is 0.74–0.96 across targets. Distribution-free conformal intervals hit
+their nominal marginal coverage (0.800 / 0.898) but are wide and, we show
+candidly, under-cover a minority of individuals. We report the limitations
+plainly: small cohorts, pooled-observation metrics that mix between- and
+within-subject variance, and a large domain gap between the two studies. Code,
+figures and fixed-seed experiments are included for full reproducibility.
 
 ---
 
@@ -213,8 +215,8 @@ therefore what makes replication directly comparable. We additionally report
 Spearman ρ, R², RMSE and MAE. R² and RMSE are on the original, untransformed
 scale (iAUC in mg/dL·min), and are more sensitive to the long right tail than
 **r** is; we therefore treat **r** as the headline and the error metrics as
-context. Prediction intervals are not reported because the tree ensemble does
-not natively produce calibrated uncertainty for unseen subjects.
+context. The tree ensemble does not natively produce calibrated uncertainty, so
+we add distribution-free **conformal prediction intervals** on top of it (§4.6).
 
 Because a pooled correlation conflates two different sources of variance, we
 additionally report a **within- / between-subject decomposition** (§4.5), and —
@@ -402,6 +404,46 @@ within-subject r of only ≈0.21 for iAUC and peak rise, and the mean predictor
 has zero within-subject skill by construction; the full table, including each
 baseline's decomposition, is in `experiments/results.csv`.
 
+### 4.6 Prediction intervals (conformal)
+
+A point prediction is not enough for a health-adjacent task. We add
+**cross-conformal** intervals (Vovk et al.; Barber et al., 2021) on top of the
+existing LOPO predictions — no new model, and the point predictions are
+unchanged. For each held-out subject, the absolute residuals of all *other*
+subjects serve as a calibration set; the finite-sample conformal quantile
+``ceil((n+1)(1-alpha))`` gives the half-width, and the interval is ``ŷ ± q``.
+Nothing about a subject's own responses is used to size its interval.
+
+**Table 6 — Conformal intervals, XGBoost under LOPO.**
+
+| Subset | Target | Nominal | Empirical coverage | Mean width (mg/dL·min) | Worst-subject coverage |
+|---|---|---|---|---|---|
+| All meals | 2-h AUC | 80% | 0.800 | 6,119 | 0.18 |
+| All meals | 2-h AUC | 90% | 0.898 | 8,751 | 0.40 |
+| All meals | 2-h iAUC | 80% | 0.800 | 5,357 | 0.32 |
+| All meals | 2-h iAUC | 90% | 0.897 | 7,909 | 0.50 |
+| Breakfast | 2-h AUC | 90% | 0.898 | 9,808 | 0.00 |
+| Breakfast | 2-h iAUC | 90% | 0.896 | 8,885 | 0.30 |
+
+![Conformal prediction intervals](figures/fig7_conformal.png)
+
+**Figure 7 — Conformal intervals.** A: empirical versus nominal coverage.
+B: interval width. C: per-subject coverage at 90% for iAUC, sorted — the tail
+below the dashed line is the exchangeability caveat made visible.
+
+Three things are worth stating. First, **marginal coverage is essentially
+exact**: 0.800 and 0.898 against nominal 80% and 90%, as conformal theory
+predicts. Second, the intervals are **wide** — the 90% interval for all-meal
+iAUC spans ≈7,900 mg/dL·min, close to four times the median iAUC of ≈2,000, so
+the intervals are trustworthy but coarse; they shrink with the target's
+predictability (AUC intervals are narrower relative to its spread). Third, and
+most important, **coverage is not uniform across subjects**: per-subject
+coverage at 90% ranges from 0.50 upward for iAUC, and one breakfast-AUC subject
+has *no* meals covered at 80%. Marginal validity can therefore hide individuals
+who sit systematically outside the band — a direct consequence of meals within a
+subject being correlated rather than exchangeable. Per-subject (Mondrian) or
+residual-normalised conformal methods are the natural remedy (§7).
+
 ---
 
 ## 5. Discussion
@@ -480,8 +522,11 @@ We state these explicitly; they bound every claim above.
   performance cannot be attributed to any single factor. The BIG IDEAs meals are
   also derived from a 1.1.2 food log whose dates required our own repair
   procedure, which is validated but not ground truth.
-- **No uncertainty quantification.** Point predictions are reported without
-  calibrated intervals; for a health-adjacent setting, that is a real gap.
+- **Intervals are only marginally valid.** We do report conformal intervals
+  (§4.6), and their marginal coverage matches nominal (0.800 / 0.898). But the
+  coverage is not uniform across people — per-subject coverage falls to 0.50 for
+  iAUC and to 0.00 for one breakfast-AUC subject — and the intervals are wide.
+  They should be read as population-level guarantees, not per-person ones.
 - **Observational and non-causal.** Associations between features and response
   are not interventions. Nothing here implies that changing a macronutrient
   will cause the predicted change.
@@ -505,8 +550,10 @@ We state these explicitly; they bound every claim above.
    the iAUC signal that the frozen model loses; testing a third cohort
    (e.g. a T2D population) would separate device effects from population
    effects.
-2. **Uncertainty estimates** (quantile or conformal prediction) so a prediction
-   comes with a defensible interval.
+2. **Adaptive / per-subject conformal prediction** (Mondrian or
+   residual-normalised), so interval coverage is uniform across people rather
+   than only marginal — §4.6 shows the current intervals under-cover specific
+   individuals even though the pooled coverage is on target.
 3. **Richer meal representations** — meal timing, prior-meal context, activity,
    and **meal type as an explicit feature** (we currently use meal type only to
    define evaluation subsets, not as an input to the model).
@@ -544,6 +591,7 @@ src/experiment.py        # LOPO protocol, baselines, XGBoost (uses src/evaluate.
 src/build_external.py    # BIG IDEAs → meal-level table (date-offset repair)
 src/external_validate.py # cross-cohort transfer → experiments/external_results.csv
 src/make_figures.py      # figures 1–6
+src/uncertainty.py       # conformal intervals → table 6, figure 7, experiments/uncertainty.csv
 src/train_final.py       # freeze the model into app/model/ for the demo
 src/export_report_pdf.py # this report → reports/technical_report.pdf
 ```
