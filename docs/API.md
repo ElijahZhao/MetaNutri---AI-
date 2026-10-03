@@ -6,7 +6,7 @@
 
 其中 `<BASE>` 为后端根地址（本地 `http://localhost:8000`，生产 `https://metanutri-backend.onrender.com`）。
 
-> ⚠️ **诚实说明（演示性质）**：`/api/predict/*`、`/api/metabolomics/analysis`、`/api/recommendations/food-score` 等"AI"接口当前返回的是**确定性启发式**（部分掺入随机值），**不是**神经网络推理；`backend/app/ml/` 下的模型代码为**研究原型，未接入线上 API**，`weights/` 权重也**从不加载**。数据集相关接口为演示占位，见 [DATASETS.md](./DATASETS.md)。详见根目录 README 的「Project Status / Limitations & Scope」。
+> ⚠️ **诚实说明（演示性质）**：`/api/predict/*`、`/api/metabolomics/analysis`、`/api/recommendations/food-score` 等"AI"接口当前返回的是**确定性启发式**，**不是**神经网络推理；`backend/app/ml/` 下的模型代码为**研究原型，未接入线上 API**，`weights/` 权重也**从不加载**。数据集相关接口为演示占位，见 [DATASETS.md](./DATASETS.md)。详见根目录 README 的「Project Status / Limitations & Scope」。
 
 ---
 

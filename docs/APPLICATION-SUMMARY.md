@@ -113,7 +113,7 @@ the real AI on a separate, verifiable track.
    BIG IDEAs LOPO control (iAUC r = 0.463) is what makes the external drop
    interpretable as domain shift rather than noise.
 5. **I build the infrastructure a result needs to be trusted.** Fixed seeds,
-   pinned versions, an 11-page technical report with limitations, a public demo,
+   pinned versions, a 16-page technical report with limitations, a public demo,
    and scripts that regenerate every figure and table from raw data.
 6. **I am willing to fix my own narrative.** The platform's AI claims were not
    supported by its code. I documented that, changed the wording, and redirected
