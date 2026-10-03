@@ -6,7 +6,7 @@
 >
 > 遗留项状态：CSRF 专项核查 ✅ 已完成（无阻断项，1 处配置隐患已记入 `AUDIT-FINDINGS.md` 第六节）；技术报告 PDF ✅ 已导出；`.deploy` 误当子模块、遗留 `ppgr-predictor-space.zip` 两处版本库卫生问题 ✅ 已修复。
 >
-> 评估强化（2026-10-03）：技术报告新增 §4.5，把汇总相关系数拆成**个体内 / 个体间**两部分，并补上**中位数二分 ROC-AUC**；结论：AUC 的高相关主要来自"认出谁反应更高"，iAUC 才更接近真实的餐次信号。对应代码 `research/src/evaluate.py`、图 6、`experiments/results.csv`。
+> 评估强化（2026-10-03）：技术报告新增 §4.5，把汇总相关系数拆成**个体内 / 个体间**两部分，并补上**中位数二分 ROC-AUC**；结论：AUC 的高相关主要来自"认出谁反应更高"，iAUC 才更接近真实的餐次信号。另新增 §4.6：在 LOPO 预测上叠加**保形预测区间**（conformal），边际覆盖率达标（0.800 / 0.898），但区间偏宽、且少数个体被系统性低估覆盖——如实报告。对应代码 `research/src/evaluate.py`、`research/src/uncertainty.py`，图 6–7、表 5–6、`experiments/results.csv`、`experiments/uncertainty.csv`。
 >
 > 两仓库关系（本仓库 ↔ `ElijahZhao/ppgr-predictor`）见两份 README 的 "Related Repositories" 章节。
 >
