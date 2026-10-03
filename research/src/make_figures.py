@@ -63,7 +63,8 @@ def fig1_pred_vs_actual(df: pd.DataFrame) -> None:
     targets = ["auc", "iauc"]
     col_titles = ["Breakfast only", "All meals"]
     fig, axes = plt.subplots(2, 2, figsize=(8, 8))
-    for col, ((label, subset), col_title) in enumerate(zip(subsets.items(), col_titles)):
+    paired = zip(subsets.items(), col_titles, strict=False)
+    for col, ((_label, subset), col_title) in enumerate(paired):
         for row, target in enumerate(targets):
             ax = axes[row, col]
             pred = lopo_xgb(subset, target)
@@ -91,7 +92,7 @@ def fig2_model_comparison() -> None:
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.2), sharey=True)
     width = 0.25
     x = np.arange(len(targets))
-    for ax, subset in zip(axes, subsets):
+    for ax, subset in zip(axes, subsets, strict=False):
         sub = res[res["subset"] == subset]
         for i, model in enumerate(MODEL_ORDER):
             vals = [
@@ -144,7 +145,7 @@ def fig4_feature_importance(df: pd.DataFrame) -> None:
         "all meals": df,
     }
     fig, axes = plt.subplots(1, 2, figsize=(11, 5.4))
-    for ax, (label, subset) in zip(axes, subsets.items()):
+    for ax, (label, subset) in zip(axes, subsets.items(), strict=False):
         y = subset["iauc"].to_numpy()
         x = subset[FEATURE_COLUMNS].fillna(subset[FEATURE_COLUMNS].median()).to_numpy(dtype=float)
         model = xgb.XGBRegressor(
@@ -179,7 +180,7 @@ def fig5_external_validation() -> None:
     core = res[(res["model"] == "xgboost") & (res["feature_set"] == "core (5 features)")]
     x = np.arange(len(targets))
     width = 0.26
-    for i, (cohort, colour) in enumerate(zip(cohorts, colors)):
+    for i, (cohort, colour) in enumerate(zip(cohorts, colors, strict=False)):
         vals = [core[(core["cohort"] == cohort) & (core["target"] == t)]["pearson_r"].iloc[0]
                 for t in targets]
         ax0.bar(x + (i - 1) * width, vals, width, label=cohort, color=colour)
@@ -190,7 +191,7 @@ def fig5_external_validation() -> None:
     ax0.legend(fontsize=7.5, loc="upper right")
     ax0.set_ylim(0, 0.95)
 
-    for target, colour in zip(targets, colors):
+    for target, colour in zip(targets, colors, strict=False):
         te, pred = transfer(cg, bi, CORE, target)
         obs = te[target].to_numpy()
         r = stats.pearsonr(obs, pred).statistic
@@ -227,7 +228,7 @@ def fig6_within_between() -> None:
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.2), sharey=True)
     width = 0.26
     x = np.arange(len(targets))
-    for ax, (subset, title) in zip(axes, subsets.items()):
+    for ax, (subset, title) in zip(axes, subsets.items(), strict=False):
         sub = res[(res["subset"] == subset)
                   & (res["model"] == "xgboost (official baseline)")]
         for i, (label, col, colour) in enumerate(series):

@@ -12,12 +12,10 @@ import os
 import numpy as np
 import pandas as pd
 import streamlit as st
-
 from inference import (
-    FEATURE_LABELS,
     MEAL_FIELDS,
-    PPGRModel,
     TARGET_LABELS,
+    PPGRModel,
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -148,7 +146,7 @@ def main() -> None:
 
     with st.expander("How reliable is it? (held-out-subject performance)", expanded=False):
         c1, c2, c3 = st.columns(3)
-        for col, target in zip((c1, c2, c3), ("auc", "iauc", "peak_rise")):
+        for col, target in zip((c1, c2, c3), ("auc", "iauc", "peak_rise"), strict=False):
             m = lopo[target]
             col.metric(
                 TARGET_LABELS[target].split(" (")[0],
@@ -170,7 +168,7 @@ def main() -> None:
         st.subheader("Meal")
         meal_cols = st.columns(5)
         meal = {}
-        for col, name in zip(meal_cols, MEAL_FIELDS):
+        for col, name in zip(meal_cols, MEAL_FIELDS, strict=False):
             with col:
                 meal[name] = _number_input(name, MEAL_LABELS[name], bounds, medians, 1.0)
 
@@ -217,7 +215,7 @@ def main() -> None:
     st.divider()
     st.subheader("Prediction")
     c1, c2, c3 = st.columns(3)
-    for col, target in zip((c1, c2, c3), ("auc", "iauc", "peak_rise")):
+    for col, target in zip((c1, c2, c3), ("auc", "iauc", "peak_rise"), strict=False):
         col.metric(
             TARGET_LABELS[target].split(" (")[0],
             f"{preds[target]:,.0f}",

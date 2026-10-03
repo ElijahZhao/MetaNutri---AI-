@@ -138,7 +138,7 @@ def fig8_mixed_effects(coefs: pd.DataFrame, variance: pd.DataFrame) -> None:
     y = np.arange(len(order))
     colours = {"within-subject": "#2c6fbb", "between-subject": "#66a182"}
 
-    for ax, target in zip(axes, TARGETS):
+    for ax, target in zip(axes, TARGETS, strict=False):
         sub = coefs[coefs["target"] == target]
         for component, offset in (("within-subject", 0.16), ("between-subject", -0.16)):
             part = sub[sub["component"] == component].set_index("predictor").reindex(order)

@@ -46,7 +46,6 @@ Output: data/processed/bigideas_meals.csv (one row per eating event).
 from __future__ import annotations
 
 import os
-import re
 import warnings
 
 import numpy as np
@@ -253,7 +252,8 @@ def main() -> None:
     print((meals[["carbs_g", "protein_g", "fat_g", "fiber_g",
                   "baseline_glucose", "gender", "a1c"]].isna().mean() * 100).round(1).to_string())
     print("\nTarget ranges:")
-    print(meals[["iauc", "auc", "peak_rise"]].describe().loc[["min", "50%", "max"]].round(1).to_string())
+    target_summary = meals[["iauc", "auc", "peak_rise"]].describe().loc[["min", "50%", "max"]]
+    print(target_summary.round(1).to_string())
     valid = meals.dropna(subset=["carbs_g", "iauc"])
     print(f"\ncorr(carbs_g, iauc) = {valid['carbs_g'].corr(valid['iauc']):.3f} "
           f"(n = {len(valid)})")

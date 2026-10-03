@@ -143,7 +143,7 @@ class PPGRModel:
         x = self._vector(values).reshape(1, -1)
         dm = self._xgb.DMatrix(x, feature_names=self.features)
         contribs = self.boosters[target].predict(dm, pred_contribs=True)[0]
-        pairs = list(zip(self.features, contribs[:-1]))  # last entry is the bias
+        pairs = list(zip(self.features, contribs[:-1], strict=False))  # last entry is the bias
         pairs.sort(key=lambda kv: abs(kv[1]), reverse=True)
         return [(FEATURE_LABELS.get(name, name), float(val)) for name, val in pairs]
 
@@ -156,7 +156,6 @@ class PPGRModel:
         """
         horizon = int(self.meta["shape_horizon_min"])
         k = float(self.shape["shape_k"])
-        tp0 = float(self.shape["peak_time_min"])
         t = np.arange(0, horizon + 1, step, dtype=float)
 
         amplitude = max(float(peak_rise), 0.0)

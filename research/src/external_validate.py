@@ -31,10 +31,9 @@ import warnings
 
 import numpy as np
 import pandas as pd
+import xgboost as xgb
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import StandardScaler
-
-import xgboost as xgb
 
 from evaluate import SEED, _metrics, lopo_predict, xgb_model
 
