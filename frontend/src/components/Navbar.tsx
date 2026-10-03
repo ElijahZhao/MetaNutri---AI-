@@ -25,6 +25,7 @@ export default function Navbar() {
     { href: '/metabolomics', label: t.metabolomicsLabel },
     { href: '/datasets', label: 'Datasets' },
     { href: '/recommendations', label: 'Recommendations' },
+    { href: '/meal-plan', label: t.recommendations.mealPlans },
     { href: '/predict', label: 'Predictions' },
   ];
 

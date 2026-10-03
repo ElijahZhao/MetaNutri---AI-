@@ -94,7 +94,7 @@ async def get_user_metabolomics(
     ) for r in records]
 
 
-@router.get("/analysis")
+@router.post("/analysis")
 async def analyze_metabolomics(
     current_user: User = Depends(get_current_active_user),
     db=Depends(get_db)

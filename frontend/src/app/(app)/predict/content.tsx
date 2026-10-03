@@ -118,8 +118,8 @@ function PredictContent() {
                     <p className="text-lg font-bold text-slate-900">{glucose.time_to_peak}m</p>
                   </div>
                   <div className="p-3 bg-slate-50 rounded-lg text-center">
-                    <p className="text-xs text-slate-500">{t.predict.hba1cEst}</p>
-                    <p className="text-lg font-bold text-slate-900">{glucose.aic_score}%</p>
+                    <p className="text-xs text-slate-500">{t.predict.aicScore}</p>
+                    <p className="text-lg font-bold text-slate-900">{glucose.aic_score}</p>
                   </div>
                 </div>
                 <ReactECharts option={glucoseOption} style={{ height: 280 }} />
