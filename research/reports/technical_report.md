@@ -33,10 +33,13 @@ different CGM device and free-living self-reported food logs). AUC transfers
 partially (**r = 0.569**), but iAUC and peak rise collapse to r ≈ 0.22 — and a
 simple carbohydrate-only regression transfers *better* (r = 0.36) than the
 tree ensemble, a cautionary result about non-linear models that fit
-cohort-specific structure. We report limitations candidly: small cohorts,
-pooled-observation metrics that mix between- and within-subject variance, and a
-large domain gap between the two studies. Code, figures and fixed-seed
-experiments are included for full reproducibility.
+cohort-specific structure. A within-/between-subject decomposition shows that
+the high AUC correlation is driven mainly by identifying *who* responds more,
+whereas iAUC's correlation is closer to genuine meal-level ranking; median-split
+ROC-AUC is 0.74–0.96 across targets. We report limitations candidly: small
+cohorts, pooled-observation metrics that mix between- and within-subject
+variance, and a large domain gap between the two studies. Code, figures and
+fixed-seed experiments are included for full reproducibility.
 
 ---
 
@@ -213,6 +216,13 @@ scale (iAUC in mg/dL·min), and are more sensitive to the long right tail than
 context. Prediction intervals are not reported because the tree ensemble does
 not natively produce calibrated uncertainty for unseen subjects.
 
+Because a pooled correlation conflates two different sources of variance, we
+additionally report a **within- / between-subject decomposition** (§4.5), and —
+so the numbers can be compared with classification-style PPGR reporting — a
+**median-split ROC-AUC** computed from the continuous predictions. The split
+threshold is derived from the observed responses and is never seen by the model;
+full per-model values are in `experiments/results.csv`.
+
 ---
 
 ## 4. Results
@@ -348,6 +358,50 @@ under the five shared features; the red bars are the frozen-model transfer.
 Right: predicted versus observed for the transferred model — the AUC cloud
 follows the diagonal loosely, while iAUC and peak rise are nearly flat.
 
+### 4.5 Within- versus between-subject skill, and discrimination
+
+A pooled correlation answers two questions at once, and it is worth separating
+them. **Within-subject** skill asks whether the model ranks a person's *own*
+meals correctly (each subject's observed and predicted values are centred on
+that subject's means before correlating). **Between-subject** skill asks whether
+the model recovers *who* tends to respond more (per-subject means are correlated
+across the 45 subjects). We also report a median-split ROC-AUC, which asks
+whether the model can pick out above-typical from below-typical responses.
+
+**Table 5 — XGBoost skill decomposition and discrimination (LOPO).**
+
+| Subset | Target | Pooled r | Within-subject r | Between-subject r | ROC-AUC |
+|---|---|---|---|---|---|
+| Breakfast | 2-h AUC | 0.890 | 0.601 | 0.926 | 0.956 |
+| Breakfast | 2-h iAUC | 0.655 | 0.519 | 0.693 | 0.875 |
+| Breakfast | Peak rise | 0.632 | 0.544 | 0.667 | 0.831 |
+| All meals | 2-h AUC | 0.838 | 0.654 | 0.921 | 0.910 |
+| All meals | 2-h iAUC | 0.451 | 0.430 | 0.501 | 0.744 |
+| All meals | Peak rise | 0.542 | 0.455 | 0.697 | 0.770 |
+
+![Within- and between-subject skill](figures/fig6_within_between.png)
+
+**Figure 6 — Pooled skill versus its within- and between-subject parts**
+(XGBoost, LOPO). When the between-subject bar towers over the within-subject
+bar, much of the pooled correlation reflects knowing *who* the person is.
+
+The decomposition sharpens the AUC/iAUC contrast in §5. For AUC, between-subject
+skill (0.921, all meals) is far larger than within-subject skill (0.654): a
+substantial part of the impressive pooled AUC correlation is simply identifying
+individuals with a higher overall glucose level, not reading the meal. For iAUC,
+the two components are nearly equal (0.430 within, 0.501 between), so its
+correlation is much closer to a genuine meal-level signal — a more favourable
+picture of iAUC than the pooled number alone suggests, even though iAUC's
+absolute correlation is lower. Peak rise sits in between.
+
+The ROC-AUC column shows that discrimination is strong on every target
+(0.74–0.96) and moves with the pooled r, so the modest iAUC correlation is not a
+threshold or scale artefact: the model genuinely ranks meals less reliably for
+the excursion than for the total area. For reference, the linear baselines reach
+within-subject r of only ≈0.21 for iAUC and peak rise, and the mean predictor
+has zero within-subject skill by construction; the full table, including each
+baseline's decomposition, is in `experiments/results.csv`.
+
 ---
 
 ## 5. Discussion
@@ -369,7 +423,9 @@ subject's overall glucose level, which the baseline and HbA1c features capture
 well. iAUC subtracts that baseline and isolates the *excursion*, the part that
 depends on the meal and on individual handling of it — and that is harder. This
 distinction is often blurred in PPGR reporting, where a high AUC correlation
-can be mistaken for good meal-response modelling.
+can be mistaken for good meal-response modelling. The within-/between-subject
+decomposition in §4.5 makes the point directly: AUC's pooled r is dominated by
+between-subject skill, whereas iAUC's two components are nearly equal.
 
 Fourth, **external validation changes the story in a useful way**. Inside
 CGMacros, XGBoost dominates the linear baselines on every target. Across
@@ -389,11 +445,12 @@ We state these explicitly; they bound every claim above.
 - **Small cohort.** 45 subjects cannot support deep models or fine-grained
   subgroup analysis. Neural approaches that need tens of thousands of samples
   are not justified here, which is why we use gradient-boosted stumps.
-- **Pooled metrics mix two variance sources.** Correlations are computed over
-  pooled meals, so between-subject differences inflate them relative to a
-  within-subject evaluation. A per-subject standardised variant would be
-  stricter and would likely lower the numbers; we report the comparable metric
-  but flag the effect.
+- **Pooled metrics mix two variance sources.** The headline correlations are
+  computed over pooled meals, so between-subject differences inflate them
+  relative to a purely within-subject evaluation — for AUC, most of the pooled
+  value is between-subject skill (§4.5). We report the decomposition alongside
+  the pooled metric, but the pooled number alone should not be read as
+  meal-level skill.
 - **The response is only weakly repeatable within a person.** The same meal,
   eaten again a week later, does not reliably reproduce its excursion: reported
   within-subject ICCs for postprandial response are only 0.16–0.31 (Hengist
@@ -425,9 +482,6 @@ We state these explicitly; they bound every claim above.
   procedure, which is validated but not ground truth.
 - **No uncertainty quantification.** Point predictions are reported without
   calibrated intervals; for a health-adjacent setting, that is a real gap.
-- **No discrimination metric.** We report correlations and error metrics, but not
-  a median-split ROC-AUC, so these results are not directly comparable with
-  classification-style PPGR reporting.
 - **Observational and non-causal.** Associations between features and response
   are not interventions. Nothing here implies that changing a macronutrient
   will cause the predicted change.
@@ -451,17 +505,14 @@ We state these explicitly; they bound every claim above.
    the iAUC signal that the frozen model loses; testing a third cohort
    (e.g. a T2D population) would separate device effects from population
    effects.
-2. **Within-subject evaluation** in addition to pooled metrics, to separate
-   "who is this person" from "what did they eat". We flag the pooled-metric
-   caveat in §6 but do not yet report the stricter variant.
-3. **Uncertainty estimates** (quantile or conformal prediction) so a prediction
+2. **Uncertainty estimates** (quantile or conformal prediction) so a prediction
    comes with a defensible interval.
-4. **Richer meal representations** — meal timing, prior-meal context, activity,
+3. **Richer meal representations** — meal timing, prior-meal context, activity,
    and **meal type as an explicit feature** (we currently use meal type only to
    define evaluation subsets, not as an input to the model).
-5. **A discrimination metric** — a median-split ROC-AUC alongside the
-   correlations, so the results can be compared with classification-style PPGR
-   reporting.
+4. **Per-subject reporting on larger cohorts.** The within-/between-subject
+   split in §4.5 is pooled over 45 subjects; per-subject correlations with
+   confidence intervals need more meals per person than this cohort provides.
 
 An interactive demo exposing per-meal predictions and exact TreeSHAP
 attributions on this frozen pipeline is already deployed
@@ -492,7 +543,7 @@ src/experiment.py        # LOPO protocol, baselines, XGBoost (uses src/evaluate.
                          #   → experiments/results.csv
 src/build_external.py    # BIG IDEAs → meal-level table (date-offset repair)
 src/external_validate.py # cross-cohort transfer → experiments/external_results.csv
-src/make_figures.py      # figures 1–5
+src/make_figures.py      # figures 1–6
 src/train_final.py       # freeze the model into app/model/ for the demo
 src/export_report_pdf.py # this report → reports/technical_report.pdf
 ```
