@@ -25,7 +25,9 @@ from evaluate import FEATURE_COLUMNS, lopo_predict, xgb_model
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MEALS_CSV = os.path.abspath(os.path.join(HERE, "..", "data", "processed", "meals.csv"))
+BIGIDEAS_CSV = os.path.abspath(os.path.join(HERE, "..", "data", "processed", "bigideas_meals.csv"))
 RESULTS_CSV = os.path.abspath(os.path.join(HERE, "..", "experiments", "results.csv"))
+EXTERNAL_CSV = os.path.abspath(os.path.join(HERE, "..", "experiments", "external_results.csv"))
 FIG_DIR = os.path.abspath(os.path.join(HERE, "..", "reports", "figures"))
 
 TARGET_LABELS = {"iauc": "2-h iAUC", "auc": "2-h AUC", "peak_rise": "peak glucose rise"}
@@ -160,6 +162,51 @@ def fig4_feature_importance(df: pd.DataFrame) -> None:
     plt.close(fig)
 
 
+def fig5_external_validation() -> None:
+    """Cross-cohort transfer: CGMacros-trained model applied to BIG IDEAs."""
+    from external_validate import CORE, transfer
+
+    res = pd.read_csv(EXTERNAL_CSV)
+    cg = pd.read_csv(MEALS_CSV, low_memory=False)
+    bi = pd.read_csv(BIGIDEAS_CSV, low_memory=False)
+    cohorts = ["CGMacros (LOPO, internal)", "BIG IDEAs (LOPO, internal)",
+               "BIG IDEAs (external transfer)"]
+    colors = ["#2c6fbb", "#66a182", "#d1495b"]
+    targets = ["iauc", "auc", "peak_rise"]
+
+    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(11.5, 4.4))
+
+    core = res[(res["model"] == "xgboost") & (res["feature_set"] == "core (5 features)")]
+    x = np.arange(len(targets))
+    width = 0.26
+    for i, (cohort, colour) in enumerate(zip(cohorts, colors)):
+        vals = [core[(core["cohort"] == cohort) & (core["target"] == t)]["pearson_r"].iloc[0]
+                for t in targets]
+        ax0.bar(x + (i - 1) * width, vals, width, label=cohort, color=colour)
+    ax0.set_xticks(x)
+    ax0.set_xticklabels([TARGET_LABELS[t] for t in targets])
+    ax0.set_ylabel("Pearson r")
+    ax0.set_title("XGBoost r by cohort (5 shared features)")
+    ax0.legend(fontsize=7.5, loc="upper right")
+    ax0.set_ylim(0, 0.95)
+
+    for target, colour in zip(targets, colors):
+        te, pred = transfer(cg, bi, CORE, target)
+        obs = te[target].to_numpy()
+        r = stats.pearsonr(obs, pred).statistic
+        ax1.scatter(obs, pred, s=7, alpha=0.3, color=colour, edgecolors="none",
+                    label=f"{TARGET_LABELS[target]} (r = {r:.2f})")
+    ax1.set_xlabel("observed (BIG IDEAs)")
+    ax1.set_ylabel("predicted (CGMacros-trained)")
+    ax1.set_title("External transfer, frozen model")
+    ax1.legend(fontsize=7.5, loc="upper left")
+
+    fig.suptitle("External validation on BIG IDEAs", fontsize=11)
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    fig.savefig(os.path.join(FIG_DIR, "fig5_external_validation.png"))
+    plt.close(fig)
+
+
 def main() -> None:
     os.makedirs(FIG_DIR, exist_ok=True)
     df = load_meals()
@@ -168,6 +215,8 @@ def main() -> None:
     fig2_model_comparison()
     fig3_data_overview(df)
     fig4_feature_importance(df)
+    if os.path.exists(EXTERNAL_CSV) and os.path.exists(BIGIDEAS_CSV):
+        fig5_external_validation()
     print("Figures written to", FIG_DIR)
 
 
