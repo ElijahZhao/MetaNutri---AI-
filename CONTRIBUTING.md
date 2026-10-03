@@ -16,7 +16,7 @@
 
 ### 前置要求
 
-- Python 3.11+
+- Python 3.11+（平台后端；**研究模块 `research/` 需 3.12+**，其 `numpy 2.5` / `pandas 3` 要求 `>=3.12`）
 - Node.js 20.19+（`next@16` 及其依赖要求 `node >=20.19.0`）
 - Git
 
@@ -143,14 +143,19 @@ npm run test:e2e    # Playwright 端到端（需先 npm run build）
 
 ### 研究模块测试
 
-`research/app/test_app.py` 用 Streamlit 自带的 `AppTest` 无头启动 PPGR Demo，
-验证预测与 TreeSHAP 面板（无需服务器、无需网络）：
+研究模块的运行依赖（Streamlit Demo）+ 开发工具（ruff / pytest）：
 
 ```bash
-cd research/app
-pip install -r requirements.txt
-python test_app.py      # 打印每个用例；装了 pytest 也可 pytest test_app.py
+cd research
+pip install -r app/requirements.txt -r requirements-dev.txt
+
+ruff check src app          # 代码检查
+pytest --cov                # 单元测试 + Streamlit AppTest，覆盖率门槛 90%
 ```
+
+测试包含两部分：`app/tests/test_inference.py` 覆盖预测/TreeSHAP 数学，
+`app/test_app.py` 用 Streamlit 自带 `AppTest` 无头启动整个 UI。**无需服务器、
+无需网络、无需训练**（用的是 `app/model/` 里冻结的模型）。
 
 以上三项（backend / frontend / research）都会在 CI 中运行；见
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml)。研究管线的完整复现见

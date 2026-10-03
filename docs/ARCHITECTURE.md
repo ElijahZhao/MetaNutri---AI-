@@ -64,7 +64,8 @@ CSV files this pipeline writes.
 |---|---|---|
 | `frontend/` | typecheck, lint, Vitest, Playwright E2E, build | CI `frontend`, `e2e` |
 | `backend/` | `compileall` + import smoke test | CI `backend` |
-| `research/app/` | headless Streamlit `AppTest` | CI `research` |
+| `research/` | `ruff check` over `src` + `app` | CI `research` |
+| `research/app/` | inference unit tests + headless Streamlit `AppTest`, 90% coverage gate | CI `research` |
 
 The full research pipeline is **not** run in CI: it requires a 600 MB dataset
 download and LOPO training on the whole cohort. It is reproduced on demand with
