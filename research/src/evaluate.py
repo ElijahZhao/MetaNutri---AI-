@@ -131,6 +131,13 @@ def within_between(
       Computed by correlating per-subject mean observed vs. mean predicted
       values (one point per subject).
 
+    A prediction that is constant *within* every subject (the LOPO "mean"
+    baseline returns one value per held-out subject) has an undefined
+    within-subject correlation; following report §4.5 ("the mean predictor has
+    zero within-subject skill by construction") that case is reported as
+    ``0.0`` rather than ``NaN``. Keeping the quantity defined is what makes
+    ``experiments/results.csv`` reproducible from this code.
+
     Returns ``(within_r, between_r, n_subjects)``.
     """
     y = df[target].to_numpy(dtype=float)
@@ -142,11 +149,15 @@ def within_between(
     y_centred = frame["y"] - frame.groupby("sub")["y"].transform("mean")
     p_centred = frame["p"] - frame.groupby("sub")["p"].transform("mean")
     yc, pc = y_centred.to_numpy(), p_centred.to_numpy()
-    within = (
-        float(stats.pearsonr(yc, pc).statistic)
-        if yc.std() > 0 and pc.std() > 0
-        else float("nan")
-    )
+    if pc.std() == 0:
+        # Constant within every subject => no within-subject information.
+        # Pearson's r is undefined for a constant series; report 0 (see the
+        # docstring) so results.csv stays reproducible.
+        within = 0.0
+    elif yc.std() > 0:
+        within = float(stats.pearsonr(yc, pc).statistic)
+    else:
+        within = float("nan")
 
     by_subject = frame.groupby("sub")[["y", "p"]].mean()
     between = (

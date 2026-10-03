@@ -338,6 +338,13 @@ transfer** score. Table 4 and Figure 5 show the outcome.
 | BIG IDEAs (external, carb-only Ridge) | 0.362 | 0.288 | 0.357 |
 | BIG IDEAs (external, mean predictor) | — (R² < 0) | — (R² ≈ 0) | — (R² < 0) |
 
+> Note on sample size: the CGMacros internal row here keeps **all 1,699 meals**,
+> whereas the headline results in §4.2 apply the official replication's
+> ``iauc > 0`` filter (1,557 meals). The two "internal" CGMacros numbers
+> therefore differ slightly (e.g. all-meal iAUC r 0.487 here vs. 0.451 in §4.2)
+> and should not be compared directly; the BIG IDEAs panels likewise use all 656
+> meals. See `external_validate.py` for the rationale.
+
 Two things stand out. First, **AUC transfers far better than iAUC**. A
 correlation of 0.569 for AUC across studies that differ in participants, device
 and meal annotation is a genuine, if modest, positive result: part of the AUC

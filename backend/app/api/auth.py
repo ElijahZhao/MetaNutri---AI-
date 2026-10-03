@@ -265,14 +265,19 @@ async def forgot_password(
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
 
-    # No-email mode: no mail service configured, so return the reset token to
-    # the caller (typically logged/displayed in dev). Once email is wired in,
-    # send the token via email and stop returning it here.
     if user:
         set_password_reset_token(token, str(user.id))
-        base = _frontend_base()
-        reset_url = f"{base}/forgot-password?token={token}" if base else None
-        return ForgotPasswordResponse(message=message, reset_token=token, reset_url=reset_url)
+        # The response is identical whether or not the email exists, so it does
+        # not leak which emails are registered. The token is only echoed back
+        # when explicitly enabled for local development (no mail service); in
+        # production it must travel over a real email channel instead. Never
+        # return it unconditionally: that lets anyone reset any known account.
+        if settings.PASSWORD_RESET_RETURN_TOKEN:
+            base = _frontend_base()
+            reset_url = f"{base}/forgot-password?token={token}" if base else None
+            return ForgotPasswordResponse(
+                message=message, reset_token=token, reset_url=reset_url
+            )
 
     return ForgotPasswordResponse(message=message)
 

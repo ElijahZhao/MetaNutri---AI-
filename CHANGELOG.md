@@ -21,6 +21,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `research` CI job pinned Python 3.11, which cannot install
   `research/requirements.txt` (`numpy 2.5` / `pandas 3` require >=3.12); it now
   uses 3.12, matching the documented requirement.
+- `evaluate.within_between()` now reports `0.0` (was `NaN`) for a predictor that
+  is constant within every subject, matching the convention already recorded in
+  `experiments/results.csv` and report §4.5 — so that CSV is reproducible from
+  the code again.
+- Clarified the CGMacros internal sample size used by external validation
+  (all 1,699 meals, vs. the 1,557-meal `iauc > 0` subset in §4.2) in both
+  `external_validate.py` and the technical report, so the two "internal" numbers
+  are not mistakenly compared.
+
+### Security
+
+- `ci.yml` and `keepalive.yml` now declare `permissions: contents: read`, so the
+  default `GITHUB_TOKEN` is scoped to least privilege instead of the repository
+  default.
+- `/api/auth/forgot-password` no longer returns the reset token to the caller by
+  default. Previously anyone could submit a known email and receive a token that
+  reset that account's password (account takeover, plus user enumeration). The
+  token is now returned only when `PASSWORD_RESET_RETURN_TOKEN` is explicitly
+  enabled for local development.
+- The backend now refuses to start with `COOKIE_SAMESITE=none`, which would
+  silently remove the project's only CSRF defence, unless
+  `ALLOW_INSECURE_SAMESITE_NONE=1` is set.
 
 ## [1.0.0] - 2026-10-03
 

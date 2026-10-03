@@ -52,6 +52,13 @@ class Settings(BaseSettings):
     COOKIE_SAMESITE: str = "lax"
     COOKIE_DOMAIN: str = ""
 
+    # Password-reset delivery. When False (the secure default) the API never
+    # returns the reset token in the /forgot-password response, so knowing an
+    # email address is not enough to reset that account. Reset then requires a
+    # real email channel to deliver the token. Set True only for local
+    # development where no mail service is configured.
+    PASSWORD_RESET_RETURN_TOKEN: bool = False
+
     # Site-wide rate limiting (applied to every /api route by middleware).
     # Auth endpoints keep a stricter per-username limit in app/api/auth.py.
     RATE_LIMIT_ENABLED: bool = True
@@ -81,3 +88,18 @@ if settings.SECRET_KEY == _DEFAULT_SECRET_KEY:
                 "Refusing to start in production with the default SECRET_KEY. "
                 "Set a strong SECRET_KEY environment variable on Render."
             )
+
+if settings.COOKIE_SAMESITE.strip().lower() == "none":
+    # SameSite=None removes the only CSRF defence this project has: there is no
+    # CSRF token and no Origin/Referer check (see docs/AUDIT-FINDINGS.md §6).
+    # The frontend proxies /api on its own origin, so "lax" always works here;
+    # "none" is only needed for a genuinely cross-site API, which this project
+    # does not use. Refuse to start unless the operator explicitly accepts the
+    # risk and has added a compensating control.
+    if os.getenv("ALLOW_INSECURE_SAMESITE_NONE", "").lower() != "1":
+        raise RuntimeError(
+            "COOKIE_SAMESITE=none disables the project's only CSRF protection "
+            "and no compensating control (token / Origin check) exists. Keep it "
+            "at 'lax', or set ALLOW_INSECURE_SAMESITE_NONE=1 once you have added "
+            "one."
+        )
