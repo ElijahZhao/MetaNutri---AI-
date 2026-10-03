@@ -100,7 +100,7 @@ This project spans **two independent GitHub repositories**. They are deliberatel
 
 **Do they interact at runtime? No.** There is no API call, no shared package and no data exchange between them. The demo is standalone: it loads exported JSON boosters and predicts locally.
 
-> `ppgr-predictor` is kept working locally at `.deploy/ppgr-predictor/` as an **untracked** mirror (see `.gitignore`). That mirror is a convenience for pushing; it is not part of this repository.
+> `ppgr-predictor`'s working copy can be kept locally at `.deploy/ppgr-predictor/` as an **untracked** mirror (see `.gitignore`). That mirror is a convenience for pushing; it is not part of this repository, and cloning this repository does not require it.
 
 ---
 
@@ -491,6 +491,9 @@ MetaNutri---AI-/
 │   ├── API.md                        # API reference
 │   ├── DEPLOYMENT.md                 # Deployment guide
 │   ├── DATASETS.md                   # Dataset references
+│   ├── ARCHITECTURE.md               # Architecture & design decisions
+│   ├── ROADMAP.md                    # Roadmap & decision history
+│   ├── APPLICATION-SUMMARY.md        # One-page project summary
 │   └── AUDIT-FINDINGS.md             # Repository audit log
 │
 ├── .github/                          # GitHub config
@@ -513,7 +516,7 @@ MetaNutri---AI-/
 This project is built for **demonstration and portfolio purposes**. In the interest of honesty, here is what it is and isn't:
 
 - **Bundled datasets are curated samples, not full third-party dumps.** The files under `backend/data/` are small, hand-prepared reference sets. The dataset "download" endpoints simply (re)generate these local sample files — they do **not** fetch from USDA / KEGG / HMP. The TianChi client returns **mock placeholder listings**.
-- **Predictions are heuristics, not clinical models.** Glucose, nutrient-absorption and risk outputs come from deterministic rules (and, in a few endpoints, random values). They are **illustrative only** and must **not** be used for medical decisions.
+- **Predictions are heuristics, not clinical models.** Glucose, nutrient-absorption and risk outputs come from deterministic rules. They are **illustrative only** and must **not** be used for medical decisions.
 - **Model weights are unused.** The `.pt` files under `backend/app/ml/weights/` were trained on synthetic random tensors and are never loaded by the running API.
 - **The real AI lives elsewhere.** Serious, data-trained models are developed in a separate research module on real open datasets — see [docs/ROADMAP.md](docs/ROADMAP.md).
 
