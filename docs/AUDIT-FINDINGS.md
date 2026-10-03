@@ -473,7 +473,7 @@
 
 > 说明：S1/S2 触及 `backend/` 代码，本在 `ROADMAP.md` §0/§1.5 的冻结范围内；经项目所有者于 2026-10-03 明确放行后按**最小修复**执行。`backend/.env.example`、`SECURITY.md`、`CHANGELOG.md`、`docs/API.md`、`docs/DEPLOYMENT.md` 已同步。
 
-> 后续待办（未改，S1 的配套项）：前端 `forgot-password` 页面**不读取** URL 上的 `?token=` 查询参数——令牌在 `content.tsx` 中只来自接口响应，而 `page.tsx` 只做透传。因此后端在 `PASSWORD_RESET_RETURN_TOKEN=true` 时拼出的 `reset_url`（若将来经邮件下发）落到 `/forgot-password?token=...` 后，页面不会用该令牌。当前默认不返回令牌、也不发信，故该缺口**不构成线上风险**；待真正接入邮件时，需让页面从查询参数读取令牌，重置链路才完整。
+> 配套项（S1，2026-10-03 已补齐）：前端 `forgot-password` 页面原本**不读取** URL 上的 `?token=` 查询参数——令牌在 `content.tsx` 中只来自接口响应，而 `page.tsx` 只做透传，因此后端（`PASSWORD_RESET_RETURN_TOKEN=true` 时）拼出的 `reset_url` 落到 `/forgot-password?token=...` 后不会被使用。现已让 `content.tsx` 经 `useSearchParams()` 读取该参数：带 `token` 时跳过邮箱步骤、直接展示「设置新密码」表单且不回显原始令牌；`page.tsx` 相应包一层 `<Suspense>` 以满足 Next.js 对 `useSearchParams` 的预渲染要求。新增回归测试 `content.test.tsx`，`next build` 与全量单测通过。
 
 ---
 
