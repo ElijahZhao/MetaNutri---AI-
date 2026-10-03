@@ -1,0 +1,54 @@
+# Dependabot version updates.
+# Each ecosystem files a single grouped PR per week (one for all pip deps, one
+# for npm, one for Actions) to keep the review load low for a single maintainer.
+# Security advisories are still raised individually and immediately.
+version: 2
+updates:
+  # Platform backend (FastAPI)
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      python-backend:
+        patterns: ["*"]
+
+  # Research pipeline
+  - package-ecosystem: pip
+    directory: /research
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      python-research:
+        patterns: ["*"]
+
+  # Streamlit demo (frozen model runtime)
+  - package-ecosystem: pip
+    directory: /research/app
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      python-demo:
+        patterns: ["*"]
+
+  # Platform frontend (Next.js)
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      npm-frontend:
+        patterns: ["*"]
+
+  # GitHub Actions used by the workflows in .github/workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
