@@ -27,7 +27,7 @@ from app.core.security import (
 from app.core.config import settings
 from app.core.rate_limit import client_ip as get_client_ip
 from app.core.redis import (
-    cache_user_token, get_user_token, invalidate_user_token,
+    cache_user_token, invalidate_user_token,
     cache_refresh_token, get_refresh_token, invalidate_refresh_token,
     set_password_reset_token, get_password_reset_user_id, clear_password_reset_token,
 )

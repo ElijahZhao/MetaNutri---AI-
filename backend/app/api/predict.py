@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import Optional, List
 from uuid import UUID
@@ -78,7 +78,6 @@ def _profile_features(profile: Optional[UserProfile]) -> dict:
 def _food_features(foods: List[FoodNutrition]) -> dict:
     if not foods:
         return {"calories": 250, "protein": 15, "fat": 12, "carbs": 35, "fiber": 6, "gi": 55}
-    n = len(foods)
     def avg(field, default):
         vals = [float(getattr(f, field)) for f in foods if getattr(f, field) is not None]
         return (sum(vals) / len(vals)) if vals else default

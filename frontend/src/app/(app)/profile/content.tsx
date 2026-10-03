@@ -13,6 +13,17 @@ import ScrollReveal from '@/components/ScrollReveal';
 import { buildProfileOptions, BMI_THRESHOLDS } from '@/constants';
 import type { ApiErrorLike, UserProfile, UserProfileUpdate } from '@/types';
 
+/**
+ * The API stores dietary flags as `{ <key>: true }` (see the `dietary_goals` /
+ * `dietary_restrictions` JSONB columns), while the form works with the list of
+ * selected keys. These two helpers convert between the two representations.
+ */
+const selectedKeys = (flags?: Record<string, boolean> | null): string[] =>
+  Object.keys(flags ?? {}).filter((key) => flags?.[key]);
+
+const flagsFromKeys = (keys: string[]): Record<string, boolean> =>
+  Object.fromEntries(keys.map((key) => [key, true]));
+
 const buildProfileForm = (
   profile?: UserProfile | null
 ): {
@@ -29,8 +40,8 @@ const buildProfileForm = (
   height_cm: profile?.height_cm || '',
   weight_kg: profile?.weight_kg || '',
   activity_level: profile?.activity_level || '',
-  dietary_goals: (profile?.dietary_goals || []) as unknown as string[],
-  dietary_restrictions: (profile?.dietary_restrictions || []) as unknown as string[],
+  dietary_goals: selectedKeys(profile?.dietary_goals),
+  dietary_restrictions: selectedKeys(profile?.dietary_restrictions),
 });
 
 function ProfileContent() {
@@ -104,11 +115,20 @@ function ProfileContent() {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      const submitData = { ...data };
-      if (submitData.age === '') delete submitData.age;
-      if (submitData.height_cm === '') delete submitData.height_cm;
-      if (submitData.weight_kg === '') delete submitData.weight_kg;
-      await updateProfile.mutateAsync(submitData as unknown as UserProfileUpdate);
+      // The API expects `dietary_goals` / `dietary_restrictions` as objects
+      // (`{ key: true }`), not arrays — sending the raw arrays made every save
+      // fail validation with a 422.
+      const submitData: UserProfileUpdate = {
+        dietary_goals: flagsFromKeys(data.dietary_goals),
+        dietary_restrictions: flagsFromKeys(data.dietary_restrictions),
+      };
+      if (data.gender) submitData.gender = data.gender;
+      if (data.activity_level) submitData.activity_level = data.activity_level;
+      if (data.age !== '') submitData.age = Number(data.age);
+      if (data.height_cm !== '') submitData.height_cm = Number(data.height_cm);
+      if (data.weight_kg !== '') submitData.weight_kg = Number(data.weight_kg);
+
+      await updateProfile.mutateAsync(submitData);
       toast.success(t.saveSuccess);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

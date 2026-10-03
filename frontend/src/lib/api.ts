@@ -3,7 +3,6 @@ import { useAuthStore } from './store/authStore';
 import { isBackendWarm } from './backendWarmup';
 import type {
   ApiErrorLike,
-  Dataset,
   DatasetList,
   DatasetStats,
   DeficiencyReport,
@@ -31,6 +30,7 @@ import type {
   Recommendation,
   RegisterPayload,
   RiskAssessment,
+  TianchiDataset,
   TianchiDatasetList,
   User,
   UserProfile,
@@ -193,15 +193,24 @@ export const authAPI = {
       '/api/auth/forgot-password',
       { email }
     ),
+  // The backend pydantic models use snake_case (`new_password`); sending
+  // camelCase made these endpoints reject every call with a 422.
   resetPassword: (token: string, newPassword: string) =>
-    api.post<{ message: string }>('/api/auth/reset-password', { token, newPassword }),
+    api.post<{ message: string }>('/api/auth/reset-password', {
+      token,
+      new_password: newPassword,
+    }),
 };
 
 export const userAPI = {
   getProfile: () => api.get<UserProfile>('/api/users/profile'),
   updateProfile: (data: UserProfileUpdate) => api.put<UserProfile>('/api/users/profile', data),
+  // See authAPI.resetPassword: the backend expects `old_password`/`new_password`.
   changePassword: (oldPassword: string, newPassword: string) =>
-    api.post<{ message: string }>('/api/users/change-password', { oldPassword, newPassword }),
+    api.post<{ message: string }>('/api/users/change-password', {
+      old_password: oldPassword,
+      new_password: newPassword,
+    }),
 };
 
 export const foodAPI = {
@@ -249,16 +258,26 @@ export const predictAPI = {
 
 export const datasetAPI = {
   list: () => api.get<DatasetList>('/api/datasets'),
-  categories: () => api.get<Array<{ category: string; count: number }>>('/api/datasets/categories'),
+  // The backend returns `{ categories: { <name>: [{ id, name, description }] } }`,
+  // not a flat array of `{ category, count }` as this was typed before.
+  categories: () =>
+    api.get<{ categories: Record<string, Array<{ id: string; name: string; description: string }>> }>(
+      '/api/datasets/categories'
+    ),
   download: (datasetId: string) =>
     api.post<{ message: string }>(`/api/datasets/download/${datasetId}`),
   downloadAll: () => api.post<{ message: string }>('/api/datasets/download'),
   import: (datasetId: string) => api.post<{ message: string }>(`/api/datasets/import/${datasetId}`),
   stats: () => api.get<DatasetStats>('/api/datasets/stats'),
   tianchiList: () => api.get<TianchiDatasetList>('/api/datasets/tianchi'),
+  // Wrapped in an envelope (`{ results, count }`), not a bare array.
   tianchiSearch: (keyword: string, category?: string) =>
-    api.get<Dataset[]>('/api/datasets/tianchi/search', { params: { keyword, category } }),
-  tianchiDetail: (datasetId: string) => api.get<Dataset>(`/api/datasets/tianchi/${datasetId}`),
+    api.get<{ results: TianchiDataset[]; count: number }>('/api/datasets/tianchi/search', {
+      params: { keyword, category },
+    }),
+  // Detail payload (files/license/version/...) differs from the list item shape.
+  tianchiDetail: (datasetId: string) =>
+    api.get<Record<string, unknown>>(`/api/datasets/tianchi/${datasetId}`),
 };
 
 export const nutritionAlertAPI = {

@@ -1,13 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from typing import List, Dict, Any
-from datetime import datetime, timedelta
+from sqlalchemy import select
 
 from app.db.session import get_db
 from app.core.security import get_current_active_user
 from app.models.user import User
-from app.models.food import FoodNutrition
 from app.models.recommendation import NutritionRecommendation
 
 router = APIRouter(prefix="/api/nutrition-alerts", tags=["nutrition-alerts"])

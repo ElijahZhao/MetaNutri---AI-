@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.dockerignore` now excludes `research/` and venv / build artefacts, and the
   `.trae-html-share-packages` rule is corrected (it was missing the leading dot,
   so the directory was never ignored).
+- Removed the unused imports and one unused local variable flagged by
+  `ruff check app --select F` (backend `app/` now passes cleanly).
 
 ### Removed
 
@@ -43,6 +45,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Change-password and reset-password failed with a 422 on every call: the
+  frontend posted camelCase (`oldPassword` / `newPassword`) while the backend
+  models expect snake_case (`old_password` / `new_password`). The request bodies
+  now match the API contract, so both flows work again.
+- Saving the profile failed with a 422 for every user. The form submitted
+  `dietary_goals` / `dietary_restrictions` as string arrays, but the schema and
+  the JSONB columns store them as `{ key: true }` objects (and reading a stored
+  profile back as an array could throw). The form now converts between the two
+  representations, so both save and reload work.
+- Corrected the response types of three unused `datasetAPI` helpers
+  (`categories`, `tianchiSearch`, `tianchiDetail`) so they match what the
+  backend actually returns.
 - `FeatureContributionExplainer` grouped contributions by a fixed-size slice, so
   when every contribution was positive the API interpretation still reported the
   smallest positives as "main negative factors". Contributions are now grouped
