@@ -36,13 +36,13 @@ const en = {
   whySubtitle: 'Transparent, rule-based analytics on a full-stack engineering project',
   feature1Title: 'Multi-Omics Integration',
   feature1Desc:
-    'Combine genomic, microbiome, and metabolic data for a holistic view of your nutrition needs.',
+    'Combine genomic, microbiome, and metabolic data into a single nutrition profile.',
   feature2Title: 'Metabolic Analytics',
   feature2Desc:
     'Estimate metabolic responses to foods with transparent, deterministic heuristics. Real, data-trained models live in a separate research module.',
   feature3Title: 'Precision Recommendations',
   feature3Desc:
-    'Receive tailored dietary suggestions backed by scientific evidence and your unique biology.',
+    'Receive dietary suggestions ranked by a transparent, rule-based scoring.',
   feature4Title: 'Privacy & Security',
   feature4Desc:
     'Your health data is encrypted and stored securely. Complete control over your personal information.',
@@ -385,11 +385,11 @@ const zh: Translations = {
   whyTitle: '为什么选择 MetaNutri',
   whySubtitle: '以透明规则化分析为核心的全栈工程项目',
   feature1Title: '多组学整合',
-  feature1Desc: '结合基因组、微生物组和代谢数据，全面了解您的营养需求。',
+  feature1Desc: '把基因组、微生物组和代谢数据整合成一份营养档案。',
   feature2Title: '代谢分析',
   feature2Desc: '使用透明、确定性的启发式方法估算食物代谢反应。真实的数据训练模型在独立研究模块中开发。',
   feature3Title: '精准推荐',
-  feature3Desc: '获得基于科学证据和您独特生物学特征的个性化膳食建议。',
+  feature3Desc: '按透明、规则化的评分获得膳食建议。',
   feature4Title: '隐私与安全',
   feature4Desc: '您的健康数据经过加密并安全存储。完全掌控您的个人信息。',
   feature5Title: '实时分析',
