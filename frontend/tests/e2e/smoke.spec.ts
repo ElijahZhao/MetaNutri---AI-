@@ -135,7 +135,7 @@ test('login lands on the dashboard without a blank screen', async ({ page }) => 
   expect(pageErrors).toEqual([]);
 });
 
-// 回归保护（清单 1.3）：受保护页面统一由 app/(app)/layout.tsx 提供导航栏与守卫，
+// 回归保护：受保护页面统一由 app/(app)/layout.tsx 提供导航栏与守卫，
 // 页面自身不再包裹。若某个路由漏挂或重复挂载外壳，这里会直接失败。
 const PROTECTED_ROUTES = [
   '/dashboard',

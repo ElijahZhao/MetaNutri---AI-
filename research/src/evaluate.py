@@ -1,6 +1,6 @@
 """Leave-one-subject-out (LOPO) evaluation and baselines.
 
-Rationale (see docs/ROADMAP.md §3.3): meals from the **same subject** must never
+Rationale: meals from the **same subject** must never
 be split across train and test, otherwise performance is severely overestimated
 (random splits have been reported to roughly halve the error vs. subject-wise
 splits). Every model here is therefore evaluated with LOPO cross-validation:
@@ -268,9 +268,9 @@ def run_suite(df: pd.DataFrame, target: str) -> pd.DataFrame:
     energy_only = ["carbs_g", "protein_g", "fat_g"]
     rows = []
 
-    # The baseline trio required by the plan (docs/ROADMAP.md §3.3):
-    # a mean predictor and two "hand-crafted heuristic" operationalisations,
-    # plus the official-style XGBoost model.
+    # The standard baseline trio: a mean predictor and two
+    # "hand-crafted heuristic" operationalisations, plus the
+    # official-style XGBoost model.
     specs = [
         ("mean", FEATURE_COLUMNS, mean_model()),
         ("carb-only linear", carb_only, linear_model()),

@@ -61,7 +61,6 @@ SECRETS.md
 # dev/CI tooling; these are never part of a production build)
 .uploads/
 .screenshots/
-.trae-html-share-packages/
 .backend.pid
 .frontend.pid
 

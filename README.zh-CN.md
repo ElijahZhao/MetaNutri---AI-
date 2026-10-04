@@ -567,10 +567,8 @@ MetaNutri---AI-/
 │   ├── DEPLOYMENT.md                 # 部署指南
 │   ├── DATASETS.md                   # 数据集参考
 │   ├── ARCHITECTURE.md               # 架构与设计取舍
-│   ├── ROADMAP.md                    # 路线图与决策记录
-│   ├── APPLICATION-SUMMARY.md        # 一页项目综述
-│   ├── AUDIT-FINDINGS.md             # 仓库审计记录
-│   └── GITHUB-SHOWCASE.md            # GitHub 展示配置记录（已完成）
+│   ├── ROADMAP.md                    # 研究路线图
+│   └── AUDITS.md                     # 审计与修复记录
 │
 ├── .github/                          # GitHub 配置
 │   ├── workflows/                    # CI 与保活工作流
@@ -603,12 +601,12 @@ MetaNutri---AI-/
 
 ## 🤝 参与贡献
 
-贡献是开源社区最宝贵的财富，也是学习、启发、创造的最佳途径。你所做的任何贡献我们都**万分感激**。
+欢迎提交 Bug 报告、文档修订与代码改动。
 
 1. Fork 本项目
-2. 创建你的功能分支（`git checkout -b feature/AmazingFeature`）
-3. 提交你的改动（`git commit -m 'feat: add some AmazingFeature'`）
-4. 推送到分支（`git push origin feature/AmazingFeature`）
+2. 创建你的功能分支（`git checkout -b feature/short-description`）
+3. 提交你的改动（`git commit -m 'feat: describe your change'`）
+4. 推送到分支（`git push origin feature/short-description`）
 5. 开启一个 Pull Request
 
 请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 了解我们的行为准则和提交 PR 的详细流程。
@@ -633,10 +631,6 @@ MetaNutri---AI-/
 
 <div align="center">
 
-由 **ElijahZhao** 用 ❤️ 打造
-
 **MetaNutri** — AI 驱动的精准营养代谢数字孪生
-
-[⬆ 返回顶部](#-metanutri)
 
 </div>

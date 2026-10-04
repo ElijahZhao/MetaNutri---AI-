@@ -3,7 +3,7 @@
 
 ``evaluate.py`` reports a *predictive* view (LOPO) and §4.5 splits it into
 within- and between-subject skill. This script adds the complementary
-*inferential* view the plan asked for (docs/ROADMAP.md §3.3): a linear
+*inferential* view: a linear
 mixed-effects model with a **subject random intercept** on the full cohort,
 using the **Mundlak / within-between** specification.
 

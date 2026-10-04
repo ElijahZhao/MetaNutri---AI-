@@ -37,6 +37,5 @@ backend/*.sqlite3
 .env.*
 .uploads
 .screenshots
-.trae-html-share-packages
 *.log
 .DS_Store

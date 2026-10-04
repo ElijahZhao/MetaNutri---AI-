@@ -40,7 +40,7 @@ the deployed demo), a description, reproduction steps, and the impact you see.
   its own origin, so cross-site writes do not carry credentials. The backend
   refuses to start with `COOKIE_SAMESITE=none` unless
   `ALLOW_INSECURE_SAMESITE_NONE=1` is set, because the project has no CSRF token
-  or Origin/Referer check as a fallback (see `docs/AUDIT-FINDINGS.md` §6).
+  or Origin/Referer check as a fallback (see `docs/AUDITS.md` §3).
 
 ## Scope
 

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /**
- * 未登录页面（登录 / 找回密码）的统一外壳（清单 1.3）：
+ * 未登录页面（登录 / 找回密码）的统一外壳：
  * 居中 + 渐变背景，页面内容只需返回表单卡片本身。
  */
 export default function AuthLayout({ children }: { children: ReactNode }) {

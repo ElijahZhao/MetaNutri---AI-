@@ -567,10 +567,8 @@ MetaNutri---AI-/
 │   ├── DEPLOYMENT.md                 # Deployment guide
 │   ├── DATASETS.md                   # Dataset references
 │   ├── ARCHITECTURE.md               # Architecture & design decisions
-│   ├── ROADMAP.md                    # Roadmap & decision history
-│   ├── APPLICATION-SUMMARY.md        # One-page project summary
-│   ├── AUDIT-FINDINGS.md             # Repository audit log
-│   └── GITHUB-SHOWCASE.md            # GitHub showcase setup record (completed)
+│   ├── ROADMAP.md                    # Research roadmap
+│   └── AUDITS.md                     # Audit & remediation log
 │
 ├── .github/                          # GitHub config
 │   ├── workflows/                    # CI & keep-alive workflows
@@ -602,12 +600,12 @@ This project is built for **demonstration and portfolio purposes**. In the inter
 
 ## 🤝 Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Bug reports, documentation fixes and code contributions are all welcome.
 
 1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'feat: add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
+2. Create your Feature Branch (`git checkout -b feature/short-description`)
+3. Commit your Changes (`git commit -m 'feat: describe your change'`)
+4. Push to the Branch (`git push origin feature/short-description`)
 5. Open a Pull Request
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
@@ -632,10 +630,6 @@ Project Link: [https://github.com/ElijahZhao/MetaNutri---AI-](https://github.com
 
 <div align="center">
 
-Made with ❤️ by **ElijahZhao**
-
 **MetaNutri** — AI-Powered Precision Nutrition Metabolic Digital Twin
-
-[⬆ Back to Top](#-metanutri)
 
 </div>

@@ -464,11 +464,11 @@ residual-normalised conformal methods are the natural remedy (§7).
 
 ### 4.7 Repeated meals: mixed-effects check
 
-§4.5 gave a *predictive* split of the LOPO skill. The plan also asks for the
+§4.5 gave a *predictive* split of the LOPO skill. Here we add the
 complementary *inferential* treatment of repeated meals (a mixed-effects model
 with a subject random intercept, plus within-subject centring and stratified
-within/between reporting). We fit that model here; it answers a different
-question and does not change the LOPO numbers.
+within/between reporting). This model answers a different question and does not
+change the LOPO numbers.
 
 For each target we fit a linear mixed model on 1,556 meals (one meal lacked a
 fibre value and was dropped) with a **subject random intercept** and the

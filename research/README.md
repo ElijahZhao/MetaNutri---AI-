@@ -13,7 +13,6 @@ is then tested for cross-cohort generalisation on **BIG IDEAs**.
 
 ## Status
 
-- [x] P0 — honesty pass (platform docs)
 - [x] P1 — pipeline: download → clean → EDA → LOPO split → baselines → XGBoost → evaluation
 - [x] P2 — technical report ([Markdown](reports/technical_report.md) ·
       [PDF](reports/technical_report.pdf), regenerate with `src/export_report_pdf.py`)

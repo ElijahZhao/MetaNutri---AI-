@@ -90,7 +90,7 @@ if settings.SECRET_KEY == _DEFAULT_SECRET_KEY:
 
 if settings.COOKIE_SAMESITE.strip().lower() == "none":
     # SameSite=None removes the only CSRF defence this project has: there is no
-    # CSRF token and no Origin/Referer check (see docs/AUDIT-FINDINGS.md §6).
+    # CSRF token and no Origin/Referer check (see docs/AUDITS.md §3).
     # The frontend proxies /api on its own origin, so "lax" always works here;
     # "none" is only needed for a genuinely cross-site API, which this project
     # does not use. Refuse to start unless the operator explicitly accepts the

@@ -29,9 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   frontend needs no update.
 - `backend/Dockerfile` now runs as a non-root user (`appuser`), matching the
   frontend image.
-- `.dockerignore` now excludes `research/` and venv / build artefacts, and the
-  `.trae-html-share-packages` rule is corrected (it was missing the leading dot,
-  so the directory was never ignored).
+- `.dockerignore` now excludes `research/` and venv / build artefacts.
 - Removed the unused imports and one unused local variable flagged by
   `ruff check app --select F` (backend `app/` now passes cleanly).
 
