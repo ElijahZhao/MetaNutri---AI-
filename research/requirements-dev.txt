@@ -1,5 +1,5 @@
 # Development / CI tooling for the research module. Not needed to run the
 # pipeline or the demo — only for the lint + test gate in CI.
 ruff==0.16.10
-pytest==9.0.1
-pytest-cov==7.0.0
+pytest==9.1.1
+pytest-cov==7.1.0
