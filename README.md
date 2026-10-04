@@ -598,6 +598,8 @@ This project is built for **demonstration and portfolio purposes**. In the inter
 
 **Development note.** AI coding tools were used as assistants during implementation — chiefly for scaffolding, refactoring and documentation. The architecture, product decisions and final review are the author's own, and AI-generated output was reviewed and adapted before being merged rather than accepted as-is.
 
+**Repository history.** The project was developed locally first and published to GitHub in a handful of batched syncs, so the commits are clustered into a few active stretches rather than spread out evenly.
+
 ---
 
 ## 🤝 Contributing
