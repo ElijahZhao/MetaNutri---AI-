@@ -31,7 +31,7 @@ redis==5.0.7
 # live API itself only needs numpy (predict.py) and pandas (import/export).
 # shap / scikit-learn / scipy were removed together with the unused SHAP & LIME
 # explainer prototypes in app/ml/explainability.py — nothing imported them.
-torch==2.12.0
+torch==2.13.0
 numpy==1.26.4
 pandas==2.2.2
 requests==2.32.3
