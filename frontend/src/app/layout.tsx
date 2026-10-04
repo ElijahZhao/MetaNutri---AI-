@@ -12,25 +12,25 @@ const siteUrl =
   'http://localhost:3000';
 
 const description =
-  'AI-Powered Precision Nutrition Metabolic Digital Twin Platform. Integrate genomic, microbiome, and metabolomic data for personalized nutrition insights.';
+  'Precision Nutrition Metabolic Digital Twin Platform. Integrate genomic, microbiome, and metabolomic data for personalized nutrition insights.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'MetaNutri - AI Precision Nutrition',
+  title: 'MetaNutri - Precision Nutrition',
   description,
   applicationName: 'MetaNutri',
   keywords: ['precision nutrition', 'digital twin', 'genomics', 'microbiome', 'metabolomics'],
   openGraph: {
     type: 'website',
     siteName: 'MetaNutri',
-    title: 'MetaNutri - AI Precision Nutrition',
+    title: 'MetaNutri - Precision Nutrition',
     description,
     url: '/',
     locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MetaNutri - AI Precision Nutrition',
+    title: 'MetaNutri - Precision Nutrition',
     description,
   },
 };

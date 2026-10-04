@@ -88,7 +88,7 @@ export default function LoginPage() {
           <Activity className="w-7 h-7" aria-hidden="true" />
           MetaNutri
         </div>
-        <p className="text-slate-600">AI Precision Nutrition Platform</p>
+        <p className="text-slate-600">Precision Nutrition Platform</p>
       </div>
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 p-8">
         <h2 className="text-xl font-semibold text-slate-900 mb-4">
