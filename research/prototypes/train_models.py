@@ -7,9 +7,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import os
-from app.ml.metabolic_response_model import MetabolicResponseModel
-from app.ml.gene_nutrition_model import GeneNutritionGNN
-from app.ml.microbiome_vae import MicrobiomeVAE
+from metabolic_response_model import MetabolicResponseModel
+from gene_nutrition_model import GeneNutritionGNN
+from microbiome_vae import MicrobiomeVAE
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), 'weights')
 os.makedirs(MODEL_DIR, exist_ok=True)
