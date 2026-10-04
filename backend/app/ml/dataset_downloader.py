@@ -721,8 +721,14 @@ class TianChiDatasetClient:
         print("⚠️ Note: Real TianChi download requires competition registration or data approval")
         print("⚠️ This is a mock download - actual implementation requires AK/SK signing")
         
-        safe_id = re.sub(r'[^A-Za-z0-9_.-]', '', dataset_id) or 'dataset'
-        dataset_path = Path(save_path) / f"tianchi_{safe_id}.json"
+        # `dataset_id` is caller-supplied: restrict it to a filename-safe set
+        # (no slashes, no dots) and confirm the resolved path stays inside
+        # `save_path`, so it can never be used for path traversal.
+        safe_id = re.sub(r'[^A-Za-z0-9_-]', '', dataset_id) or 'dataset'
+        base_dir = Path(save_path).resolve()
+        dataset_path = base_dir / f"tianchi_{safe_id}.json"
+        if dataset_path.resolve().parent != base_dir:
+            raise ValueError(f"Refusing to write outside {base_dir}")
         mock_data = {
             "dataset_id": dataset_id,
             "status": "mock_download",
