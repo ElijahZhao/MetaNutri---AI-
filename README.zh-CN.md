@@ -570,7 +570,7 @@ MetaNutri---AI-/
 │   ├── ROADMAP.md                    # 路线图与决策记录
 │   ├── APPLICATION-SUMMARY.md        # 一页项目综述
 │   ├── AUDIT-FINDINGS.md             # 仓库审计记录
-│   └── TODO.md                       # 待办：需手动完成的 GitHub 设置
+│   └── GITHUB-SHOWCASE.md            # GitHub 展示配置记录（已完成）
 │
 ├── .github/                          # GitHub 配置
 │   ├── workflows/                    # CI 与保活工作流
