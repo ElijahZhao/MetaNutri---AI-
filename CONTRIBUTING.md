@@ -39,7 +39,21 @@
    git remote add upstream https://github.com/ElijahZhao/MetaNutri---AI-.git
    ```
 
-4. **创建功能分支**
+4. **安装依赖**
+
+   ```bash
+   # 根目录：安装 husky 并激活 Git 钩子
+   #（提交前对前端改动自动执行 eslint --fix + prettier）
+   npm install
+
+   # 前端：安装包含 lint-staged / eslint / prettier 在内的依赖
+   cd frontend && npm install && cd ..
+
+   # 后端
+   cd backend && pip install -r requirements.txt && cd ..
+   ```
+
+5. **创建功能分支**
 
    ```bash
    git checkout -b feature/your-feature-name

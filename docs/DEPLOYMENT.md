@@ -156,3 +156,36 @@ GET /health
 ```
 
 `database` 字段为 `ok` 表示后端到 PostgreSQL 的通道正常，是验证"后端 1 数据库"是否打通的最快手段。
+
+---
+
+## 9. 回滚（Rollback）
+
+三端独立部署，回滚按「最近改动、最快止损」分层处理：
+
+- **前端（Vercel）**：每次部署都是不可变快照。**Project → Deployments** → 选中上一个正常部署 → **Promote to Production**（Instant Rollback），秒级生效，无需改代码。
+- **后端（Render）**：**Deployments** → 选中上一个正常 commit 的部署 → **Redeploy**（或 Rollback to this deploy），回到旧镜像；随后确认 `GET /health` 的 `database` 为 `ok`。
+- **数据库（Supabase）**：表结构由启动时的 `Base.metadata.create_all` 幂等创建，本项目**不做破坏性迁移**；若确需回退数据，走 Dashboard → **Database → Backups** 的时间点恢复（见 §10）。
+- **研究模块 / Demo（Streamlit）**：在 Streamlit Community Cloud 的 *Manage app* 中对 `ppgr-predictor` 选择历史版本重新部署，或在本地 `git revert` 回到上一个 tag（当前 `v1.0.0`）。
+
+**回滚顺序**：先回前端（最快止损）→ 再回后端 → 最后评估数据库。回滚完成后用 §8 的健康检查确认。
+
+---
+
+## 10. 备份与恢复
+
+- **数据库（Supabase PostgreSQL）**：平台按套餐提供自动备份（免费层为每日备份、保留窗口有限；付费层支持 Point-in-Time Recovery / PITR）。恢复路径：**Dashboard → Database → Backups** → 选择时间点 → Restore。具体保留窗口以该页面显示为准。
+- **手动导出**（改动结构或大批量数据前建议先做）：
+
+  ```bash
+  pg_dump "$DATABASE_URL" --no-owner --no-privileges -f metanutri_$(date +%Y%m%d).sql
+  ```
+
+  恢复：
+
+  ```bash
+  psql "$DATABASE_URL" -f metanutri_YYYYMMDD.sql
+  ```
+
+- **代码与数据**：源码在 GitHub（两仓库）；研究管线的数据集可用 `research/src/download_data.sh` 重新下载并做 SHA256 校验，**无需备份原始大数据**（见 `research/data/README.md`）。
+- **密钥**：`.env` 与各平台的环境变量不在版本库中，须单独妥善保管（密码管理器）；丢失后按 §2 重新配置。
