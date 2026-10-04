@@ -126,7 +126,7 @@ Render 免费 Web Service 在 **约 15 分钟无请求后进入休眠**，下一
 
 > 注意：免费的 750 实例小时/月按「实例运行时长」计，保活会让实例近乎全天运行（约 720 小时/月），仍在上限内；若同账号还有其它常驻服务，请留意总额度。
 >
-> 仓库中的 `.github/workflows/keepalive.yml` 已降级为 **push / 手动触发的健康检查**（该仓库的 GitHub Actions 定时任务不可靠），**不再**承担定时保活职责；定时保活由 cron-job.org 负责。
+> 仓库中的 `.github/workflows/health-check.yml` 已降级为 **push / 手动触发的健康检查**（该仓库的 GitHub Actions 定时任务不可靠），**不再**承担定时保活职责；定时保活由 cron-job.org 负责。
 
 ---
 

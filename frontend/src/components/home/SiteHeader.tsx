@@ -17,18 +17,18 @@ export default function SiteHeader({ onEnterCanvas }: { onEnterCanvas?: () => vo
           <button
             onClick={onEnterCanvas}
             className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
-            title={language === 'en' ? 'Canvas Mode (C)' : '画布模式 (C)'}
+            title={`${t.canvasMode} (C)`}
           >
             <Maximize2 className="w-4 h-4" />
-            {language === 'en' ? 'Canvas' : '画布'}
+            {t.canvas}
           </button>
           <button
             onClick={toggleLanguage}
             className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
-            title={`${language === 'en' ? 'Switch to Chinese' : '切换到英文'} (Ctrl+Shift+L)`}
+            title={`${language === 'en' ? t.switchToChinese : t.switchToEnglish} (Ctrl+Shift+L)`}
           >
             <Globe className="w-4 h-4" />
-            {language === 'en' ? 'EN' : '中文'}
+            {t.langShort}
           </button>
           <Link
             href="/login"

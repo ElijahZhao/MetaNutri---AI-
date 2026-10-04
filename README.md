@@ -8,7 +8,7 @@
 
 # 🧬 MetaNutri
 
-**AI-Powered Precision Nutrition Metabolic Digital Twin Platform**
+**Precision Nutrition Metabolic Digital Twin Platform**
 
 [![GitHub Stars](https://img.shields.io/github/stars/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=10b981)](https://github.com/ElijahZhao/MetaNutri---AI-/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=3b82f6)](https://github.com/ElijahZhao/MetaNutri---AI-/network/members)
@@ -61,7 +61,7 @@
 
 ## 🌟 About the Project
 
-**MetaNutri** is an AI-powered precision nutrition metabolic digital twin platform that integrates **genomics**, **microbiome**, and **metabolomics** data to deliver personalized nutritional recommendations and health management solutions.
+**MetaNutri** is a precision nutrition metabolic digital twin platform that integrates **genomics**, **microbiome**, and **metabolomics** data to deliver personalized nutritional recommendations and health management solutions.
 
 This repository is primarily a **full-stack engineering project**: a production-style Next.js frontend, a FastAPI backend and a managed PostgreSQL database, wired end to end and deployed to Vercel / Render / Supabase. The live API serves **transparent, deterministic rule-based analytics**; the PyTorch model code under `backend/app/ml/` is research scaffolding and is **not wired into the live API**. Real, data-trained models are developed in a separate research module.
 
@@ -163,7 +163,7 @@ This project spans **two independent GitHub repositories**. They are deliberatel
 | 📊 | **Interactive Dashboards** | Health score, body-metrics and risk-radar cards backed by ECharts visualizations |
 | 🚨 | **Health Alerts** | Real-time nutritional deficiency detection and health risk assessment |
 | 🍎 | **Food & Nutrition Explorer** | Searchable food database with per-user food scoring |
-| 🍽️ | **AI Meal Planning** | AI-generated personalized meal plans based on your biology |
+| 🍽️ | **Rule-Based Meal Planning** | Personalized meal plans assembled from transparent, rule-based food scores |
 | 📁 | **Dataset Browser** | Explore the curated reference datasets shipped with the platform |
 | 📥 | **Import / Export** | Bring your own omics and food data in, and take your results out |
 | 🔐 | **Secure by Default** | httpOnly-cookie sessions, bcrypt hashing and request rate limiting |
@@ -410,7 +410,7 @@ Every push and pull request runs all of the above through [`.github/workflows/ci
 
 ## ☁️ Cloud Deployment
 
-MetaNutri is designed for seamless cloud deployment with the following stack:
+MetaNutri deploys on the following managed services:
 
 | Component | Platform | Guide |
 |-----------|----------|-------|
@@ -596,6 +596,8 @@ This project is built for **demonstration and portfolio purposes**. In the inter
 - **Model weights are unused.** The `.pt` files under `backend/app/ml/weights/` were trained on synthetic random tensors and are never loaded by the running API.
 - **The real AI lives elsewhere.** Serious, data-trained models are developed in a separate research module on real open datasets — see [docs/ROADMAP.md](docs/ROADMAP.md).
 
+**Development note.** AI coding tools were used as assistants during implementation — chiefly for scaffolding, refactoring and documentation. The architecture, product decisions and final review are the author's own, and AI-generated output was reviewed and adapted before being merged rather than accepted as-is.
+
 ---
 
 ## 🤝 Contributing
@@ -630,6 +632,6 @@ Project Link: [https://github.com/ElijahZhao/MetaNutri---AI-](https://github.com
 
 <div align="center">
 
-**MetaNutri** — AI-Powered Precision Nutrition Metabolic Digital Twin
+**MetaNutri** — Precision Nutrition Metabolic Digital Twin
 
 </div>

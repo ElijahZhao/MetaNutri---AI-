@@ -2,10 +2,10 @@
 import { useEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts';
 import { Dna, ArrowRight, Leaf } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 interface PathwayNode {
   id: string;
-  name: string;
   x: number;
   y: number;
   category: 'substrate' | 'intermediate' | 'product';
@@ -20,13 +20,13 @@ interface PathwayEdge {
 }
 
 interface Pathway {
-  name: string;
-  description: string;
   nodes: PathwayNode[];
   edges: PathwayEdge[];
 }
 
 type PathwayKey = 'glycolysis' | 'tca' | 'fatty_acid';
+
+const PATHWAY_KEYS: PathwayKey[] = ['glycolysis', 'tca', 'fatty_acid'];
 
 /** Minimal shape of the echarts tooltip / click callback payload we consume. */
 interface TooltipParams {
@@ -51,26 +51,25 @@ const HTML_ESCAPES: Record<string, string> = {
 const escapeHtml = (str: string | number | null | undefined): string =>
   String(str ?? '').replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
 
-// Static pathway definitions live at module scope. They used to be rebuilt on every
-// render inside the component, and the render effect depended on that object, so the
-// ECharts instance was disposed and re-initialised on every render (losing zoom/pan
-// state and burning CPU). A module constant keeps the reference stable.
+// Static pathway topology lives at module scope (node ids are translated at
+// render time from `t.pathway.metabolites`). They used to be rebuilt on every
+// render inside the component, and the render effect depended on that object, so
+// the ECharts instance was disposed and re-initialised on every render (losing
+// zoom/pan state and burning CPU). A module constant keeps the reference stable.
 const PATHWAYS: Record<PathwayKey, Pathway> = {
   glycolysis: {
-    name: '糖酵解途径',
-    description: '葡萄糖分解为丙酮酸的代谢途径，产生ATP和NADH',
     nodes: [
-      { id: 'glucose', name: '葡萄糖', x: 50, y: 150, category: 'substrate', color: '#ef4444' },
-      { id: 'g6p', name: '葡萄糖-6-磷酸', x: 150, y: 150, category: 'intermediate' },
-      { id: 'f6p', name: '果糖-6-磷酸', x: 250, y: 150, category: 'intermediate' },
-      { id: 'f16bp', name: '果糖-1,6-二磷酸', x: 350, y: 150, category: 'intermediate' },
-      { id: 'dhap', name: '二羟丙酮磷酸', x: 450, y: 80, category: 'intermediate' },
-      { id: 'g3p', name: '甘油醛-3-磷酸', x: 450, y: 220, category: 'intermediate' },
-      { id: '13bpg', name: '1,3-二磷酸甘油酸', x: 550, y: 150, category: 'intermediate' },
-      { id: '3pg', name: '3-磷酸甘油酸', x: 650, y: 150, category: 'intermediate' },
-      { id: '2pg', name: '2-磷酸甘油酸', x: 750, y: 150, category: 'intermediate' },
-      { id: 'pep', name: '磷酸烯醇式丙酮酸', x: 850, y: 150, category: 'intermediate' },
-      { id: 'pyruvate', name: '丙酮酸', x: 950, y: 150, category: 'product', color: '#10b981' },
+      { id: 'glucose', x: 50, y: 150, category: 'substrate', color: '#ef4444' },
+      { id: 'g6p', x: 150, y: 150, category: 'intermediate' },
+      { id: 'f6p', x: 250, y: 150, category: 'intermediate' },
+      { id: 'f16bp', x: 350, y: 150, category: 'intermediate' },
+      { id: 'dhap', x: 450, y: 80, category: 'intermediate' },
+      { id: 'g3p', x: 450, y: 220, category: 'intermediate' },
+      { id: '13bpg', x: 550, y: 150, category: 'intermediate' },
+      { id: '3pg', x: 650, y: 150, category: 'intermediate' },
+      { id: '2pg', x: 750, y: 150, category: 'intermediate' },
+      { id: 'pep', x: 850, y: 150, category: 'intermediate' },
+      { id: 'pyruvate', x: 950, y: 150, category: 'product', color: '#10b981' },
     ],
     edges: [
       { source: 'glucose', target: 'g6p', enzyme: 'HK', gene: 'HK1/HK2' },
@@ -87,19 +86,17 @@ const PATHWAYS: Record<PathwayKey, Pathway> = {
     ],
   },
   tca: {
-    name: '三羧酸循环',
-    description: '有氧呼吸的核心，将乙酰-CoA氧化为CO2，产生大量能量',
     nodes: [
-      { id: 'acetylcoa', name: '乙酰-CoA', x: 100, y: 200, category: 'substrate', color: '#ef4444' },
-      { id: 'citrate', name: '柠檬酸', x: 250, y: 100, category: 'intermediate' },
-      { id: 'aconitate', name: '顺乌头酸', x: 400, y: 100, category: 'intermediate' },
-      { id: 'isocitrate', name: '异柠檬酸', x: 550, y: 100, category: 'intermediate' },
-      { id: 'akg', name: 'α-酮戊二酸', x: 700, y: 200, category: 'intermediate' },
-      { id: 'succinylcoa', name: '琥珀酰-CoA', x: 700, y: 300, category: 'intermediate' },
-      { id: 'succinate', name: '琥珀酸', x: 550, y: 400, category: 'intermediate' },
-      { id: 'fumarate', name: '延胡索酸', x: 400, y: 400, category: 'intermediate' },
-      { id: 'malate', name: '苹果酸', x: 250, y: 400, category: 'intermediate' },
-      { id: 'oxaloacetate', name: '草酰乙酸', x: 100, y: 300, category: 'product', color: '#10b981' },
+      { id: 'acetylcoa', x: 100, y: 200, category: 'substrate', color: '#ef4444' },
+      { id: 'citrate', x: 250, y: 100, category: 'intermediate' },
+      { id: 'aconitate', x: 400, y: 100, category: 'intermediate' },
+      { id: 'isocitrate', x: 550, y: 100, category: 'intermediate' },
+      { id: 'akg', x: 700, y: 200, category: 'intermediate' },
+      { id: 'succinylcoa', x: 700, y: 300, category: 'intermediate' },
+      { id: 'succinate', x: 550, y: 400, category: 'intermediate' },
+      { id: 'fumarate', x: 400, y: 400, category: 'intermediate' },
+      { id: 'malate', x: 250, y: 400, category: 'intermediate' },
+      { id: 'oxaloacetate', x: 100, y: 300, category: 'product', color: '#10b981' },
     ],
     edges: [
       { source: 'acetylcoa', target: 'citrate', enzyme: 'CS', gene: 'CS' },
@@ -115,16 +112,14 @@ const PATHWAYS: Record<PathwayKey, Pathway> = {
     ],
   },
   fatty_acid: {
-    name: '脂肪酸氧化',
-    description: '脂肪酸分解产生乙酰-CoA，进入TCA循环供能',
     nodes: [
-      { id: 'fattyacid', name: '脂肪酸', x: 50, y: 150, category: 'substrate', color: '#ef4444' },
-      { id: 'acylcoa', name: '脂酰-CoA', x: 150, y: 150, category: 'intermediate' },
-      { id: 'enoylcoa', name: '烯酰-CoA', x: 250, y: 150, category: 'intermediate' },
-      { id: 'hydoxyacylcoa', name: '羟脂酰-CoA', x: 350, y: 150, category: 'intermediate' },
-      { id: 'ketoacylcoa', name: '酮脂酰-CoA', x: 450, y: 150, category: 'intermediate' },
-      { id: 'acetylcoa_out', name: '乙酰-CoA', x: 550, y: 150, category: 'product', color: '#10b981' },
-      { id: 'short_fa', name: '缩短脂肪酸', x: 550, y: 250, category: 'intermediate' },
+      { id: 'fattyacid', x: 50, y: 150, category: 'substrate', color: '#ef4444' },
+      { id: 'acylcoa', x: 150, y: 150, category: 'intermediate' },
+      { id: 'enoylcoa', x: 250, y: 150, category: 'intermediate' },
+      { id: 'hydoxyacylcoa', x: 350, y: 150, category: 'intermediate' },
+      { id: 'ketoacylcoa', x: 450, y: 150, category: 'intermediate' },
+      { id: 'acetylcoa_out', x: 550, y: 150, category: 'product', color: '#10b981' },
+      { id: 'short_fa', x: 550, y: 250, category: 'intermediate' },
     ],
     edges: [
       { source: 'fattyacid', target: 'acylcoa', enzyme: 'ACS', gene: 'ACSL' },
@@ -149,6 +144,7 @@ export default function MetabolicPathway({
   selectedPathway?: PathwayKey;
   userGenes?: string[];
 }) {
+  const { t } = useLanguage();
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
   const [activeNode, setActiveNode] = useState<{ name: string } | null>(null);
@@ -162,6 +158,14 @@ export default function MetabolicPathway({
   useEffect(() => {
     if (!chartRef.current) return;
 
+    const metabolites = t.pathway.metabolites as Record<string, string>;
+    const categoryLabel = (category?: PathwayNode['category']) =>
+      category === 'substrate'
+        ? t.pathway.substrate
+        : category === 'product'
+          ? t.pathway.product
+          : t.pathway.intermediate;
+
     const isUserGene = (geneStr: string): boolean => {
       if (!userGenes.length) return false;
       return userGenes.some((g) =>
@@ -172,9 +176,9 @@ export default function MetabolicPathway({
     const chart = echarts.init(chartRef.current);
     chartInstance.current = chart;
 
-    const nodes = pathway.nodes.map(node => ({
+    const nodes = pathway.nodes.map((node) => ({
       id: node.id,
-      name: node.name,
+      name: metabolites[node.id] ?? node.id,
       x: node.x,
       y: node.y,
       symbolSize: node.category === 'substrate' || node.category === 'product' ? 45 : 35,
@@ -225,12 +229,14 @@ export default function MetabolicPathway({
           const params = rawParams as unknown as TooltipParams;
           if (params.dataType === 'node') {
             const nodeData = pathway.nodes.find((n) => n.id === params.data?.id);
-            return `<strong>${escapeHtml(params.name)}</strong><br/>类别: ${nodeData?.category === 'substrate' ? '底物' : nodeData?.category === 'product' ? '产物' : '中间产物'}`;
+            return `<strong>${escapeHtml(params.name)}</strong><br/>${escapeHtml(t.pathway.categoryLabel)}: ${escapeHtml(categoryLabel(nodeData?.category))}`;
           } else if (params.dataType === 'edge') {
             const edgeData = params.data?.data;
             if (!edgeData) return '';
-            const highlighted = isUserGene(edgeData.gene) ? '<br/><span style="color:#f59e0b">★ 用户基因相关</span>' : '';
-            return `<strong>${escapeHtml(edgeData.enzyme)}</strong><br/>基因: ${escapeHtml(edgeData.gene)}${highlighted}`;
+            const highlighted = isUserGene(edgeData.gene)
+              ? `<br/><span style="color:#f59e0b">${escapeHtml(t.pathway.userGeneBadge)}</span>`
+              : '';
+            return `<strong>${escapeHtml(edgeData.enzyme)}</strong><br/>${escapeHtml(t.pathway.geneLabel)}: ${escapeHtml(edgeData.gene)}${highlighted}`;
           }
           return '';
         },
@@ -296,14 +302,14 @@ export default function MetabolicPathway({
       chart.dispose();
       chartInstance.current = null;
     };
-  }, [pathway, userGenes]);
+  }, [pathway, userGenes, t]);
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Dna className="w-5 h-5 text-emerald-600" />
-          <h2 className="text-lg font-semibold text-slate-900">代谢路径可视化</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{t.pathway.title}</h2>
         </div>
         <select
           value={pathwayKey}
@@ -313,13 +319,15 @@ export default function MetabolicPathway({
           }}
           className="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
-          <option value="glycolysis">糖酵解途径</option>
-          <option value="tca">三羧酸循环</option>
-          <option value="fatty_acid">脂肪酸氧化</option>
+          {PATHWAY_KEYS.map((key) => (
+            <option key={key} value={key}>
+              {t.pathway.names[key]}
+            </option>
+          ))}
         </select>
       </div>
 
-      <p className="text-sm text-slate-600 mb-4">{pathway.description}</p>
+      <p className="text-sm text-slate-600 mb-4">{t.pathway.descriptions[pathwayKey]}</p>
 
       <div className="flex gap-4">
         <div className="flex-1 bg-slate-50 rounded-lg p-2" style={{ height: 400 }}>
@@ -330,33 +338,33 @@ export default function MetabolicPathway({
           <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
             <h3 className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-1">
               <ArrowRight className="w-4 h-4" />
-              图例说明
+              {t.pathway.legend}
             </h3>
             <div className="space-y-2 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-red-500" />
-                <span className="text-slate-600">底物</span>
+                <span className="text-slate-600">{t.pathway.substrate}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-emerald-500" />
-                <span className="text-slate-600">产物</span>
+                <span className="text-slate-600">{t.pathway.product}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-blue-400" />
-                <span className="text-slate-600">中间产物</span>
+                <span className="text-slate-600">{t.pathway.intermediate}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-0.5 bg-amber-500" />
-                <span className="text-slate-600">用户基因相关</span>
+                <span className="text-slate-600">{t.pathway.userGeneRelated}</span>
               </div>
             </div>
           </div>
 
           {activeNode && (
             <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
-              <h3 className="text-sm font-semibold text-blue-800 mb-2">节点详情</h3>
+              <h3 className="text-sm font-semibold text-blue-800 mb-2">{t.pathway.nodeDetails}</h3>
               <p className="text-xs text-slate-600">
-                <span className="font-medium">名称:</span> {activeNode.name}
+                <span className="font-medium">{t.pathway.nameLabel}:</span> {activeNode.name}
               </p>
             </div>
           )}
@@ -364,12 +372,12 @@ export default function MetabolicPathway({
           <div className="p-3 bg-green-50 rounded-lg border border-green-100">
             <h3 className="text-sm font-semibold text-green-800 mb-2 flex items-center gap-1">
               <Leaf className="w-4 h-4" />
-              营养关联
+              {t.pathway.nutritionLinks}
             </h3>
             <ul className="text-xs text-slate-600 space-y-1">
-              <li>• 葡萄糖: 主要能量来源</li>
-              <li>• 丙酮酸: 乳酸发酵底物</li>
-              <li>• ATP: 细胞能量货币</li>
+              <li>• {t.pathway.nutritionGlucose}</li>
+              <li>• {t.pathway.nutritionPyruvate}</li>
+              <li>• {t.pathway.nutritionAtp}</li>
             </ul>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from './store/authStore';
 import { isBackendWarm } from './backendWarmup';
+import { getTranslations } from './i18n';
 import type {
   ApiErrorLike,
   DatasetList,
@@ -81,25 +82,6 @@ const clearSessionAndRedirect = () => {
   }
 };
 
-const ERROR_MESSAGES: Record<string, string> = {
-  '400': '请求参数错误',
-  '401': '登录已过期，请重新登录',
-  '403': '权限不足，无法访问',
-  '404': '请求的资源不存在',
-  '408': '请求超时，请稍后重试',
-  '422': '数据验证失败',
-  '500': '服务器内部错误',
-  '502': '网关错误',
-  '503': '服务暂不可用',
-  network: '网络连接失败，请检查网络',
-  timeout: '请求超时，请稍后重试',
-  unknown: '发生未知错误',
-};
-
-// Shown instead of a bare timeout/network error while the free-tier backend is
-// still waking: the request likely failed because the container was booting.
-const COLD_START_MESSAGE = '后端服务正在启动（免费实例冷启动，通常需要 30–60 秒），请稍候重试。';
-
 /**
  * Collapse FastAPI's `detail` into a plain string. Request-validation failures
  * return an array of `{ msg, loc }` objects; passing that array straight to
@@ -125,24 +107,27 @@ const normaliseDetail = (detail: unknown): string | undefined => {
 };
 
 const getErrorMessage = (error: ApiErrorLike): string => {
+  // Interceptors run outside React, so resolve messages from the persisted
+  // language instead of the `useLanguage` hook.
+  const errors = getTranslations().errors as Record<string, string>;
   const status = error.response?.status;
   const detail =
     normaliseDetail(error.response?.data?.detail) ??
     normaliseDetail(error.response?.data?.message);
 
-  if (status && ERROR_MESSAGES[String(status)]) {
-    return detail || ERROR_MESSAGES[String(status)];
+  if (status && errors[String(status)]) {
+    return detail || errors[String(status)];
   }
 
   if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-    return isBackendWarm() ? ERROR_MESSAGES.timeout : COLD_START_MESSAGE;
+    return isBackendWarm() ? errors.timeout : errors.coldStart;
   }
 
   if (!error.response) {
-    return isBackendWarm() ? ERROR_MESSAGES.network : COLD_START_MESSAGE;
+    return isBackendWarm() ? errors.network : errors.coldStart;
   }
 
-  return detail || error.message || ERROR_MESSAGES.unknown;
+  return detail || error.message || errors.unknown;
 };
 
 type RetriableConfig = ApiErrorLike['config'] & { _retried?: boolean };

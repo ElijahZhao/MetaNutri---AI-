@@ -59,7 +59,7 @@
 |---|------|------|------|
 | R1 | `experiments/results.csv` 中 `mean` 基线的 `within_r` 无法由代码复现：`within_between()` 对「受试者内恒定」的预测返回 `NaN`，而 CSV 与报告 §4.5 记录为 `0.0` | `research/src/evaluate.py` vs `research/experiments/results.csv` | 明确约定：受试者内恒定预测记 `0.0`（并写入 docstring），代码与 CSV/报告三者一致 |
 | R2 | 外部验证的「内部参照」样本量不一致：`external_validate.py` 用**全部 1699 餐**，报告 §4.2 用 `iauc>0` 过滤后的 **1557 餐** | `research/src/external_validate.py`；报告表 4 | 在脚本 docstring 与报告表 4 加注说明。**未改数值**（数据集不随仓库提交，改过滤会再次造成 `external_results.csv` 不可复现） |
-| I1 | GitHub Actions 未声明 `permissions`，默认 `GITHUB_TOKEN` 权限偏大 | `.github/workflows/ci.yml`、`keepalive.yml` | 两处均补 `permissions: contents: read` |
+| I1 | GitHub Actions 未声明 `permissions`，默认 `GITHUB_TOKEN` 权限偏大 | `.github/workflows/ci.yml`、`health-check.yml` | 两处均补 `permissions: contents: read` |
 
 ### 2.2 平台安全修复（最小改动、不动业务逻辑）
 
@@ -173,12 +173,12 @@
 - `backend/Dockerfile`、`frontend/Dockerfile`：动态端口 / standalone 入口与配置一致。
 - **`backend/schema.sql` 与模型一致**：7 张在用表（users / user_profiles / genomic_data / microbiome_data / metabolomics_data / metabolomics_pathways / food_nutrition / nutrition_recommendations）的列名、类型、可空性、索引与 `backend/app/models/` 下的 SQLAlchemy 定义逐列吻合。
 - **文档相对链接有效**：`README.md` / `README.zh-CN.md`、`docs/API.md`、`docs/DATASETS.md`、`CODE_OF_CONDUCT.md` 的相对链接全部指向存在的文件。
-- **无硬编码凭据**：全仓库扫描未发现 `sk-*` / `AKID*` / `BEGIN ... PRIVATE KEY` 等密钥；出现的 `metanutri-backend.onrender.com`、`*.supabase.com` 均为部署文档与 `keepalive.yml` 中的公开地址，非凭据。
+- **无硬编码凭据**：全仓库扫描未发现 `sk-*` / `AKID*` / `BEGIN ... PRIVATE KEY` 等密钥；出现的 `metanutri-backend.onrender.com`、`*.supabase.com` 均为部署文档与 `health-check.yml` 中的公开地址，非凭据。
 - **静态资源引用有效**：`frontend/public/.gitkeep` 已被跟踪；`docs/assets/banner.jpg` 被两份 README 引用，非死文件。
 - **受保护路由为双层**：`(app)/layout.tsx` 挂客户端 `ProtectedRoute` 守卫 + 后端 Cookie 鉴权。
 - `.github/workflows/ci.yml`：前端 typecheck+lint+test+build、e2e、后端 compileall+import 冒烟，覆盖充分。
 - `frontend/playwright.config.ts`、`frontend/vitest.config.mjs`：与 standalone 输出匹配。
-- `.github/workflows/keepalive.yml`：已从定时保活重构为 push/dispatch 健康检查，保活交由外部 cron。
+- `.github/workflows/health-check.yml`：已从定时保活重构为 push/dispatch 健康检查，保活交由外部 cron。
 - `frontend/next.config.ts` 的 `/api` + `/health` rewrites、CSP、`backendWarmup.ts` 前端预热：同源代理与冷启动 UX 完整、自洽。
 - **前后端接口对账**：前端 `frontend/src/lib/api.ts` 的 40+ 个调用与后端 43 条路由**逐条对应**。
 - `frontend/src/lib/i18n.tsx`：`const zh: Translations`（`Translations = typeof en`），中英键值由 TypeScript 编译期强制一致，**不存在运行时缺键风险**。

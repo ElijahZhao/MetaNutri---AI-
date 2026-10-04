@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useCallback } from 'react';
+import { useLanguage } from '@/lib/i18n';
 
 type ParticleType = 'dna' | 'molecule' | 'atom' | 'glucose' | 'protein';
 
@@ -346,6 +347,7 @@ export default function BioCanvas({
   isCanvasMode: boolean;
   onExitCanvas: () => void;
 }) {
+  const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animationRef = useRef<number | null>(null);
@@ -606,7 +608,7 @@ export default function BioCanvas({
           onClick={onExitCanvas}
           className="fixed top-6 right-6 z-50 px-4 py-2 bg-white/60 backdrop-blur-md text-slate-700 rounded-lg border border-slate-200 shadow-lg hover:bg-white/80 transition-all"
         >
-          退出画布模式 (ESC)
+          {t.exitCanvasMode}
         </button>
       )}
     </>

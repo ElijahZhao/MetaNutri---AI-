@@ -8,7 +8,7 @@
 
 # 🧬 MetaNutri
 
-**AI 驱动的精准营养代谢数字孪生平台**
+**精准营养代谢数字孪生平台**
 
 [![GitHub Stars](https://img.shields.io/github/stars/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=10b981)](https://github.com/ElijahZhao/MetaNutri---AI-/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=3b82f6)](https://github.com/ElijahZhao/MetaNutri---AI-/network/members)
@@ -61,7 +61,7 @@
 
 ## 🌟 项目简介
 
-**MetaNutri** 是一个基于 AI 的精准营养代谢数字孪生平台，通过整合**基因组学**、**微生物组学**和**代谢组学**数据，为用户提供个性化的营养建议和健康管理方案。
+**MetaNutri** 是一个精准营养代谢数字孪生平台，通过整合**基因组学**、**微生物组学**和**代谢组学**数据，为用户提供个性化的营养建议和健康管理方案。
 
 本仓库**首先是一个全栈工程项目**：一个生产级别的 Next.js 前端、一个 FastAPI 后端与一个托管 PostgreSQL 数据库，端到端打通并部署在 Vercel / Render / Supabase 上。线上 API 提供的是**透明、确定性的规则化分析**；`backend/app/ml/` 下的 PyTorch 模型代码属于研究脚手架，**并未接入线上 API**。真实的数据训练模型在独立的研究模块中开发。
 
@@ -163,7 +163,7 @@
 | 📊 | **交互式仪表盘** | 健康评分、身体指标与风险雷达卡片，由 ECharts 图表支撑 |
 | 🚨 | **健康预警** | 实时营养缺乏检测与健康风险评估 |
 | 🍎 | **食物与营养探索** | 可检索的食物数据库，并提供个性化食物评分 |
-| 🍽️ | **AI 膳食计划** | 基于个体生理特征的 AI 个性化膳食方案 |
+| 🍽️ | **规则化膳食计划** | 基于透明规则化食物评分生成的个性化膳食方案 |
 | 📁 | **数据集浏览器** | 浏览平台内置的精选参考数据集 |
 | 📥 | **导入 / 导出** | 导入你自己的组学与饮食数据，导出分析结果 |
 | 🔐 | **默认安全** | httpOnly Cookie 会话、bcrypt 哈希与请求限流 |
@@ -410,7 +410,7 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
 
 ## ☁️ 云端部署
 
-MetaNutri 采用以下技术栈实现无缝云端部署：
+MetaNutri 部署在以下托管服务上：
 
 | 组件 | 平台 | 说明 |
 |------|------|------|
@@ -597,6 +597,8 @@ MetaNutri---AI-/
 - **模型权重未被使用。** `backend/app/ml/weights/` 下的 `.pt` 文件是在合成随机张量上训练的，运行中的 API 从不加载它们。
 - **真正的 AI 在别处。** 严肃的、经数据训练的模型在独立的研究模块中、基于真实公开数据集开发——见 [docs/ROADMAP.md](docs/ROADMAP.md)。
 
+**开发说明。** 本项目在实现过程中将 AI 编程工具作为助手使用——主要用于脚手架、重构与文档撰写。架构设计、产品决策与最终审核均由作者本人完成；AI 生成的产出在合入前都经过审核与调整，而非直接照搬。
+
 ---
 
 ## 🤝 参与贡献
@@ -631,6 +633,6 @@ MetaNutri---AI-/
 
 <div align="center">
 
-**MetaNutri** — AI 驱动的精准营养代谢数字孪生
+**MetaNutri** — 精准营养代谢数字孪生
 
 </div>

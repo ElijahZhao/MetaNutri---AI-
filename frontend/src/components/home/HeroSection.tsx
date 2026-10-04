@@ -7,7 +7,7 @@ import SpotlightTitle from '@/components/SpotlightTitle';
 import { useLanguage } from '@/lib/i18n';
 
 export default function HeroSection() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <section className="py-20 px-4 text-center relative overflow-hidden">
@@ -24,7 +24,7 @@ export default function HeroSection() {
 
         <ScrollReveal className="mt-8">
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">
-            {language === 'en' ? 'Build Your' : '构建您的'}
+            {t.heroTitlePrefix}
             <SpotlightTitle
               className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500"
               color="rgba(34, 211, 238, 0.7)"
@@ -32,7 +32,7 @@ export default function HeroSection() {
               speed={4}
               delay={1500}
             >
-              {language === 'en' ? 'Metabolic Digital Twin' : '代谢数字孪生'}
+              {t.heroTitleHighlight}
             </SpotlightTitle>
           </h1>
         </ScrollReveal>

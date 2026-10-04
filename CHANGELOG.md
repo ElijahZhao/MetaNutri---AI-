@@ -77,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-- `ci.yml` and `keepalive.yml` now declare `permissions: contents: read`, so the
+- `ci.yml` and `health-check.yml` now declare `permissions: contents: read`, so the
   default `GITHUB_TOKEN` is scoped to least privilege instead of the repository
   default.
 - `/api/auth/forgot-password` no longer returns the reset token to the caller by

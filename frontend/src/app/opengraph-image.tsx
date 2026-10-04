@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'MetaNutri - AI Precision Nutrition';
+export const alt = 'MetaNutri - Precision Nutrition';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -42,7 +42,7 @@ export default function Image() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
           <div style={{ display: 'flex', fontSize: '72px', fontWeight: 700, color: '#0f172a' }}>
-            AI Precision Nutrition
+            Precision Nutrition
           </div>
           <div style={{ display: 'flex', fontSize: '32px', color: '#475569' }}>
             Metabolic Digital Twin Platform

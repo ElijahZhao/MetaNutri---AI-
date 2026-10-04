@@ -10,7 +10,7 @@ _DEFAULT_SECRET_KEY = "super-secret-key-change-in-production"
 class Settings(BaseSettings):
     PROJECT_NAME: str = "MetaNutri"
     VERSION: str = "1.0.0"
-    DESCRIPTION: str = "AI-Powered Precision Nutrition Metabolic Digital Twin Platform"
+    DESCRIPTION: str = "Precision Nutrition Metabolic Digital Twin Platform"
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./metanutri.db"
     REDIS_URL: str = "redis://localhost:6379/0"

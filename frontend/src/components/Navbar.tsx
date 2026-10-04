@@ -71,7 +71,7 @@ export default function Navbar() {
               aria-label={language === 'en' ? t.switchToChinese : t.switchToEnglish}
             >
               <Globe className="w-4 h-4" aria-hidden="true" />
-              {language === 'en' ? '中文' : 'EN'}
+              {t.langShort}
             </button>
             {user ? (
               <div className="hidden md:flex items-center gap-3">
