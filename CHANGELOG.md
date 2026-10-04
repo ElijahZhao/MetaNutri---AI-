@@ -90,6 +90,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The backend now refuses to start with `COOKIE_SAMESITE=none`, which would
   silently remove the project's only CSRF defence, unless
   `ALLOW_INSECURE_SAMESITE_NONE=1` is set.
+- CodeQL code scanning is now enabled for both repositories. Its first pass
+  raised three alerts, all addressed here: `/health` is public and no longer
+  returns the database exception type/message (it logs the detail server-side and
+  reports a bare `error`); the import endpoint no longer echoes per-record
+  exception text to the client (logged instead); and the TianChi mock downloader
+  now restricts `dataset_id` to a filename-safe set and verifies the resolved
+  path stays inside the target directory.
 
 ## [1.0.0] - 2026-10-03
 

@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime
 import csv
+import logging
 from io import StringIO
 
 from app.db.session import get_db
@@ -13,6 +14,8 @@ from app.models.genomic import GenomicData
 from app.models.microbiome import MicrobiomeData
 from app.models.metabolomics import MetabolomicsData
 from app.services.data_import_export import DataImporter
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/import-export", tags=["import-export"])
 
@@ -94,8 +97,11 @@ async def import_data(
                 )
                 db.add(metabolomics)
             imported += 1
-        except Exception as e:
-            errors.append({"record": record, "error": str(e)})
+        except Exception:
+            # Don't echo raw exception text (it can contain DB internals) to the
+            # client; keep the full detail in the server log instead.
+            logger.exception("Import failed for a %s record", data_type)
+            errors.append({"record": record, "error": "record could not be imported"})
     
     await db.commit()
     

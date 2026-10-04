@@ -83,6 +83,9 @@ async def health_check():
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
         db_status = "ok"
-    except Exception as e:
-        db_status = f"error ({type(e).__name__}): {str(e)[:150]}"
+    except Exception:
+        # /health is public: never expose driver/connection details to callers.
+        # Log the full error server-side and report only a generic status.
+        db_status = "error"
+        logger.exception("Health check: database probe failed")
     return {"status": "ok", "service": settings.PROJECT_NAME, "database": db_status}
