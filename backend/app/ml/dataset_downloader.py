@@ -88,10 +88,10 @@ class DatasetDownloader:
     def download_usda_food_database() -> str:
         usda_json_path = DATA_DIR / "usda_food_database.json"
         if usda_json_path.exists():
-            print("✅ USDA food data already downloaded")
+            print("USDA food data already downloaded")
             return str(usda_json_path)
 
-        print("📥 Creating comprehensive USDA food database...")
+        print("Creating comprehensive USDA food database...")
         usda_data = {
             "description": "USDA FoodData Central - Food Nutrition Database",
             "version": "2023",
@@ -177,17 +177,17 @@ class DatasetDownloader:
 
         with open(usda_json_path, 'w') as f:
             json.dump(usda_data, f, indent=2)
-        print(f"✅ USDA food database saved to {usda_json_path}")
+        print(f"USDA food database saved to {usda_json_path}")
         return str(usda_json_path)
 
     @staticmethod
     def download_kegg_pathways() -> str:
         pathways_path = DATA_DIR / "kegg_pathways.json"
         if pathways_path.exists():
-            print("✅ KEGG pathways already downloaded")
+            print("KEGG pathways already downloaded")
             return str(pathways_path)
 
-        print("📥 Downloading KEGG pathway data...")
+        print("Downloading KEGG pathway data...")
         pathways = [
             {"name": "Metabolic Pathways", "prefix": "map01100"},
             {"name": "Glycolysis", "prefix": "map00010"},
@@ -201,17 +201,17 @@ class DatasetDownloader:
 
         with open(pathways_path, 'w') as f:
             json.dump(pathways, f, indent=2)
-        print(f"✅ KEGG pathways saved to {pathways_path}")
+        print(f"KEGG pathways saved to {pathways_path}")
         return str(pathways_path)
 
     @staticmethod
     def download_human_microbiome_reference() -> str:
         microbiome_path = DATA_DIR / "hmp_reference.json"
         if microbiome_path.exists():
-            print("✅ HMP reference already downloaded")
+            print("HMP reference already downloaded")
             return str(microbiome_path)
 
-        print("📥 Creating HMP reference dataset...")
+        print("Creating HMP reference dataset...")
         hmp_data = {
             "description": "Human Microbiome Project - Gut Microbiome Reference",
             "sources": ["HMP Consortium", "NCBI", "QIIME2"],
@@ -238,17 +238,17 @@ class DatasetDownloader:
 
         with open(microbiome_path, 'w') as f:
             json.dump(hmp_data, f, indent=2)
-        print(f"✅ HMP reference saved to {microbiome_path}")
+        print(f"HMP reference saved to {microbiome_path}")
         return str(microbiome_path)
 
     @staticmethod
     def download_metabolomics_reference() -> str:
         metabolomics_path = DATA_DIR / "metabolomics_reference.json"
         if metabolomics_path.exists():
-            print("✅ Metabolomics reference already downloaded")
+            print("Metabolomics reference already downloaded")
             return str(metabolomics_path)
 
-        print("📥 Creating metabolomics reference dataset...")
+        print("Creating metabolomics reference dataset...")
         metabolomics_data = {
             "description": "Human Metabolome Database - Common Metabolites",
             "sources": ["HMDB", "KEGG", "MetaboLights"],
@@ -283,17 +283,17 @@ class DatasetDownloader:
 
         with open(metabolomics_path, 'w') as f:
             json.dump(metabolomics_data, f, indent=2)
-        print(f"✅ Metabolomics reference saved to {metabolomics_path}")
+        print(f"Metabolomics reference saved to {metabolomics_path}")
         return str(metabolomics_path)
 
     @staticmethod
     def download_gene_nutrition_interactions() -> str:
         gene_path = DATA_DIR / "gene_nutrition_interactions.json"
         if gene_path.exists():
-            print("✅ Gene-nutrition data already downloaded")
+            print("Gene-nutrition data already downloaded")
             return str(gene_path)
 
-        print("📥 Creating gene-nutrition interaction dataset...")
+        print("Creating gene-nutrition interaction dataset...")
         gene_data = {
             "description": "Gene-Nutrition Interaction Database",
             "sources": ["SNPedia", "GWAS Catalog", "NutriGenetics"],
@@ -311,17 +311,17 @@ class DatasetDownloader:
 
         with open(gene_path, 'w') as f:
             json.dump(gene_data, f, indent=2)
-        print(f"✅ Gene-nutrition data saved to {gene_path}")
+        print(f"Gene-nutrition data saved to {gene_path}")
         return str(gene_path)
 
     @staticmethod
     def download_microbiome_samples() -> str:
         microbiome_samples_path = DATA_DIR / "microbiome_samples.json"
         if microbiome_samples_path.exists():
-            print("✅ Microbiome samples already downloaded")
+            print("Microbiome samples already downloaded")
             return str(microbiome_samples_path)
 
-        print("📥 Creating microbiome sample datasets...")
+        print("Creating microbiome sample datasets...")
         microbiome_samples = {
             "description": "Human Gut Microbiome Sample Data - Multi-study reference",
             "sources": ["MetaNutri Demo", "HMP", "American Gut Project"],
@@ -369,17 +369,17 @@ class DatasetDownloader:
 
         with open(microbiome_samples_path, 'w') as f:
             json.dump(microbiome_samples, f, indent=2)
-        print(f"✅ Microbiome samples saved to {microbiome_samples_path}")
+        print(f"Microbiome samples saved to {microbiome_samples_path}")
         return str(microbiome_samples_path)
 
     @staticmethod
     def download_dietary_guidelines() -> str:
         guidelines_path = DATA_DIR / "dietary_guidelines.json"
         if guidelines_path.exists():
-            print("✅ Dietary guidelines already downloaded")
+            print("Dietary guidelines already downloaded")
             return str(guidelines_path)
 
-        print("📥 Creating dietary guidelines dataset...")
+        print("Creating dietary guidelines dataset...")
         dietary_guidelines = {
             "description": "Dietary Guidelines for Americans and WHO Recommendations",
             "sources": ["USDA Dietary Guidelines", "WHO Nutrition Guidelines"],
@@ -424,17 +424,17 @@ class DatasetDownloader:
 
         with open(guidelines_path, 'w') as f:
             json.dump(dietary_guidelines, f, indent=2)
-        print(f"✅ Dietary guidelines saved to {guidelines_path}")
+        print(f"Dietary guidelines saved to {guidelines_path}")
         return str(guidelines_path)
 
     @staticmethod
     def download_disease_markers() -> str:
         markers_path = DATA_DIR / "disease_markers.json"
         if markers_path.exists():
-            print("✅ Disease markers already downloaded")
+            print("Disease markers already downloaded")
             return str(markers_path)
 
-        print("📥 Creating disease biomarkers dataset...")
+        print("Creating disease biomarkers dataset...")
         disease_markers = {
             "description": "Metabolic and Microbiome Biomarkers for Disease Risk Assessment",
             "sources": ["MetaNutri Research", "PubMed", "GWAS Catalog"],
@@ -493,7 +493,7 @@ class DatasetDownloader:
 
         with open(markers_path, 'w') as f:
             json.dump(disease_markers, f, indent=2)
-        print(f"✅ Disease markers saved to {markers_path}")
+        print(f"Disease markers saved to {markers_path}")
         return str(markers_path)
 
     @staticmethod
@@ -505,7 +505,7 @@ class DatasetDownloader:
         try:
             results["usda"] = DatasetDownloader.download_usda_food_database()
         except Exception as e:
-            print(f"⚠️ USDA download failed: {e}")
+            print(f"Warning: USDA download failed: {e}")
             results["usda"] = "Failed"
         results["kegg"] = DatasetDownloader.download_kegg_pathways()
         results["hmp"] = DatasetDownloader.download_human_microbiome_reference()
@@ -518,7 +518,7 @@ class DatasetDownloader:
         print("Download Summary:")
         print("=" * 60)
         for name, path in results.items():
-            status = "✅" if path and path != "Failed" else "❌"
+            status = "OK" if path and path != "Failed" else "FAILED"
             print(f"{status} {name}: {path}")
         return results
 
@@ -529,7 +529,7 @@ async def import_sample_data(db_session, user_id=None):
     from app.models.microbiome import MicrobiomeData
     from app.models.metabolomics import MetabolomicsData, MetabolomicsPathway
 
-    print("📊 Importing sample demonstration data...")
+    print("Importing sample demonstration data...")
 
     foods = [
         {"name": "Apple", "category": "Fruits", "calories": 52, "protein": 0.3, "carbs": 14, "fat": 0.2, "fiber": 2.4},
@@ -565,7 +565,7 @@ async def import_sample_data(db_session, user_id=None):
             db_session.add(food)
 
     await db_session.commit()
-    print("✅ Sample foods imported")
+    print("Sample foods imported")
 
     if user_id:
         microbiome_taxa = [
@@ -583,7 +583,7 @@ async def import_sample_data(db_session, user_id=None):
                 db_session.add(data)
 
         await db_session.commit()
-        print("✅ Sample microbiome data imported")
+        print("Sample microbiome data imported")
 
         metabolites = [
             ("Glucose", "Glycolysis", 95, -0.5, 0.05), ("Lactate", "Glycolysis", 1.2, 0.3, 0.08),
@@ -613,9 +613,9 @@ async def import_sample_data(db_session, user_id=None):
                 db_session.add(pathway)
 
         await db_session.commit()
-        print("✅ Sample metabolomics data imported")
+        print("Sample metabolomics data imported")
 
-    print("✅ All sample data imported successfully!")
+    print("All sample data imported successfully!")
 
 
 class TianChiDatasetClient:
@@ -647,20 +647,20 @@ class TianChiDatasetClient:
     def authenticate(self) -> bool:
         """Authenticate with TianChi API"""
         if not self.access_key or not self.secret_key:
-            print("⚠️ TianChi authentication requires AK/SK credentials")
+            print("Warning: TianChi authentication requires AK/SK credentials")
             return False
         
         try:
             self._authenticated = True
-            print("✅ TianChi authentication successful")
+            print("TianChi authentication successful")
             return True
         except Exception as e:
-            print(f"⚠️ TianChi authentication failed: {e}")
+            print(f"Warning: TianChi authentication failed: {e}")
             return False
 
     def search_datasets(self, keyword: str, category: str = "") -> List[Dict[str, Any]]:
         """Search TianChi datasets by keyword and category"""
-        print(f"🔍 Searching TianChi datasets for: {keyword}")
+        print(f"Searching TianChi datasets for: {keyword}")
         
         mock_results = [
             {
@@ -685,12 +685,12 @@ class TianChiDatasetClient:
             },
         ]
         
-        print(f"✨ Found {len(mock_results)} TianChi datasets")
+        print(f"Found {len(mock_results)} TianChi datasets")
         return mock_results
 
     def get_dataset_detail(self, dataset_id: str) -> Dict[str, Any]:
         """Get detailed information about a specific dataset"""
-        print(f"📋 Fetching dataset detail: {dataset_id}")
+        print(f"Fetching dataset detail: {dataset_id}")
         
         mock_detail = {
             "id": dataset_id,
@@ -715,12 +715,12 @@ class TianChiDatasetClient:
     def download_dataset(self, dataset_id: str, save_path: str) -> bool:
         """Download a TianChi dataset"""
         if not self._authenticated:
-            print("⚠️ Authentication required for downloading")
+            print("Warning: Authentication required for downloading")
             return False
         
-        print(f"📥 Downloading TianChi dataset {dataset_id}...")
-        print("⚠️ Note: Real TianChi download requires competition registration or data approval")
-        print("⚠️ This is a mock download - actual implementation requires AK/SK signing")
+        print(f"Downloading TianChi dataset {dataset_id}...")
+        print("Warning: Note: Real TianChi download requires competition registration or data approval")
+        print("Warning: This is a mock download - actual implementation requires AK/SK signing")
         
         # `dataset_id` is caller-supplied. Restrict it to a filename-safe set,
         # then normalize the full path and confirm it stays inside `save_path`.
@@ -746,12 +746,12 @@ class TianChiDatasetClient:
         with open(dataset_path, 'w') as f:
             json.dump(mock_data, f, indent=2)
         
-        print(f"✅ Mock dataset saved to {dataset_path}")
+        print(f"Mock dataset saved to {dataset_path}")
         return True
 
     def list_available_bioinformatics_datasets(self) -> List[Dict[str, Any]]:
         """List bioinformatics-related datasets on TianChi"""
-        print("🔬 Listing bioinformatics datasets on TianChi...")
+        print("Listing bioinformatics datasets on TianChi...")
         
         bio_datasets = [
             {
@@ -788,7 +788,7 @@ class TianChiDatasetClient:
             },
         ]
         
-        print(f"✨ Found {len(bio_datasets)} bioinformatics datasets")
+        print(f"Found {len(bio_datasets)} bioinformatics datasets")
         return bio_datasets
 
 
@@ -873,7 +873,7 @@ if __name__ == "__main__":
     print("\n2. Available datasets:")
     datasets = get_available_datasets()
     for key, info in datasets.items():
-        status = "✅" if info["available"] else "❌"
+        status = "OK" if info["available"] else "FAILED"
         print(f"  {status} {key}: {info['name']}")
     
     print("\n3. Dataset statistics:")
