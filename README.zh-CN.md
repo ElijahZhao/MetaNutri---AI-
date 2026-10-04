@@ -63,14 +63,14 @@
 
 **MetaNutri** 是一个精准营养代谢数字孪生平台，通过整合**基因组学**、**微生物组学**和**代谢组学**数据，为用户提供个性化的营养建议和健康管理方案。
 
-本仓库**首先是一个全栈工程项目**：一个生产级别的 Next.js 前端、一个 FastAPI 后端与一个托管 PostgreSQL 数据库，端到端打通并部署在 Vercel / Render / Supabase 上。线上 API 提供的是**透明、确定性的规则化分析**；`backend/app/ml/` 下的 PyTorch 模型代码属于研究脚手架，**并未接入线上 API**。真实的数据训练模型在独立的研究模块中开发。
+本仓库**首先是一个全栈工程项目**：一个生产级别的 Next.js 前端、一个 FastAPI 后端与一个托管 PostgreSQL 数据库，端到端打通并部署在 Vercel / Render / Supabase 上。线上 API 提供的是**透明、确定性的规则化分析**；`research/prototypes/` 下的 PyTorch 模型代码属于研究脚手架，**并未接入线上 API**。真实的数据训练模型在独立的研究模块中开发。
 
 ### 📌 项目状态
 
 > **本仓库是一个工程演示项目，并配有一条独立的研究线。**
 >
 > - **线上实际运行的内容：** 认证、数据库 CRUD、食物检索、导入导出——以及血糖/营养/风险评估所用的**确定性规则化启发式**。全部仅供演示。
-> - **研究脚手架（非线上）：** `backend/app/ml/` 下的 PyTorch 模型代码**未用真实数据训练**，且在运行时**从不加载**。
+> - **研究脚手架（非线上）：** `research/prototypes/` 下的 PyTorch 模型代码**未用真实数据训练**，且在运行时**从不加载**。
 > - **真正的 AI 在哪里：** 一个自包含的研究模块——在**真实公开数据**上做餐后血糖响应预测，并采用严格的按受试者划分评估——**独立于本平台**开发与部署。见 [docs/ROADMAP.md](docs/ROADMAP.md)。
 > - **非医疗器械。** 本项目不构成任何医疗建议，切勿用于临床决策。
 
@@ -381,16 +381,18 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
   -d '{"calorie_target":2000}'
 ```
 
-### AI/ML 模块（后端）
+### AI/ML 模块
+
+只有解释器仍留在 `backend/app/ml/` 并接入线上 API；PyTorch 原型已迁移到独立研究模块的 `research/prototypes/` 下。
 
 | 模块 | 能力 |
 |------|------|
-| `ml/metabolic_response_model.py` | 研究原型：血糖响应 / 营养吸收预测器（未接入线上 API） |
-| `ml/gene_nutrition_model.py` | 研究原型：基因-营养关联（GNN） |
-| `ml/microbiome_vae.py` | 研究原型：微生物组健康（VAE） |
-| `ml/explainability.py` | 确定性的比例摊派特征贡献解释器（线上 API 返回的就是它） |
-| `ml/train_models.py` | 原型训练脚本（在合成张量上训练） |
-| `ml/weights/` | 在合成数据上训练的权重；运行时从不加载 |
+| `research/prototypes/metabolic_response_model.py` | 研究原型：血糖响应 / 营养吸收预测器（未接入线上 API） |
+| `research/prototypes/gene_nutrition_model.py` | 研究原型：基因-营养关联（GNN） |
+| `research/prototypes/microbiome_vae.py` | 研究原型：微生物组健康（VAE） |
+| `backend/app/ml/explainability.py` | 确定性的比例摊派特征贡献解释器（线上 API 返回的就是它） |
+| `research/prototypes/train_models.py` | 原型训练脚本（在合成张量上训练） |
+| `research/prototypes/weights/` | 在合成数据上训练的权重；运行时从不加载 |
 
 ---
 
@@ -470,14 +472,9 @@ MetaNutri---AI-/
 │   │   │   └── redis.py              # Redis 缓存（优雅降级）
 │   │   ├── db/
 │   │   │   └── session.py            # SQLAlchemy 异步引擎
-│   │   ├── ml/                       # 🧠 机器学习模型
-│   │   │   ├── metabolic_response_model.py   # 研究原型（未接入线上 API）
-│   │   │   ├── gene_nutrition_model.py       # 研究原型（GNN）
-│   │   │   ├── microbiome_vae.py             # 研究原型（VAE）
-│   │   │   ├── explainability.py             # 研究原型解释器
-│   │   │   ├── dataset_downloader.py         # 生成内置样例数据（不做网络请求）
-│   │   │   ├── train_models.py               # 原型训练脚本（合成数据）
-│   │   │   └── weights/                      # 在合成数据上训练的权重（运行时未使用）
+│   │   ├── ml/                       # 🧠 与 ML 相关的后端代码
+│   │   │   ├── explainability.py             # 确定性特征贡献解释器（线上 API 使用）
+│   │   │   └── dataset_downloader.py         # 生成本地样例数据（不联网抓取）
 │   │   ├── models/                   # SQLAlchemy ORM 模型
 │   │   ├── schemas/                  # Pydantic 请求 / 响应 Schema
 │   │   ├── services/                 # 业务逻辑（种子数据、导入 / 导出）
@@ -558,6 +555,7 @@ MetaNutri---AI-/
 │   ├── experiments/                  # 结果 CSV，由流水线重新生成
 │   ├── reports/                      # 技术报告（MD + 16 页 PDF）与图表
 │   ├── data/                         # 占位——原始数据集从不提交
+│   ├── prototypes/                   # PyTorch 模型原型 + 合成权重（运行时未使用）
 │   ├── requirements.txt / -dev.txt   # 固定的研究依赖
 │   └── README.md
 │
@@ -571,14 +569,11 @@ MetaNutri---AI-/
 │   └── AUDITS.md                     # 审计与修复记录
 │
 ├── .github/                          # GitHub 配置
-│   ├── workflows/                    # CI 与保活工作流
-│   ├── ISSUE_TEMPLATE/               # Bug 与功能建议模板
-│   └── PULL_REQUEST_TEMPLATE/        # PR 模板
+│   └── workflows/                    # CI 与保活工作流
 │
 ├── docker-compose.yml                # 本地编排
 ├── start.sh                          # 一键启动脚本
 ├── CONTRIBUTING.md                   # 贡献指南
-├── CODE_OF_CONDUCT.md                # 社区行为准则
 ├── SECURITY.md                       # 安全策略
 ├── CITATION.cff                      # 引用方式
 ├── LICENSE                           # MIT 许可证
@@ -594,7 +589,7 @@ MetaNutri---AI-/
 
 - **内置数据集是精选样例，并非完整的第三方数据。** `backend/data/` 下的文件都是人工整理的小型参考集。数据集"下载"接口只是（重新）生成这些本地样例文件——**不会**从 USDA / KEGG / HMP 抓取。天池客户端返回的是**模拟的占位清单**。
 - **预测是启发式，并非临床模型。** 血糖、营养吸收与风险输出来自确定性规则，**仅供演示**，**不得**用于任何医疗决策。
-- **模型权重未被使用。** `backend/app/ml/weights/` 下的 `.pt` 文件是在合成随机张量上训练的，运行中的 API 从不加载它们。
+- **模型权重未被使用。** `research/prototypes/weights/` 下的 `.pt` 文件是在合成随机张量上训练的，运行中的 API 从不加载它们。
 - **真正的 AI 在别处。** 严肃的、经数据训练的模型在独立的研究模块中、基于真实公开数据集开发——见 [docs/ROADMAP.md](docs/ROADMAP.md)。
 
 **开发说明。** 本项目在实现过程中将 AI 编程工具作为助手使用——主要用于脚手架、重构与文档撰写。架构设计、产品决策与最终审核均由作者本人完成；AI 生成的产出在合入前都经过审核与调整，而非直接照搬。
@@ -613,7 +608,7 @@ MetaNutri---AI-/
 4. 推送到分支（`git push origin feature/short-description`）
 5. 开启一个 Pull Request
 
-请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 了解我们的行为准则和提交 PR 的详细流程。
+请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 了解提交 PR 的详细流程。
 
 ---
 

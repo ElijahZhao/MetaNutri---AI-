@@ -23,7 +23,7 @@ MetaNutri 使用多种公共数据集来支持精准营养代谢预测。数据�
 
 对应落地文件（`backend/data/*.json`）：`usda_food_database.json`、`kegg_pathways.json`、`hmp_reference.json`、`metabolomics_reference.json`、`gene_nutrition_interactions.json`、`microbiome_samples.json`、`dietary_guidelines.json`、`disease_markers.json`。
 
-> 这些参考数据由脚本**本地生成**（非联网下载）。`backend/app/ml/weights/` 下的权重是在**合成随机数据**上训练得到的，且**从未被线上 API 加载**，请勿视为真实训练成果。详情见 [API.md](./API.md)。
+> 这些参考数据由脚本**本地生成**（非联网下载）。`research/prototypes/weights/` 下的权重是在**合成随机数据**上训练得到的，且**从未被线上 API 加载**，请勿视为真实训练成果。详情见 [API.md](./API.md)。
 
 ## 2. API 入口
 

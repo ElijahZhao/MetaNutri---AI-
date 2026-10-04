@@ -172,7 +172,7 @@
 
 - `backend/Dockerfile`、`frontend/Dockerfile`：动态端口 / standalone 入口与配置一致。
 - **`backend/schema.sql` 与模型一致**：7 张在用表（users / user_profiles / genomic_data / microbiome_data / metabolomics_data / metabolomics_pathways / food_nutrition / nutrition_recommendations）的列名、类型、可空性、索引与 `backend/app/models/` 下的 SQLAlchemy 定义逐列吻合。
-- **文档相对链接有效**：`README.md` / `README.zh-CN.md`、`docs/API.md`、`docs/DATASETS.md`、`CODE_OF_CONDUCT.md` 的相对链接全部指向存在的文件。
+- **文档相对链接有效**：`README.md` / `README.zh-CN.md`、`docs/API.md`、`docs/DATASETS.md` 的相对链接全部指向存在的文件。
 - **无硬编码凭据**：全仓库扫描未发现 `sk-*` / `AKID*` / `BEGIN ... PRIVATE KEY` 等密钥；出现的 `metanutri-backend.onrender.com`、`*.supabase.com` 均为部署文档与 `health-check.yml` 中的公开地址，非凭据。
 - **静态资源引用有效**：`frontend/public/.gitkeep` 已被跟踪；`docs/assets/banner.jpg` 被两份 README 引用，非死文件。
 - **受保护路由为双层**：`(app)/layout.tsx` 挂客户端 `ProtectedRoute` 守卫 + 后端 Cookie 鉴权。

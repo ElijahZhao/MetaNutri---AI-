@@ -57,7 +57,8 @@ research/
 ├── src/           pipeline: download / clean / features / models / evaluate
 ├── experiments/   reproducible runs (fixed seeds)
 ├── reports/       technical report (writing sample)
-└── app/           Streamlit demo
+├── app/           Streamlit demo
+└── prototypes/    archived PyTorch prototypes (unused; not part of the pipeline)
 ```
 
 ## License

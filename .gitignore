@@ -19,7 +19,7 @@ build/
 *.sqlite
 *.sqlite3
 
-# Model weights in backend/app/ml/weights/ are intentionally tracked, so no
+# Model weights in research/prototypes/weights/ are intentionally tracked, so no
 # ignore rule is needed here.
 
 # Logs

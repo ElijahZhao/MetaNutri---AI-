@@ -175,7 +175,7 @@ Demo 部署平台：**Streamlit Community Cloud**——免费且原生支持 Str
 
 ## 附：证据来源
 
-**仓库内**：`research/src/*`、`research/app/*`、`research/experiments/*`、`research/reports/*`、`backend/app/ml/*`、`backend/data/*`、`.github/workflows/ci.yml`
+**仓库内**：`research/src/*`、`research/app/*`、`research/experiments/*`、`research/reports/*`、`research/prototypes/*`、`backend/app/ml/*`、`backend/data/*`、`.github/workflows/ci.yml`
 
 **外部文献与数据集**：
 - PhysioNet CGMacros — https://physionet.org/content/cgmacros/1.0.0/

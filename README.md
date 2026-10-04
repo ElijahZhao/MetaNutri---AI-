@@ -63,14 +63,14 @@
 
 **MetaNutri** is a precision nutrition metabolic digital twin platform that integrates **genomics**, **microbiome**, and **metabolomics** data to deliver personalized nutritional recommendations and health management solutions.
 
-This repository is primarily a **full-stack engineering project**: a production-style Next.js frontend, a FastAPI backend and a managed PostgreSQL database, wired end to end and deployed to Vercel / Render / Supabase. The live API serves **transparent, deterministic rule-based analytics**; the PyTorch model code under `backend/app/ml/` is research scaffolding and is **not wired into the live API**. Real, data-trained models are developed in a separate research module.
+This repository is primarily a **full-stack engineering project**: a production-style Next.js frontend, a FastAPI backend and a managed PostgreSQL database, wired end to end and deployed to Vercel / Render / Supabase. The live API serves **transparent, deterministic rule-based analytics**; the PyTorch model code under `research/prototypes/` is research scaffolding and is **not wired into the live API**. Real, data-trained models are developed in a separate research module.
 
 ### 📌 Project Status
 
 > **This repository is an engineering demo with a separate research track.**
 >
 > - **What runs live:** authentication, database CRUD, food search, import/export — plus **deterministic, rule-based heuristics** for glucose, nutrient-absorption and risk estimates. All of them are illustrative only.
-> - **Research scaffolding (not live):** the PyTorch model code in `backend/app/ml/` is **not trained on real data** and is **never loaded at runtime**.
+> - **Research scaffolding (not live):** the PyTorch model code in `research/prototypes/` is **not trained on real data** and is **never loaded at runtime**.
 > - **Where the real AI is:** a self-contained research module — postprandial glucose-response prediction on **real open data**, with rigorous subject-wise evaluation — developed and deployed **independently** of this platform. See [docs/ROADMAP.md](docs/ROADMAP.md).
 > - **Not a medical device.** Nothing here is medical advice; never use it to make clinical decisions.
 
@@ -381,16 +381,18 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
   -d '{"calorie_target":2000}'
 ```
 
-### AI/ML modules (backend)
+### AI/ML modules
+
+Only the explainer stays wired into the live API under `backend/app/ml/`; the PyTorch prototypes were moved to the independent research module under `research/prototypes/`.
 
 | Module | Capability |
 |--------|------------|
-| `ml/metabolic_response_model.py` | Research prototype: glucose response / nutrient absorption predictor (not wired to the live API) |
-| `ml/gene_nutrition_model.py` | Research prototype: gene–nutrition association (GNN) |
-| `ml/microbiome_vae.py` | Research prototype: microbiome health (VAE) |
-| `ml/explainability.py` | Deterministic proportional feature-contribution explainer — the same one the live API returns |
-| `ml/train_models.py` | Prototype training scripts (train on synthetic tensors) |
-| `ml/weights/` | Weights trained on synthetic data; never loaded at runtime |
+| `research/prototypes/metabolic_response_model.py` | Research prototype: glucose response / nutrient absorption predictor (not wired to the live API) |
+| `research/prototypes/gene_nutrition_model.py` | Research prototype: gene–nutrition association (GNN) |
+| `research/prototypes/microbiome_vae.py` | Research prototype: microbiome health (VAE) |
+| `backend/app/ml/explainability.py` | Deterministic proportional feature-contribution explainer — the same one the live API returns |
+| `research/prototypes/train_models.py` | Prototype training scripts (train on synthetic tensors) |
+| `research/prototypes/weights/` | Weights trained on synthetic data; never loaded at runtime |
 
 ---
 
@@ -470,14 +472,9 @@ MetaNutri---AI-/
 │   │   │   └── redis.py              # Redis cache (graceful fallback)
 │   │   ├── db/
 │   │   │   └── session.py            # SQLAlchemy async engine
-│   │   ├── ml/                       # 🧠 Machine learning models
-│   │   │   ├── metabolic_response_model.py   # Research prototype (not wired to live API)
-│   │   │   ├── gene_nutrition_model.py       # Research prototype (GNN)
-│   │   │   ├── microbiome_vae.py             # Research prototype (VAE)
-│   │   │   ├── explainability.py             # Research prototype explainers
-│   │   │   ├── dataset_downloader.py         # Generates bundled sample data (no network fetch)
-│   │   │   ├── train_models.py               # Prototype training scripts (synthetic data)
-│   │   │   └── weights/                      # Weights trained on synthetic data (unused at runtime)
+│   │   ├── ml/                       # 🧠 ML-adjacent backend code
+│   │   │   ├── explainability.py             # Deterministic feature-contribution explainer (used by the live API)
+│   │   │   └── dataset_downloader.py         # Generates bundled sample data (no network fetch)
 │   │   ├── models/                   # SQLAlchemy ORM models
 │   │   ├── schemas/                  # Pydantic request / response schemas
 │   │   ├── services/                 # Business logic (seed data, import / export)
@@ -558,6 +555,7 @@ MetaNutri---AI-/
 │   ├── experiments/                  # Result CSVs, regenerated by the pipeline
 │   ├── reports/                      # Technical report (MD + 16-page PDF) & figures
 │   ├── data/                         # Placeholder — raw datasets are never committed
+│   ├── prototypes/                   # PyTorch model prototypes + synthetic weights (unused)
 │   ├── requirements.txt / -dev.txt   # Pinned research dependencies
 │   └── README.md
 │
@@ -571,14 +569,11 @@ MetaNutri---AI-/
 │   └── AUDITS.md                     # Audit & remediation log
 │
 ├── .github/                          # GitHub config
-│   ├── workflows/                    # CI & keep-alive workflows
-│   ├── ISSUE_TEMPLATE/               # Bug & feature templates
-│   └── PULL_REQUEST_TEMPLATE/        # PR template
+│   └── workflows/                    # CI & keep-alive workflows
 │
 ├── docker-compose.yml                # Local orchestration
 ├── start.sh                          # One-click startup script
 ├── CONTRIBUTING.md                   # Contribution guidelines
-├── CODE_OF_CONDUCT.md                # Community code of conduct
 ├── SECURITY.md                       # Security policy
 ├── CITATION.cff                      # How to cite this project
 ├── LICENSE                           # MIT License
@@ -593,7 +588,7 @@ This project is built for **demonstration and portfolio purposes**. In the inter
 
 - **Bundled datasets are curated samples, not full third-party dumps.** The files under `backend/data/` are small, hand-prepared reference sets. The dataset "download" endpoints simply (re)generate these local sample files — they do **not** fetch from USDA / KEGG / HMP. The TianChi client returns **mock placeholder listings**.
 - **Predictions are heuristics, not clinical models.** Glucose, nutrient-absorption and risk outputs come from deterministic rules. They are **illustrative only** and must **not** be used for medical decisions.
-- **Model weights are unused.** The `.pt` files under `backend/app/ml/weights/` were trained on synthetic random tensors and are never loaded by the running API.
+- **Model weights are unused.** The `.pt` files under `research/prototypes/weights/` were trained on synthetic random tensors and are never loaded by the running API.
 - **The real AI lives elsewhere.** Serious, data-trained models are developed in a separate research module on real open datasets — see [docs/ROADMAP.md](docs/ROADMAP.md).
 
 **Development note.** AI coding tools were used as assistants during implementation — chiefly for scaffolding, refactoring and documentation. The architecture, product decisions and final review are the author's own, and AI-generated output was reviewed and adapted before being merged rather than accepted as-is.
@@ -612,7 +607,7 @@ Bug reports, documentation fixes and code contributions are all welcome.
 4. Push to the Branch (`git push origin feature/short-description`)
 5. Open a Pull Request
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the process for submitting pull requests.
 
 ---
 
