@@ -570,7 +570,7 @@ MetaNutri---AI-/
 │   ├── ROADMAP.md                    # Roadmap & decision history
 │   ├── APPLICATION-SUMMARY.md        # One-page project summary
 │   ├── AUDIT-FINDINGS.md             # Repository audit log
-│   └── TODO.md                       # Pending manual GitHub settings
+│   └── GITHUB-SHOWCASE.md            # GitHub showcase setup record (completed)
 │
 ├── .github/                          # GitHub config
 │   ├── workflows/                    # CI & keep-alive workflows
