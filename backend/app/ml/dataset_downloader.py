@@ -4,6 +4,7 @@ Sources: USDA Food Database, KEGG Pathways, Human Microbiome Project, etc.
 Supports: Direct downloads, API access, and TianChi integration
 """
 import json
+import os
 import re
 import requests
 from pathlib import Path
@@ -721,13 +722,14 @@ class TianChiDatasetClient:
         print("⚠️ Note: Real TianChi download requires competition registration or data approval")
         print("⚠️ This is a mock download - actual implementation requires AK/SK signing")
         
-        # `dataset_id` is caller-supplied: restrict it to a filename-safe set
-        # (no slashes, no dots) and confirm the resolved path stays inside
-        # `save_path`, so it can never be used for path traversal.
+        # `dataset_id` is caller-supplied. Restrict it to a filename-safe set,
+        # then normalize the full path and confirm it stays inside `save_path`.
+        # This is the `normpath` + `startswith` guard CodeQL documents for
+        # py/path-injection (a bare `re.sub` is not treated as a sanitizer).
         safe_id = re.sub(r'[^A-Za-z0-9_-]', '', dataset_id) or 'dataset'
-        base_dir = Path(save_path).resolve()
-        dataset_path = base_dir / f"tianchi_{safe_id}.json"
-        if dataset_path.resolve().parent != base_dir:
+        base_dir = os.path.normpath(save_path)
+        dataset_path = os.path.normpath(os.path.join(base_dir, f"tianchi_{safe_id}.json"))
+        if not dataset_path.startswith(base_dir):
             raise ValueError(f"Refusing to write outside {base_dir}")
         mock_data = {
             "dataset_id": dataset_id,
