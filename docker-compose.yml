@@ -1,0 +1,68 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: metanutri
+      POSTGRES_PASSWORD: metanutri_secret
+      POSTGRES_DB: metanutri
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U metanutri"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      # Repo root as context so backend/Dockerfile's `COPY backend/...`
+      # paths resolve the same way they do on Render.
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://metanutri:metanutri_secret@db:5432/metanutri
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=super-secret-key-change-in-production
+      # Local dev is plain http, so Secure cookies would never be stored.
+      - COOKIE_SECURE=false
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      # Dev image: the production runner image cannot run `next dev` because it
+      # ships only the standalone server, without the devDependencies.
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      # The Next server performs the /api rewrites inside this container, so the
+      # target must be the backend's compose service name, not localhost.
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:

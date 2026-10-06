@@ -1,0 +1,176 @@
+{
+  "description": "Dietary Guidelines for Americans and WHO Recommendations",
+  "sources": [
+    "USDA Dietary Guidelines",
+    "WHO Nutrition Guidelines"
+  ],
+  "recommendations": {
+    "daily_values": {
+      "calories": {
+        "adult_male": 2500,
+        "adult_female": 2000,
+        "unit": "kcal"
+      },
+      "protein": {
+        "adult_male": 56,
+        "adult_female": 46,
+        "unit": "g"
+      },
+      "carbs": {
+        "adult_male": 300,
+        "adult_female": 250,
+        "unit": "g"
+      },
+      "fat": {
+        "max": 78,
+        "unit": "g"
+      },
+      "fiber": {
+        "adult_male": 38,
+        "adult_female": 25,
+        "unit": "g"
+      },
+      "sodium": {
+        "max": 2300,
+        "unit": "mg"
+      }
+    },
+    "vitamins": [
+      {
+        "name": "Vitamin A",
+        "daily_value": 900,
+        "unit": "mcg",
+        "sources": [
+          "Carrots",
+          "Sweet potatoes",
+          "Spinach"
+        ]
+      },
+      {
+        "name": "Vitamin C",
+        "daily_value": 90,
+        "unit": "mg",
+        "sources": [
+          "Oranges",
+          "Bell peppers",
+          "Strawberries"
+        ]
+      },
+      {
+        "name": "Vitamin D",
+        "daily_value": 600,
+        "unit": "IU",
+        "sources": [
+          "Sunlight",
+          "Fatty fish",
+          "Mushrooms"
+        ]
+      },
+      {
+        "name": "Vitamin E",
+        "daily_value": 15,
+        "unit": "mg",
+        "sources": [
+          "Almonds",
+          "Sunflower seeds",
+          "Avocado"
+        ]
+      },
+      {
+        "name": "Vitamin K",
+        "daily_value": 120,
+        "unit": "mcg",
+        "sources": [
+          "Kale",
+          "Spinach",
+          "Broccoli"
+        ]
+      }
+    ],
+    "minerals": [
+      {
+        "name": "Iron",
+        "daily_value": 18,
+        "unit": "mg",
+        "sources": [
+          "Red meat",
+          "Spinach",
+          "Lentils"
+        ]
+      },
+      {
+        "name": "Calcium",
+        "daily_value": 1000,
+        "unit": "mg",
+        "sources": [
+          "Milk",
+          "Yogurt",
+          "Cheese"
+        ]
+      },
+      {
+        "name": "Potassium",
+        "daily_value": 4700,
+        "unit": "mg",
+        "sources": [
+          "Bananas",
+          "Avocado",
+          "Sweet potatoes"
+        ]
+      },
+      {
+        "name": "Magnesium",
+        "daily_value": 420,
+        "unit": "mg",
+        "sources": [
+          "Almonds",
+          "Spinach",
+          "Black beans"
+        ]
+      },
+      {
+        "name": "Zinc",
+        "daily_value": 11,
+        "unit": "mg",
+        "sources": [
+          "Oysters",
+          "Beef",
+          "Pumpkin seeds"
+        ]
+      }
+    ],
+    "food_groups": [
+      {
+        "group": "Fruits",
+        "servings_per_day": "1.5-2 cups",
+        "benefits": "Vitamins, fiber, antioxidants"
+      },
+      {
+        "group": "Vegetables",
+        "servings_per_day": "2-3 cups",
+        "benefits": "Vitamins, minerals, fiber"
+      },
+      {
+        "group": "Grains",
+        "servings_per_day": "5-8 ounces",
+        "benefits": "Energy, fiber, B vitamins"
+      },
+      {
+        "group": "Protein",
+        "servings_per_day": "5-6.5 ounces",
+        "benefits": "Muscle growth, repair"
+      },
+      {
+        "group": "Dairy",
+        "servings_per_day": "3 cups",
+        "benefits": "Calcium, vitamin D, protein"
+      }
+    ],
+    "healthy_patterns": [
+      "Mediterranean diet",
+      "DASH diet",
+      "Plant-based diet",
+      "Flexitarian diet"
+    ]
+  }
+}

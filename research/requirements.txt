@@ -1,0 +1,16 @@
+# Research module dependencies (independent of backend/requirements.txt).
+# Pinned to the versions used for the reproducible runs in experiments/.
+numpy==2.5.3
+pandas==3.0.6
+scikit-learn==1.9.1
+xgboost==3.4.1
+scipy==1.18.1
+matplotlib==3.11.2
+statsmodels==0.15.0
+
+# Used by src/run_all.sh: BIG IDEAs download (requests) and PDF rendering
+# (markdown + weasyprint). Without these, the documented one-command
+# reproduction fails partway through on a clean environment.
+requests==2.34.2
+markdown==3.11
+weasyprint==70.0

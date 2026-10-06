@@ -1,0 +1,13 @@
+# Ruff lint gate for the research module (enforced by the `research` CI job).
+#
+# Rules are deliberately high-signal: pyflakes (F), pycodestyle errors (E/W),
+# import sorting (I), pyupgrade (UP) and flake8-bugbear (B). Formatting is not
+# enforced here — only correctness and readability checks that catch real bugs.
+
+line-length = 100
+target-version = "py312"
+
+exclude = [".venv", "data", "experiments", "reports"]
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B"]

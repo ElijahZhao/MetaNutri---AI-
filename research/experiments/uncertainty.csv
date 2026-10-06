@@ -1,0 +1,9 @@
+subset,target,nominal,coverage,mean_width,median_width,min_subject_coverage,n
+breakfast (official replication),auc,0.8,0.8014,6986.44,6991.6,0.0,423
+breakfast (official replication),auc,0.9,0.8983,9808.19,9938.5,0.0,423
+breakfast (official replication),iauc,0.8,0.8038,5999.79,6070.6,0.0,423
+breakfast (official replication),iauc,0.9,0.896,8884.92,8952.06,0.3,423
+all meals (extension),auc,0.8,0.7996,6118.6,6132.68,0.1765,1557
+all meals (extension),auc,0.9,0.8979,8751.19,8784.07,0.4,1557
+all meals (extension),iauc,0.8,0.7996,5357.05,5388.84,0.3158,1557
+all meals (extension),iauc,0.9,0.8966,7909.42,7977.51,0.5,1557

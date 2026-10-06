@@ -1,0 +1,18 @@
+# Local development image for docker-compose (see docker-compose.yml).
+# The production image (frontend/Dockerfile) only ships the standalone server,
+# so it cannot run `next dev` — this one installs the full devDependencies.
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+
+EXPOSE 3000
+
+# Bind to all interfaces so the published port is reachable from the host.
+CMD ["npm", "run", "dev", "--", "-H", "0.0.0.0"]

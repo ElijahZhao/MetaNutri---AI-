@@ -1,0 +1,160 @@
+{
+  "description": "Human Metabolome Database - Common Metabolites",
+  "sources": [
+    "HMDB",
+    "KEGG",
+    "MetaboLights"
+  ],
+  "metabolites": [
+    {
+      "name": "Glucose",
+      "hmdb_id": "HMDB0000126",
+      "pathway": "Glycolysis",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Lactate",
+      "hmdb_id": "HMDB0000167",
+      "pathway": "Glycolysis",
+      "unit": "mmol/L"
+    },
+    {
+      "name": "Pyruvate",
+      "hmdb_id": "HMDB0000244",
+      "pathway": "Glycolysis",
+      "unit": "mmol/L"
+    },
+    {
+      "name": "Acetyl-CoA",
+      "hmdb_id": "HMDB0000040",
+      "pathway": "TCA Cycle",
+      "unit": "nmol/L"
+    },
+    {
+      "name": "Citrate",
+      "hmdb_id": "HMDB0000148",
+      "pathway": "TCA Cycle",
+      "unit": "mmol/L"
+    },
+    {
+      "name": "Malate",
+      "hmdb_id": "HMDB0000243",
+      "pathway": "TCA Cycle",
+      "unit": "mmol/L"
+    },
+    {
+      "name": "Succinate",
+      "hmdb_id": "HMDB0000269",
+      "pathway": "TCA Cycle",
+      "unit": "mmol/L"
+    },
+    {
+      "name": "Fumarate",
+      "hmdb_id": "HMDB0000141",
+      "pathway": "TCA Cycle",
+      "unit": "mmol/L"
+    },
+    {
+      "name": "Alanine",
+      "hmdb_id": "HMDB0000161",
+      "pathway": "Amino Acid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Leucine",
+      "hmdb_id": "HMDB0000568",
+      "pathway": "Amino Acid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Isoleucine",
+      "hmdb_id": "HMDB0000549",
+      "pathway": "Amino Acid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Valine",
+      "hmdb_id": "HMDB0001236",
+      "pathway": "Amino Acid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Serine",
+      "hmdb_id": "HMDB0000621",
+      "pathway": "Amino Acid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Glycine",
+      "hmdb_id": "HMDB0000123",
+      "pathway": "Amino Acid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Glutamate",
+      "hmdb_id": "HMDB0000142",
+      "pathway": "Amino Acid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Aspartate",
+      "hmdb_id": "HMDB0000134",
+      "pathway": "Amino Acid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Cholesterol",
+      "hmdb_id": "HMDB0000069",
+      "pathway": "Lipid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Triglycerides",
+      "hmdb_id": "HMDB0003375",
+      "pathway": "Lipid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "HDL-Cholesterol",
+      "hmdb_id": "HMDB0003376",
+      "pathway": "Lipid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "LDL-Cholesterol",
+      "hmdb_id": "HMDB0003377",
+      "pathway": "Lipid Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Urea",
+      "hmdb_id": "HMDB0000289",
+      "pathway": "Nitrogen Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Creatinine",
+      "hmdb_id": "HMDB0000162",
+      "pathway": "Nitrogen Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Bilirubin",
+      "hmdb_id": "HMDB0000034",
+      "pathway": "Heme Metabolism",
+      "unit": "mg/dL"
+    },
+    {
+      "name": "Bicarbonate",
+      "hmdb_id": "HMDB0000168",
+      "pathway": "Acid-Base Balance",
+      "unit": "mmol/L"
+    },
+    {
+      "name": "Insulin",
+      "hmdb_id": "HMDB0000228",
+      "pathway": "Hormone Metabolism",
+      "unit": "uIU/mL"
+    }
+  ]
+}

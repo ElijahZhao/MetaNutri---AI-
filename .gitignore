@@ -1,0 +1,85 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+.next/
+dist/
+build/
+*.tsbuildinfo
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Model weights in research/prototypes/weights/ are intentionally tracked, so no
+# ignore rule is needed here.
+
+# Logs
+*.log
+logs/
+
+# Testing
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.nyc_output/
+playwright-report/
+blob-report/
+test-results/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Local secrets checklist (NEVER commit)
+SECRETS.local.md
+SECRETS.md
+
+# Local scratch notes kept on disk but never committed
+review/
+
+# Husky generated hooks
+.husky/_/
+
+# Local runtime artifacts (screenshots, logs, temporary uploads produced by
+# dev/CI tooling; these are never part of a production build)
+.uploads/
+.screenshots/
+.backend.pid
+.frontend.pid
+
+# Python virtual environments
+venv/
+.venv/
+
+# Research module: dataset files are NEVER committed
+# (CGMacros raw ZIP is 627 MB; extracted data is larger still)
+research/data/raw/
+research/data/interim/
+research/data/processed/
+
+# Local working mirror of the deployment repository
+# (github.com/ElijahZhao/ppgr-predictor). It is an INDEPENDENT git repository,
+# not a submodule of this one: tracking it as a gitlink would leave cloners with
+# an empty directory and no .gitmodules to resolve it. Syncing is a plain file
+# copy, so the mirror never needs to be part of this history.
+.deploy/

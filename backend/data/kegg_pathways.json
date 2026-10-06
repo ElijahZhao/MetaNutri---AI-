@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Metabolic Pathways",
+    "prefix": "map01100"
+  },
+  {
+    "name": "Glycolysis",
+    "prefix": "map00010"
+  },
+  {
+    "name": "Citrate Cycle",
+    "prefix": "map00020"
+  },
+  {
+    "name": "Fatty Acid Metabolism",
+    "prefix": "map00071"
+  },
+  {
+    "name": "Amino Acid Metabolism",
+    "prefix": "map01230"
+  },
+  {
+    "name": "Carbohydrate Metabolism",
+    "prefix": "map00051"
+  },
+  {
+    "name": "Energy Metabolism",
+    "prefix": "map01200"
+  },
+  {
+    "name": "Lipid Metabolism",
+    "prefix": "map01060"
+  }
+]

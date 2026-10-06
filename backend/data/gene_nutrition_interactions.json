@@ -1,0 +1,74 @@
+{
+  "description": "Gene-Nutrition Interaction Database",
+  "sources": [
+    "SNPedia",
+    "GWAS Catalog",
+    "NutriGenetics"
+  ],
+  "genes": [
+    {
+      "gene": "FTO",
+      "rsid": "rs9939609",
+      "trait": "Obesity/BMI",
+      "effect": "AA carriers have ~1.2x higher BMI",
+      "nutrition_interaction": "Fat intake modifies effect",
+      "recommendation": "Monitor caloric intake, increase physical activity"
+    },
+    {
+      "gene": "TCF7L2",
+      "rsid": "rs7903146",
+      "trait": "Type 2 Diabetes",
+      "effect": "TT carriers have ~1.4x risk",
+      "nutrition_interaction": "Carbohydrate intake modifies effect",
+      "recommendation": "Low glycemic diet, increase fiber"
+    },
+    {
+      "gene": "MTHFR",
+      "rsid": "rs1801133",
+      "trait": "Homocysteine levels",
+      "effect": "CC carriers have higher homocysteine",
+      "nutrition_interaction": "Folate/B12 intake reduces risk",
+      "recommendation": "Increase folate-rich foods"
+    },
+    {
+      "gene": "APOA1",
+      "rsid": "rs11216153",
+      "trait": "HDL Cholesterol",
+      "effect": "GG carriers have lower HDL",
+      "nutrition_interaction": "Omega-3 intake increases HDL",
+      "recommendation": "Increase fish/omega-3 intake"
+    },
+    {
+      "gene": "ACE",
+      "rsid": "rs4646994",
+      "trait": "Blood Pressure",
+      "effect": "DD carriers have higher BP",
+      "nutrition_interaction": "Salt intake modifies effect",
+      "recommendation": "Low sodium diet, increase potassium"
+    },
+    {
+      "gene": "VDR",
+      "rsid": "rs2228570",
+      "trait": "Vitamin D status",
+      "effect": "TT carriers have lower vitamin D",
+      "nutrition_interaction": "Vitamin D supplementation effective",
+      "recommendation": "Increase vitamin D intake"
+    },
+    {
+      "gene": "APOE",
+      "rsid": "rs429358",
+      "trait": "Lipid metabolism",
+      "effect": "E4 allele increases LDL",
+      "nutrition_interaction": "Dietary fat affects lipid response",
+      "recommendation": "Low saturated fat diet"
+    },
+    {
+      "gene": "FADS1",
+      "rsid": "rs174546",
+      "trait": "Fatty acid metabolism",
+      "effect": "TT carriers have lower omega-3 conversion",
+      "nutrition_interaction": "Omega-3 intake compensates",
+      "recommendation": "Increase omega-3 rich foods"
+    }
+  ]
+}
