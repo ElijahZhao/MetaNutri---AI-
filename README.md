@@ -246,7 +246,7 @@ This project spans **two independent GitHub repositories**. They are deliberatel
 | [PostgreSQL](https://www.postgresql.org/) | - | Primary database |
 | [Redis](https://redis.io/) | 5 | Caching & rate limiting (optional, in-memory fallback) |
 | [Pydantic](https://docs.pydantic.dev/) | 2 | Data validation |
-| [python-jose](https://github.com/mpdavis/python-jose) | 3.5 | JWT (issued into httpOnly cookies) |
+| [PyJWT](https://github.com/jpadilla/pyjwt) | 2.15 | JWT (issued into httpOnly cookies) |
 | [Passlib](https://passlib.readthedocs.io/) | 1.7 | Password hashing (bcrypt) |
 
 ### 🧠 AI / ML

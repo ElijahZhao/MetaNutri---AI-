@@ -16,7 +16,7 @@
 | 3 | `docker-compose.yml` 前端代理地址错误 | 高 | 已改为 `http://backend:8000`（容器间用服务名） |
 | 4 | 客户端 IP 取值不一致 | 中 | `auth.py` 复用 `rate_limit.client_ip`，与全局限流口径统一 |
 | 5 | `.env.example` 的 `SECRET_KEY` 绕过保护 | 中 | 占位值与哨兵值一致并强化注释，避免照抄示例即用弱密钥 |
-| 6 | 两份 README 技术栈/结构失真 | 中 | 已修（i18next→Custom i18n、python-jose 3.5、Redis 去重、scikit-learn、Node ≥20.19、Supabase 描述、`(auth)`、`src/proxy.ts`、axios 描述） |
+| 6 | 两份 README 技术栈/结构失真 | 中 | 已修（i18next→Custom i18n、python-jose 3.5（后因 Critical 告警改为 PyJWT，见 [CHANGELOG](../CHANGELOG.md)）、Redis 去重、scikit-learn、Node ≥20.19、Supabase 描述、`(auth)`、`src/proxy.ts`、axios 描述） |
 | 7 | `CONTRIBUTING.md` 与实际不符 | 中 | 已修（Python 3.11+/Node 20.19+、真实克隆地址、CI 冒烟命令替换不存在的 `pytest tests/`） |
 | 8 | `DEPLOYMENT.md` 架构过时且缺保活 | 中 | 已改为同源代理架构图与说明，新增「保活（Render 免费层）」章节 |
 | 9 | 环境变量文档缺口 | 中 | `.env.example` 与 `DEPLOYMENT.md` 补齐 `CORS_ORIGINS`/`FRONTEND_URL`/`ALLOW_DEFAULT_SECRET_KEY`/`NEXT_PUBLIC_SITE_URL` |

@@ -246,7 +246,7 @@
 | [PostgreSQL](https://www.postgresql.org/) | - | 主数据库 |
 | [Redis](https://redis.io/) | 5 | 缓存与限流（可选，内存回退） |
 | [Pydantic](https://docs.pydantic.dev/) | 2 | 数据验证 |
-| [python-jose](https://github.com/mpdavis/python-jose) | 3.5 | JWT（签发进 httpOnly Cookie） |
+| [PyJWT](https://github.com/jpadilla/pyjwt) | 2.15 | JWT（签发进 httpOnly Cookie） |
 | [Passlib](https://passlib.readthedocs.io/) | 1.7 | 密码哈希（bcrypt） |
 
 ### 🧠 AI / 机器学习
