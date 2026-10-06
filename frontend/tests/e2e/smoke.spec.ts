@@ -84,9 +84,15 @@ const JSON_ENDPOINTS: Array<[RegExp, unknown]> = [
 ];
 
 // 打桩后端，让用例不依赖 Render 实例（可能正在冷启动，也不应把 CI 绑到生产）。
-async function mockApi(page: Page) {
+// `overrides` 供单个用例覆盖默认响应，匹配优先于下面的 ARRAY / JSON 两张表。
+async function mockApi(page: Page, overrides: Array<[RegExp, unknown]> = []) {
   await page.route('**/api/**', async (route) => {
     const { pathname } = new URL(route.request().url());
+
+    const override = overrides.find(([pattern]) => pattern.test(pathname));
+    if (override) {
+      return fulfillJson(route, 200, override[1]);
+    }
 
     if (ARRAY_ENDPOINTS.some((path) => pathname.startsWith(path))) {
       return fulfillJson(route, 200, []);
@@ -176,6 +182,56 @@ test('every protected route renders the shared app shell exactly once', async ({
     await expect(page.locator('nav[aria-label="Main navigation"]'), `nav on ${route}`).toHaveCount(1);
     await expect(page.locator('main#main-content'), `main on ${route}`).toHaveCount(1);
   }
+
+  expect(pageErrors).toEqual([]);
+});
+
+// 回归保护：/datasets 的卡片按 dataset.status 决定渲染「下载」还是「导入」按钮，
+// 下载成功后要 refetch 并弹 toast。这里把列表打桩成一条未下载的数据集，
+// 走完「登录 → 数据集页 → 下载」这条主链路。
+test('downloading a dataset shows the success toast', async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+
+  await mockApi(page, [
+    [
+      /^\/api\/datasets$/,
+      {
+        datasets: [
+          {
+            id: 'food_nutrition',
+            name: 'Food Nutrition Database',
+            description: 'Curated food composition table',
+            category: 'nutrition',
+            status: 'not_downloaded',
+            count: 120,
+            source: 'USDA',
+          },
+        ],
+        total: 1,
+      },
+    ],
+  ]);
+
+  await page.goto('/login');
+  const origin = new URL(page.url()).origin;
+  await page.context().addCookies([
+    { name: 'metanutri_access', value: 'e2e-token', url: origin },
+  ]);
+  await page.evaluate(() => {
+    localStorage.setItem(
+      'metanutri-auth',
+      JSON.stringify({ state: { user: { id: 1, username: 'demo' } }, version: 0 })
+    );
+  });
+
+  await page.goto('/datasets');
+  await expect(page.getByRole('heading', { name: 'Dataset Management' })).toBeVisible();
+  await expect(page.getByText('Food Nutrition Database')).toBeVisible();
+
+  // exact 匹配只命中卡片上的「Download」，不会误点「Download All」。
+  await page.getByRole('button', { name: 'Download', exact: true }).click();
+  await expect(page.getByText('Dataset downloaded successfully!')).toBeVisible();
 
   expect(pageErrors).toEqual([]);
 });
