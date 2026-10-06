@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   covering password hashing / JWT, settings validation, and the import
   endpoint's validation branches. The `backend` CI job now installs the dev
   requirements and runs it, instead of stopping at a compile check.
+- An end-to-end test for the dataset download flow — list, download, success
+  toast — in `frontend/tests/e2e/smoke.spec.ts`.
 
 ### Fixed
 
@@ -31,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `sqlalchemy==2.0.31` declares `greenlet` only under `python_version < "3.13"`,
   so `create_async_engine` failed to import on Python 3.13+. The requirement is
   now `sqlalchemy[asyncio]==2.0.31`, which pulls `greenlet` on every interpreter.
+- `research/src/download_bigideas.py` cited PhysioNet's "latest version" DOI
+  (`10.13026/w591-tp72`, which now resolves to 1.1.3) while fetching the 1.1.2
+  tree. It now cites the version DOI `10.13026/zthx-5212`, matching the technical
+  report and `research/data/README.md`.
 
 ### Changed
 
@@ -48,6 +54,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.dockerignore` now excludes `research/` and venv / build artefacts.
 - Removed the unused imports and one unused local variable flagged by
   `ruff check app --select F` (backend `app/` now passes cleanly).
+- Trimmed `CONTRIBUTING.md` to this project's own conventions (dropped the
+  generic PEP 8 / JavaScript / commit-type boilerplate), linked the remaining
+  `docs/` pages from both READMEs, and documented the duplicated demo assets in
+  `research/app/assets/README.md`.
 
 ### Removed
 
@@ -56,6 +66,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   one fabricated its attributions with `np.random.uniform`.
 - The backend dependencies nothing else used once those classes were gone:
   `shap==0.46.0`, `scikit-learn==1.5.1`, `scipy==1.14.0`.
+- `torch==2.12.0` from `backend/requirements.txt` — nothing under `app/` imports
+  it (the PyTorch prototypes live in `research/prototypes/`), and 2.12.0 carries
+  CVE-2025-3000 (fixed in 2.13.0).
 
 ### Fixed
 

@@ -36,12 +36,13 @@ python-multipart==0.0.32
 # Caching / rate-limiting
 redis==5.0.7
 
-# ML stack. torch/numpy/pandas back the PyTorch prototypes, which now live in
-# the independent research module under research/prototypes/; the live API
-# itself only needs numpy (predict.py) and pandas (import/export).
+# ML stack. The PyTorch prototypes now live in the independent research module
+# under research/prototypes/ and are not part of this image; the live API itself
+# only needs numpy (predict.py) and pandas (import/export).
 # shap / scikit-learn / scipy were removed together with the unused SHAP & LIME
 # explainer prototypes in app/ml/explainability.py — nothing imported them.
-torch==2.12.0
+# torch was removed too: nothing under app/ imports it, and 2.12.0 carries
+# CVE-2025-3000 (fixed in 2.13.0).
 numpy==1.26.4
 pandas==2.2.2
 requests==2.33.0
