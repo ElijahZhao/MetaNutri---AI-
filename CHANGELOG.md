@@ -137,7 +137,7 @@ full-stack platform whose AI features are labelled as demonstrative.
   external transfer to BIG IDEAs, conformal prediction intervals, a
   within/between-subject decomposition, and a subject-random-intercept
   mixed-effects model.
-- `research/reports/technical_report.{md,pdf}` — a 16-page technical report whose
+- `research/reports/technical_report.{md,pdf}` — a 17-page technical report whose
   figures and tables are generated from `research/experiments/*.csv`.
 - Streamlit PPGR demo (`research/app/`) running the frozen XGBoost bundle with
   exact TreeSHAP explanations, deployed at

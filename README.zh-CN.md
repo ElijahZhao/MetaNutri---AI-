@@ -31,7 +31,7 @@
 [![Render](https://img.shields.io/badge/Render-已部署-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-技术支持-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 
-**🔬 `research/` 中真实数据训练的 ML · 🧪 43 个 REST 接口 · 🍎 8 个精选数据集 · 🌐 完整英 / 中双语 · 📄 16 页技术报告**
+**🔬 `research/` 中真实数据训练的 ML · 🧪 43 个 REST 接口 · 🍎 8 个精选数据集 · 🌐 完整英 / 中双语 · 📄 17 页技术报告**
 
 </div>
 
@@ -101,7 +101,7 @@
 | **超越单点估计** | 保形预测区间 · 受试者内/间分解 · 受试者随机截距混合效应模型 |
 
 - **方法：** 严格的留一受试者（LOPO）交叉验证；XGBoost 对照均值预测器与两个仅用宏量营养的 Ridge 基线。
-- **成果物：** [16 页技术报告（PDF）](research/reports/technical_report.pdf) · [可复现流水线](research/src/) · [结果 CSV](research/experiments/) · [图表](research/reports/figures/)。
+- **成果物：** [17 页技术报告（PDF）](research/reports/technical_report.pdf) · [可复现流水线](research/src/) · [结果 CSV](research/experiments/) · [图表](research/reports/figures/)。
 - **在线 Demo（运行真实训练的模型）：** <https://metanutri-ai-ppgr-predictor.streamlit.app>
 - **一条命令复现：** `cd research && bash src/run_all.sh`
 
@@ -557,7 +557,7 @@ MetaNutri---AI-/
 │   ├── src/                          # 可复现流水线（下载 → 构建 → LOPO → 图表）
 │   ├── app/                          # Streamlit PPGR Demo（运行冻结模型）
 │   ├── experiments/                  # 结果 CSV，由流水线重新生成
-│   ├── reports/                      # 技术报告（MD + 16 页 PDF）与图表
+│   ├── reports/                      # 技术报告（MD + 17 页 PDF）与图表
 │   ├── data/                         # 占位——原始数据集从不提交
 │   ├── prototypes/                   # PyTorch 模型原型 + 合成权重（运行时未使用）
 │   ├── requirements.txt / -dev.txt   # 固定的研究依赖
