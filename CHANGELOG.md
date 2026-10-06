@@ -15,6 +15,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `research/app/tests/`). The `research` CI job now runs lint + tests instead of
   only the AppTest smoke test.
 - `CITATION.cff`.
+- A backend `pytest` suite (`backend/tests/`, `backend/requirements-dev.txt`)
+  covering password hashing / JWT, settings validation, and the import
+  endpoint's validation branches. The `backend` CI job now installs the dev
+  requirements and runs it, instead of stopping at a compile check.
+
+### Fixed
+
+- Password hashing was broken on a fresh install. `passlib[bcrypt]==1.7.4` puts
+  no upper bound on `bcrypt`, so `pip install` resolved bcrypt 5.x — which no
+  longer truncates secrets at 72 bytes, making passlib's backend-detection
+  probe raise `ValueError`. Every `get_password_hash()` call failed, so
+  registration and password changes were dead while CI stayed green (the smoke
+  test only imports the app). `bcrypt` is now pinned to `4.0.1`.
+- `sqlalchemy==2.0.31` declares `greenlet` only under `python_version < "3.13"`,
+  so `create_async_engine` failed to import on Python 3.13+. The requirement is
+  now `sqlalchemy[asyncio]==2.0.31`, which pulls `greenlet` on every interpreter.
 
 ### Changed
 

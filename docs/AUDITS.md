@@ -176,7 +176,7 @@
 - **无硬编码凭据**：全仓库扫描未发现 `sk-*` / `AKID*` / `BEGIN ... PRIVATE KEY` 等密钥；出现的 `metanutri-backend.onrender.com`、`*.supabase.com` 均为部署文档与 `health-check.yml` 中的公开地址，非凭据。
 - **静态资源引用有效**：`frontend/public/.gitkeep` 已被跟踪；`docs/assets/banner.jpg` 被两份 README 引用，非死文件。
 - **受保护路由为双层**：`(app)/layout.tsx` 挂客户端 `ProtectedRoute` 守卫 + 后端 Cookie 鉴权。
-- `.github/workflows/ci.yml`：前端 typecheck+lint+test+build、e2e、后端 compileall+import 冒烟，覆盖充分。
+- `.github/workflows/ci.yml`：前端 typecheck+lint+test+build、e2e、后端 pytest+compileall+import 冒烟，覆盖充分。（该行写于后端补测试之前，当时只有 compileall+冒烟；现状见 §7 T3。）
 - `frontend/playwright.config.ts`、`frontend/vitest.config.mjs`：与 standalone 输出匹配。
 - `.github/workflows/health-check.yml`：已从定时保活重构为 push/dispatch 健康检查，保活交由外部 cron。
 - `frontend/next.config.ts` 的 `/api` + `/health` rewrites、CSP、`backendWarmup.ts` 前端预热：同源代理与冷启动 UX 完整、自洽。
@@ -196,3 +196,19 @@
 - `/meal-plan` 页面把 `recommendationAPI.mealPlan()` 的返回值强转为分组对象，因此**生成后不会渲染任何菜品**；且该页图表/合计值为静态演示数据，页面亦未出现在导航栏。修复需重设计该页的数据映射，属「扩展」范畴，留待后续。
 - `/api/datasets/import/{id}` 仅支持 `usda`/`sample`/`hmp`/`metabolomics`/`microbiome_samples`，其余 4 个（kegg / gene_nutrition / dietary_guidelines / disease_markers）会返回 404；新增导入分支属新增功能，未做。
 - 数据集下载器与天池客户端为**演示占位**，按平台冻结约束**不改代码**，仅在 README / `docs/API.md` / `docs/DATASETS.md` 标注。
+
+---
+
+## 7. 依赖与后端测试补充
+
+§1 记录 #7 时，CI 里那条 `pytest tests/` 指向并不存在的目录，只能换成导入冒烟。本轮补上真实测试后，冒烟保留、新增测试步骤。
+
+| # | 严重度 | 问题 | 证据 | 处置 |
+|---|--------|------|------|------|
+| T1 | **高** | 全新 `pip install` 后**密码哈希全部报错**。`passlib==1.7.4` 对 `bcrypt` 无上界，解析到 bcrypt 5.x；5.0 起不再自动截断 >72 字节口令，passlib 后端探测用的超长测试串因此抛 `ValueError`，`get_password_hash()` 必然失败 → 注册/改密/重置全废。CI 却是绿的（冒烟只 import，不调用哈希） | 复现：`pip install -r requirements.txt` 后 `pwd_context.hash("secret123")` → `ValueError: password cannot be longer than 72 bytes`；`pip show bcrypt` = 5.0.0（`passlib[bcrypt]==1.7.4` 仅要求 `bcrypt>=3.1.0`） | `requirements.txt` 显式固定 `bcrypt==4.0.1`（passlib 1.7.4 实际支持的最后一个版本）；回归测试 `tests/test_security.py::test_password_hash_roundtrip` |
+| T2 | 中 | `sqlalchemy==2.0.31` 只在 `python_version < "3.13"` 时依赖 `greenlet`（见其 METADATA），Python 3.13+ 上 `create_async_engine` 直接 ImportError。README 与 badge 写的是「Python ≥3.11」，未设上界 | `SQLAlchemy-2.0.31` wheel METADATA：`Requires-Dist: greenlet !=0.4.17 ; python_version < "3.13" and (platform_machine == "x86_64" or ...)`；在 Python 3.14 下 `import app.db.session` 报 `ModuleNotFoundError: greenlet` | 改为 `sqlalchemy[asyncio]==2.0.31`，`asyncio` extra 在所有解释器上都带 `greenlet` |
+| T3 | 低 | 后端仅有 compileall + import 冒烟，无任何单测；`backend/tests/` 不存在 | `.github/workflows/ci.yml` 旧 backend job | 新增 `backend/tests/`（security / config / import-export API 共 17 例）与 `backend/requirements-dev.txt`；CI backend job 安装 dev 依赖并执行 `python -m pytest -q` |
+
+**验证**：`cd backend && python -m pytest -q` → `17 passed`（其中 `test_security.py` 在 bcrypt 4.0.1 下 6 例全过；bcrypt 5.0.0 下该文件 1 例必失败，已核对是依赖而非测试问题）。
+
+**未确认**：T2 的影响面取决于使用者本机解释器版本——Dockerfile 与 CI 都锁定 3.11，实际部署路径不受影响，故定为「中」而非「高」。README/badge 的「≥3.11」是否要补上界，留待决定。

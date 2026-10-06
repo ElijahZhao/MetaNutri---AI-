@@ -63,7 +63,7 @@ CSV files this pipeline writes.
 | Area | What runs | Where |
 |---|---|---|
 | `frontend/` | typecheck, lint, Vitest, Playwright E2E, build | CI `frontend`, `e2e` |
-| `backend/` | `compileall` + import smoke test | CI `backend` |
+| `backend/` | pytest unit / API tests + `compileall` + import smoke test | CI `backend` |
 | `research/` | `ruff check` over `src` + `app` | CI `research` |
 | `research/app/` | inference unit tests + headless Streamlit `AppTest`, 90% coverage gate | CI `research` |
 
