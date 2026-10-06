@@ -54,6 +54,8 @@
 - [📁 Project Structure](#-project-structure)
 - [⚠️ Limitations & Scope](#️-limitations--scope)
 - [📚 Documentation](#-documentation)
+- [❓ FAQ](#-faq)
+- [📝 Changelog](#-changelog)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [📮 Contact](#-contact)
@@ -608,6 +610,40 @@ The API reference and roadmap are linked above; the rest of `docs/`:
 - [DATASETS.md](docs/DATASETS.md) — the curated reference datasets and their provenance
 - [AUDITS.md](docs/AUDITS.md) — the audit and fix ledger
 - [PROJECT-NOTES.md](docs/PROJECT-NOTES.md) — why this repository is split into two halves
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary><strong>Is any of this a medical device?</strong></summary>
+
+No. Everything here is for demonstration and portfolio purposes, and none of it is medical advice. See [Limitations & Scope](#️-limitations--scope).
+</details>
+
+<details>
+<summary><strong>Do the live API endpoints return trained-model predictions?</strong></summary>
+
+No. The glucose, nutrient-absorption and risk outputs are deterministic, rule-based heuristics and are illustrative only. The `feature_contributions` field is a transparent proportional decomposition, not SHAP.
+</details>
+
+<details>
+<summary><strong>Where is the real machine learning?</strong></summary>
+
+In the independent [`research/`](research/) module — a reproducible PPGR pipeline trained on real open data and evaluated subject-wise. See [Research Highlights](#-research-highlights) and [docs/ROADMAP.md](docs/ROADMAP.md).
+</details>
+
+<details>
+<summary><strong>Why are there two repositories?</strong></summary>
+
+Different consumers, different runtimes. This repository is the source of truth (platform + research); `ppgr-predictor` is a curated, read-only Streamlit deployment of the research demo. See [Related Repositories](#-related-repositories).
+</details>
+
+---
+
+## 📝 Changelog
+
+Release notes are maintained in [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 

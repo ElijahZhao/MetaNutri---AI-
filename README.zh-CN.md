@@ -54,6 +54,8 @@
 - [📁 项目结构](#-项目结构)
 - [⚠️ 局限与边界](#️-局限与边界)
 - [📚 文档](#-文档)
+- [❓ 常见问题](#-常见问题)
+- [📝 更新日志](#-更新日志)
 - [🤝 参与贡献](#-参与贡献)
 - [📄 许可证](#-许可证)
 - [📮 联系方式](#-联系方式)
@@ -609,6 +611,40 @@ API 参考与路线图见上文，`docs/` 中的其余文档：
 - [DATASETS.md](docs/DATASETS.md) —— 内置参考数据集及其来源
 - [AUDITS.md](docs/AUDITS.md) —— 审计与修复台账
 - [PROJECT-NOTES.md](docs/PROJECT-NOTES.md) —— 仓库为何拆成两半
+
+---
+
+## ❓ 常见问题
+
+<details>
+<summary><strong>这是医疗器械吗？</strong></summary>
+
+不是。本仓库仅用于演示与作品集展示，任何内容都不构成医疗建议。详见[局限与边界](#️-局限与边界)。
+</details>
+
+<details>
+<summary><strong>线上接口返回的是训练模型的预测吗？</strong></summary>
+
+不是。血糖、营养吸收与风险输出均为确定性的规则化启发式，仅供演示；`feature_contributions` 字段是透明的比例分解，并非 SHAP。
+</details>
+
+<details>
+<summary><strong>真实的机器学习在哪里？</strong></summary>
+
+在独立的 [`research/`](research/) 模块——一条在真实开放数据上训练、按受试者做严格评估的可复现 PPGR 流水线。详见[研究亮点](#-研究亮点)与 [docs/ROADMAP.md](docs/ROADMAP.md)。
+</details>
+
+<details>
+<summary><strong>为什么拆成两个仓库？</strong></summary>
+
+面向的消费者与运行时不同。本仓库是事实来源（平台 + 研究），`ppgr-predictor` 是研究 Demo 的精简只读 Streamlit 部署。详见[两仓库关系](#-两仓库关系)。
+</details>
+
+---
+
+## 📝 更新日志
+
+发布记录维护在 [`CHANGELOG.md`](CHANGELOG.md)。
 
 ---
 
