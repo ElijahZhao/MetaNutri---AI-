@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from jose import JWTError, jwt
+import jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
@@ -61,7 +61,7 @@ def decode_token(token: str, expected_type: str) -> Optional[dict]:
     """Decode a JWT and require the expected ``type`` claim. Returns None when invalid."""
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-    except JWTError:
+    except jwt.PyJWTError:
         return None
     if payload.get("type") != expected_type or payload.get("sub") is None:
         return None
@@ -88,7 +88,7 @@ async def get_current_user(
         user_id: str = payload.get("sub")
         if user_id is None or payload.get("type") != ACCESS_TOKEN_TYPE:
             raise credentials_exception
-    except JWTError:
+    except jwt.PyJWTError:
         raise credentials_exception
 
     cached_token = get_user_token(user_id)

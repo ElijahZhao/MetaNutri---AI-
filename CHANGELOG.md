@@ -37,6 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`10.13026/w591-tp72`, which now resolves to 1.1.3) while fetching the 1.1.2
   tree. It now cites the version DOI `10.13026/zthx-5212`, matching the technical
   report and `research/data/README.md`.
+- Two Dependabot advisories on `frontend/package-lock.json`. `source-map-js` is
+  pinned to `1.2.2` (event-loop DoS in indexed source maps, CVE-2026-93749) and
+  `postcss-selector-parser` to `7.1.6` (quadratic-complexity selector parsing,
+  CPU exhaustion). Both are transitive (postcss / postcss-nested / tailwindcss),
+  so they are forced with npm `overrides`; 7.x is required because no 6.x release
+  carries the fix (6.1.4 is the last 6.x).
 
 ### Changed
 
@@ -58,6 +64,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   generic PEP 8 / JavaScript / commit-type boilerplate), linked the remaining
   `docs/` pages from both READMEs, and documented the duplicated demo assets in
   `research/app/assets/README.md`.
+- Replaced `python-jose[cryptography]` with `PyJWT` for JWT handling. The
+  Critical advisory against python-jose (algorithm confusion via DER-encoded
+  public keys, CVE-2026-85394 / incomplete fix for CVE-2024-33663) has no
+  released fix — `3.5.0`, still the latest on PyPI, is itself affected — so the
+  dependency was swapped for the maintained `PyJWT==2.15.1`. `HS256` with a
+  symmetric secret was already the only algorithm in use, so the change is
+  behaviour-preserving and touches only `backend/app/core/security.py`.
 
 ### Removed
 

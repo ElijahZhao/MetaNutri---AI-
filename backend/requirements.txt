@@ -19,9 +19,9 @@ pydantic==2.8.2
 pydantic-settings==2.3.4
 pydantic[email]==2.8.2
 
-# Auth: JWT + password hashing. cryptography comes in via
-# python-jose[cryptography].
-python-jose[cryptography]==3.5.0
+# Auth: JWT + password hashing. PyJWT is the JOSE implementation; HS256 (the
+# only algorithm used here) needs no cryptography extra.
+PyJWT==2.15.1
 # passlib 1.7.4 is unmaintained and its bcrypt backend probes the hash with a
 # >72-byte test secret. bcrypt >= 5 rejects that probe with ValueError, so a
 # bare passlib[bcrypt] resolves to a version where every get_password_hash()
