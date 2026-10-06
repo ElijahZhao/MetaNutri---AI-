@@ -11,7 +11,7 @@
 
 | # | 事项 | 优先级 | 处置 |
 |---|------|--------|------|
-| 1 | `requirements.txt` 补 `scikit-learn` | 高 | 已加 `scikit-learn==1.5.1`；两份 README 技术栈表同步 |
+| 1 | `requirements.txt` 补 `scikit-learn` | 高 | 已加 `scikit-learn==1.5.1`；两份 README 技术栈表同步（**该依赖后被移除**，见 [CHANGELOG](../CHANGELOG.md)；本文件为历史台账，最新状态以 CHANGELOG 为准） |
 | 2 | `docs/API.md` 食物接口鉴权标错 | 高 | 已改为「需登录」（`/api/foods/search`、`/api/foods/{id}` 实际均需登录） |
 | 3 | `docker-compose.yml` 前端代理地址错误 | 高 | 已改为 `http://backend:8000`（容器间用服务名） |
 | 4 | 客户端 IP 取值不一致 | 中 | `auth.py` 复用 `rate_limit.client_ip`，与全局限流口径统一 |

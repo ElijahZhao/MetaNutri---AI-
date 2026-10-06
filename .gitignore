@@ -54,6 +54,9 @@ docker-compose.override.yml
 SECRETS.local.md
 SECRETS.md
 
+# Local scratch notes kept on disk but never committed
+review/
+
 # Husky generated hooks
 .husky/_/
 

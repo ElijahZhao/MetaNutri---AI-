@@ -53,6 +53,7 @@
 - [☁️ Cloud Deployment](#️-cloud-deployment)
 - [📁 Project Structure](#-project-structure)
 - [⚠️ Limitations & Scope](#️-limitations--scope)
+- [📚 Documentation](#-documentation)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [📮 Contact](#-contact)
@@ -166,9 +167,9 @@ This project spans **two independent GitHub repositories**. They are deliberatel
 | 🍽️ | **Rule-Based Meal Planning** | Personalized meal plans assembled from transparent, rule-based food scores |
 | 📁 | **Dataset Browser** | Explore the curated reference datasets shipped with the platform |
 | 📥 | **Import / Export** | Bring your own omics and food data in, and take your results out |
-| 🔐 | **Secure by Default** | httpOnly-cookie sessions, bcrypt hashing and request rate limiting |
+| 🔐 | **Session Security** | httpOnly-cookie sessions, bcrypt hashing and request rate limiting |
 | 🌐 | **Bilingual UI** | Full English / Chinese interface on a lightweight custom i18n layer |
-| 📱 | **Polished & Responsive** | DNA / particle animations and layouts that adapt to desktop, tablet and mobile |
+| 📱 | **Responsive Layout** | DNA / particle animations and layouts that adapt to desktop, tablet and mobile |
 
 </div>
 
@@ -596,6 +597,17 @@ This project is built for **demonstration and portfolio purposes**. In the inter
 **Development note.** AI coding tools were used as assistants during implementation — chiefly for scaffolding, refactoring and documentation. The architecture, product decisions and final review are the author's own, and AI-generated output was reviewed and adapted before being merged rather than accepted as-is.
 
 **Repository history.** The project was developed locally first and published to GitHub in a handful of batched syncs, so the commits are clustered into a few active stretches rather than spread out evenly.
+
+---
+
+## 📚 Documentation
+
+The API reference and roadmap are linked above; the rest of `docs/`:
+
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — services, data flow and the same-origin proxy setup
+- [DATASETS.md](docs/DATASETS.md) — the curated reference datasets and their provenance
+- [AUDITS.md](docs/AUDITS.md) — the audit and fix ledger
+- [PROJECT-NOTES.md](docs/PROJECT-NOTES.md) — why this repository is split into two halves
 
 ---
 

@@ -2,7 +2,11 @@
 """Download the 33 key BIG IDEAs files used for external validation.
 
 BIG IDEAs Lab Glycemic Variability and Wearable Device Data (PhysioNet,
-``10.13026/w591-tp72``), version **1.1.2**, licensed ODC-By 1.0.
+``10.13026/zthx-5212``), version **1.1.2**, licensed ODC-By 1.0.
+
+This is the *version* DOI for 1.1.2, matching the ``1.1.2/`` prefix fetched
+below. ``10.13026/w591-tp72`` is PhysioNet's "latest version" DOI and currently
+resolves to 1.1.3, so it would not describe what this script actually pulls.
 
 Why 1.1.2 and not 1.1.3
 -----------------------

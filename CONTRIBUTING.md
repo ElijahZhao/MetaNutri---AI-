@@ -53,51 +53,9 @@ Bug 报告、功能建议、代码改动和文档修订都欢迎，统一走 Git
 
 ## ✅ 代码规范
 
-### Python 代码规范
-
-- 遵循 PEP 8 规范
-- 使用 type hints
-- 使用 async/await 进行异步操作
-- 保持与现有代码风格一致；CI 会对 `app/` 执行 `python -m pytest`、`python -m compileall` 与导入冒烟测试
-
-### JavaScript/React 代码规范
-
-- 使用 ESLint 进行代码检查
-- 使用 Prettier 进行代码格式化
-- 使用 React Hooks
-- 确保代码通过 `npm run lint` 检查
-
-### 提交信息规范
-
-使用 Conventional Commits 格式：
-
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer]
-```
-
-#### Commit 类型
-
-- `feat`: 新功能
-- `fix`: 修复 bug
-- `docs`: 文档更新
-- `style`: 代码格式（不影响功能）
-- `refactor`: 代码重构
-- `test`: 测试更新
-- `chore`: 构建/工具更新
-
-#### 示例
-
-```
-feat(api): 添加营养预警接口
-
-- 实现营养缺乏检测逻辑
-- 添加预警等级分类
-- 更新API文档
-```
+- **后端**：保持与现有代码风格一致。CI 会对 `app/` 执行 `python -m pytest`、`python -m compileall` 与导入冒烟测试。
+- **前端**：ESLint + Prettier，由 husky + lint-staged 在提交前自动运行（见 `.husky/pre-commit`）；手动检查用 `npm run lint`。
+- **提交信息**：沿用 Conventional Commits，本仓库历史提交即为此格式，如 `fix(backend): ...`、`docs: ...`。
 
 ## 📝 Pull Request 流程
 

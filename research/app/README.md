@@ -34,5 +34,6 @@ redistributed here.
 app.py            Streamlit UI
 inference.py      model loading, prediction, TreeSHAP, curve reconstruction
 model/            trained boosters + preprocessing metadata
+assets/           copies of the report figure / experiment CSV the UI loads
 requirements.txt  pinned dependencies
 ```
