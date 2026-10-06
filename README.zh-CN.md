@@ -102,7 +102,7 @@
 - **在线 Demo（运行真实训练的模型）：** <https://metanutri-ai-ppgr-predictor.streamlit.app>
 - **一条命令复现：** `cd research && bash src/run_all.sh`
 
-> 以上每个数字都由 [`research/experiments/*.csv`](research/experiments/) 重新生成，且必须与技术报告一致——无估算、无四舍五入、无推断。
+> 以上每个数字都由 [`research/experiments/*.csv`](research/experiments/) 重新生成，且必须与技术报告一致。
 
 **图表（直接来自[技术报告](research/reports/technical_report.pdf)流水线）：**
 
@@ -253,7 +253,7 @@
 | [PyTorch](https://pytorch.org/) | 2.x | 模型原型的研究脚手架（线上 API 不加载） |
 | [NumPy](https://numpy.org/) | 1.26 | 数值计算（血糖响应曲线） |
 | [Pandas](https://pandas.pydata.org/) | 2.2 | 数据处理（导入 / 导出） |
-| [requests](https://docs.python-requests.org/) | 2.32 | HTTP 客户端（内置参考数据由本地生成，非下载） |
+| [requests](https://docs.python-requests.org/) | 2.33 | HTTP 客户端（内置参考数据由本地生成，非下载） |
 
 ### 🔬 研究（真实 ML —— `research/`）
 
@@ -404,6 +404,7 @@ curl -b cookies.txt -X POST "$BASE/api/recommendations/meal-plan" \
 | 代码规范 | ESLint（扁平配置） | `npm run lint` |
 | 单元 / 组件测试 | Vitest + Testing Library | `npm test` |
 | 端到端测试 | Playwright（Chromium） | `npm run test:e2e` |
+| 后端单元 / API 测试 | pytest + httpx（`backend/tests/`） | `python -m pytest -q` |
 | 后端语法 + 导入冒烟测试 | `compileall` + FastAPI 导入 | `python -m compileall -q app` |
 
 每次 push 与 Pull Request 都会通过 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 运行以上全部检查。
@@ -566,6 +567,7 @@ MetaNutri---AI-/
 │   ├── DATASETS.md                   # 数据集参考
 │   ├── ARCHITECTURE.md               # 架构与设计取舍
 │   ├── ROADMAP.md                    # 研究路线图
+│   ├── PROJECT-NOTES.md              # 项目自述（为何拆成两半）
 │   └── AUDITS.md                     # 审计与修复记录
 │
 ├── .github/                          # GitHub 配置

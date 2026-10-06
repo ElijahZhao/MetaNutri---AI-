@@ -1,16 +1,8 @@
 # 贡献指南
 
-欢迎您为 MetaNutri 项目做出贡献！我们非常感谢您的帮助和支持。
-
 ## 📋 贡献方式
 
-您可以通过以下方式为项目做出贡献：
-
-1. **报告Bug**: 在 GitHub Issues 中提交问题报告
-2. **提出功能请求**: 在 GitHub Issues 中提交功能建议
-3. **提交代码**: 通过 Pull Request 提交代码更改
-4. **改进文档**: 完善 README.md 或其他文档
-5. **帮助用户**: 回答 GitHub Issues 中的问题
+Bug 报告、功能建议、代码改动和文档修订都欢迎，统一走 GitHub Issues 与 Pull Request。
 
 ## 🔧 开发环境设置
 
@@ -66,7 +58,7 @@
 - 遵循 PEP 8 规范
 - 使用 type hints
 - 使用 async/await 进行异步操作
-- 保持与现有代码风格一致；CI 会对 `app/` 执行 `python -m compileall` 与导入冒烟测试
+- 保持与现有代码风格一致；CI 会对 `app/` 执行 `python -m pytest`、`python -m compileall` 与导入冒烟测试
 
 ### JavaScript/React 代码规范
 
@@ -137,10 +129,17 @@ feat(api): 添加营养预警接口
 
 ### 后端测试
 
-后端目前没有独立的 `tests/` 目录。CI 通过两项冒烟检查保证可用性：
-
 ```bash
 cd backend
+pip install -r requirements.txt -r requirements-dev.txt
+python -m pytest -q    # tests/：单元 + API 测试
+```
+
+`tests/` 覆盖密码哈希与 JWT（`test_security.py`）、配置校验（`test_config.py`）
+与导入接口的校验分支（`test_import_export_api.py`），不需要数据库、Redis 或网络。
+CI 另外执行语法检查与导入冒烟：
+
+```bash
 python -m compileall -q app
 SECRET_KEY=ci-smoke-test-key python -c "from app.main import app; print('FastAPI app OK:', app.title)"
 ```
@@ -192,7 +191,3 @@ pytest --cov                # 单元测试 + Streamlit AppTest，覆盖率门槛
 ## 📜 许可证
 
 通过提交代码，您同意您的贡献将采用项目的 MIT 许可证。
-
----
-
-感谢您的贡献！🎉

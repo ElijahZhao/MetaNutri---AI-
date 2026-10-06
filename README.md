@@ -102,7 +102,7 @@ The AI endpoints on the platform are deliberately honest heuristics (see [Limita
 - **Live demo (runs the real trained model):** <https://metanutri-ai-ppgr-predictor.streamlit.app>
 - **One-command reproduction:** `cd research && bash src/run_all.sh`
 
-> Every number above is regenerated from [`research/experiments/*.csv`](research/experiments/) and must match the technical report — nothing is estimated, rounded up or inferred.
+> Every number above is regenerated from [`research/experiments/*.csv`](research/experiments/) and must match the technical report.
 
 **Figures (straight from the [technical report](research/reports/technical_report.pdf) pipeline):**
 
@@ -253,7 +253,7 @@ This project spans **two independent GitHub repositories**. They are deliberatel
 | [PyTorch](https://pytorch.org/) | 2.x | Research scaffolding for model prototypes (not loaded by the live API) |
 | [NumPy](https://numpy.org/) | 1.26 | Numerical computing (glucose-response curve) |
 | [Pandas](https://pandas.pydata.org/) | 2.2 | Data processing (import / export) |
-| [requests](https://docs.python-requests.org/) | 2.32 | HTTP client (bundled reference data is generated locally, not downloaded) |
+| [requests](https://docs.python-requests.org/) | 2.33 | HTTP client (bundled reference data is generated locally, not downloaded) |
 
 ### 🔬 Research (real ML — `research/`)
 
@@ -404,6 +404,7 @@ Only the explainer stays wired into the live API under `backend/app/ml/`; the Py
 | Lint | ESLint (flat config) | `npm run lint` |
 | Unit / component tests | Vitest + Testing Library | `npm test` |
 | End-to-end tests | Playwright (Chromium) | `npm run test:e2e` |
+| Backend unit / API tests | pytest + httpx (`backend/tests/`) | `python -m pytest -q` |
 | Backend syntax + import smoke test | `compileall` + FastAPI import | `python -m compileall -q app` |
 
 Every push and pull request runs all of the above through [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
@@ -566,6 +567,7 @@ MetaNutri---AI-/
 │   ├── DATASETS.md                   # Dataset references
 │   ├── ARCHITECTURE.md               # Architecture & design decisions
 │   ├── ROADMAP.md                    # Research roadmap
+│   ├── PROJECT-NOTES.md              # Project self-narrative (why it's split in two)
 │   └── AUDITS.md                     # Audit & remediation log
 │
 ├── .github/                          # GitHub config
