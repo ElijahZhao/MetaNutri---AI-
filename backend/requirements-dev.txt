@@ -1,5 +1,5 @@
 # Backend test dependencies. CI-only: the app itself never imports these.
 # Bounds rather than exact pins so a CI image can resolve a compatible set.
-pytest>=8.0
-pytest-asyncio>=0.24
-httpx>=0.27
+pytest>=9.1.1
+pytest-asyncio>=1.4.0
+httpx>=0.28.1

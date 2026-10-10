@@ -1,6 +1,6 @@
 # Web framework + ASGI
-fastapi==0.115.0
-uvicorn[standard]==0.30.0
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
 
 # ORM + async DB drivers. aiosqlite is the default local-fallback engine
 # (sqlite+aiosqlite:///./metanutri.db in config.py); asyncpg covers the
@@ -10,14 +10,14 @@ uvicorn[standard]==0.30.0
 # on greenlet under `python_version < "3.13"`, so on 3.13+ create_async_engine
 # fails to import; naming the extra keeps the async engine working regardless
 # of interpreter version.
-sqlalchemy[asyncio]==2.0.31
-aiosqlite==0.20.0
-asyncpg==0.29.0
+sqlalchemy[asyncio]==2.1.3
+aiosqlite==0.22.1
+asyncpg==0.32.0
 
 # Validation + settings
-pydantic==2.8.2
-pydantic-settings==2.3.4
-pydantic[email]==2.8.2
+pydantic==2.13.5
+pydantic-settings==2.15.0
+pydantic[email]==2.13.5
 
 # Auth: JWT + password hashing. PyJWT is the JOSE implementation; HS256 (the
 # only algorithm used here) needs no cryptography extra.
@@ -28,13 +28,13 @@ PyJWT==2.15.1
 # call raises (4.1-4.3 still work but log a version warning). 4.0.1 is the last
 # release passlib handles cleanly, so pin it.
 passlib[bcrypt]==1.7.4
-bcrypt==4.0.1
+bcrypt==5.0.0
 
 # File uploads (import_export.py uses UploadFile / File)
 python-multipart==0.0.32
 
 # Caching / rate-limiting
-redis==5.0.7
+redis==8.1.0
 
 # ML stack. The PyTorch prototypes now live in the independent research module
 # under research/prototypes/ and are not part of this image; the live API itself
@@ -43,6 +43,6 @@ redis==5.0.7
 # explainer prototypes in app/ml/explainability.py — nothing imported them.
 # torch was removed too: nothing under app/ imports it, and 2.12.0 carries
 # CVE-2025-3000 (fixed in 2.13.0).
-numpy==1.26.4
-pandas==2.2.2
-requests==2.33.0
+numpy==2.5.3
+pandas==3.0.6
+requests==2.34.2
