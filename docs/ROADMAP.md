@@ -102,7 +102,7 @@
 ### 1.6 必须写入 Limitations 的陷阱
 
 1. 小样本（45 人）→ 跨人群泛化有限
-2. 个体内反应波动大：重复餐（一周后重复）的组内相关系数仅 0.16–0.31
+2. 个体内反应波动大：重复餐（一周后重复）的组内相关系数仅 0.17–0.28（Hengist et al., 2024，AJCN 正式版）
 3. CGM 传感器滞后：平均时间延迟约 9.5 分钟（SD 3.7）
 4. 跨设备不一致：同人同时佩戴两台 CGM，餐次排序 Kendall 相关系数均值仅 0.43
 5. 自报饮食记录噪声（分量估计误差、需剔除异常记录）
@@ -184,7 +184,7 @@ Demo 部署平台：**Streamlit Community Cloud**——免费且原生支持 Str
 - Zeevi et al., *Cell* 163(5):1079-1094 (2015) — https://pubmed.ncbi.nlm.nih.gov/26590418/
 - Shen et al., *JDST* 2025（SOTA 汇总表）— https://pmc.ncbi.nlm.nih.gov/articles/PMC11883769/
 - Leakage-Controlled Evaluation (medRxiv 2026) — https://www.medrxiv.org/content/10.64898/2026.08.03.26359550v1.full
-- Hengist et al. 2023（重复餐 ICC）— https://pmc.ncbi.nlm.nih.gov/articles/PMC10371100.1/
+- Hengist et al. 2024（重复餐 ICC；AJCN 正式版）— https://pmc.ncbi.nlm.nih.gov/articles/PMC11747189/
 - Howard et al. 2020（跨设备一致性）— https://pmc.ncbi.nlm.nih.gov/articles/PMC7528568/
 - PLOS Digit Health 复现性审计 — https://journals.plos.org/digitalhealth/article?id=10.1371/journal.pdig.0001633
 - UNC Charlotte OhioT1DM（DUA）— https://webpages.charlotte.edu/rbunescu/data/ohiot1dm/OhioT1DM-dataset.html

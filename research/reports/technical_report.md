@@ -456,7 +456,8 @@ iAUC spans ≈7,900 mg/dL·min, close to four times the median iAUC of ≈2,000,
 the intervals are trustworthy but coarse; they shrink with the target's
 predictability (AUC intervals are narrower relative to its spread). Third, and
 most important, **coverage is not uniform across subjects**: per-subject
-coverage at 90% ranges from 0.50 upward for iAUC, and one breakfast-AUC subject
+coverage at 90% ranges from 0.50 upward for all-meal iAUC and from 0.30 upward
+within breakfast, and one breakfast-AUC subject
 has *no* meals covered at 80%. Marginal validity can therefore hide individuals
 who sit systematically outside the band — a direct consequence of meals within a
 subject being correlated rather than exchangeable. Per-subject (Mondrian) or
@@ -490,8 +491,8 @@ of the response variance sits *between* people; for iAUC and peak rise only
 about **32%** does. So AUC's pooled correlation being dominated by
 between-subject skill is not an artefact of the metric — it reflects where the
 variance actually lives. It also matches the external estimate that repeated
-meals are only weakly reproducible within a person (Hengist et al., 2023;
-ICC 0.16–0.31).
+meals are only weakly reproducible within a person (Hengist et al., 2024;
+ICC 0.17–0.28).
 
 **Table 8 — Standardised within- vs between-subject effects** (coefficient ± SE;
 only carbs and protein are shown — fat and fibre are indistinguishable from zero
@@ -570,7 +571,7 @@ We state these explicitly; they bound every claim above.
   value is between-subject skill (§4.5). We report the decomposition alongside
   the pooled metric, but the pooled number alone should not be read as
   meal-level skill.
-- **The response is only weakly repeatable within a person.** The same meal, eaten again a week later, does not reliably reproduce its excursion: reported within-subject ICCs for postprandial response are only 0.16–0.31 (Hengist et al., 2023). Our own mixed model agrees, with ICC 0.32 for iAUC and peak rise (§4.7); for AUC the ICC is 0.69, i.e. most of that variance is between people rather than between meals of the same person. This is a ceiling on how much of the variance *any*
+- **The response is only weakly repeatable within a person.** The same meal, eaten again a week later, does not reliably reproduce its excursion: reported within-subject ICCs for postprandial response are only 0.17–0.28 (Hengist et al., 2024), with duplicate-meal Pearson correlations of r = 0.46 (Abbott) and r = 0.45 (Dexcom). Our own mixed model agrees, with ICC 0.32 for iAUC and peak rise (§4.7); for AUC the ICC is 0.69, i.e. most of that variance is between people rather than between meals of the same person. This is a ceiling on how much of the variance *any*
   composition-driven model can explain, and it is a property of the cohort we
   use, not of our pipeline.
 - **CGM measurement is noisy, lagged and device-dependent.** Subcutaneous
@@ -598,8 +599,8 @@ We state these explicitly; they bound every claim above.
   procedure, which is validated but not ground truth.
 - **Intervals are only marginally valid.** We do report conformal intervals
   (§4.6), and their marginal coverage matches nominal (0.800 / 0.898). But the
-  coverage is not uniform across people — per-subject coverage falls to 0.50 for
-  iAUC and to 0.00 for one breakfast-AUC subject — and the intervals are wide.
+  coverage is not uniform across people — per-subject coverage falls to 0.30 for
+  iAUC (breakfast; 0.50 across all meals) and to 0.00 for one breakfast-AUC subject — and the intervals are wide.
   They should be read as population-level guarantees, not per-person ones.
 - **Observational and non-causal.** Associations between features and response
   are not interventions. Nothing here implies that changing a macronutrient

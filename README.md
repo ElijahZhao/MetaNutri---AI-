@@ -82,7 +82,7 @@ This repository is primarily a **full-stack engineering project**: a production-
 | Problem | Solution |
 |---------|----------|
 | 🍎 Generic diet advice ignores individual biology | Personalized recommendations based on YOUR omics profile |
-| 🧬 Genomics data is hard to interpret | AI translates complex data into actionable insights |
+| 🧬 Genomics data is hard to interpret | Deterministic, guideline-based scoring translates complex data into actionable insights |
 | 📊 Scattered health data across apps | Unified dashboard for genomics, microbiome, metabolomics |
 | 🤖 "Black box" AI recommendations | Transparent rule-based scoring shows *which* factors drive each suggestion |
 | ⚠️ Reactive healthcare | Early nutritional deficiency detection and risk alerts |
@@ -96,7 +96,7 @@ The AI endpoints on the platform are deliberately honest heuristics (see [Limita
 | Stage | Headline result |
 |-------|-----------------|
 | **Reproduces the published baseline** — CGMacros, breakfast, leave-one-subject-out | **AUC r = 0.890 · iAUC r = 0.655** (paper ≈ 0.89 / ≈ 0.64) |
-| **Extends it to every meal** — 1,557 meals, 45 subjects | **AUC r = 0.838 · iAUC r = 0.451** |
+| **Extends it across meal types** — 1,557 of 1,699 meals (142 with non-positive iAUC excluded), 45 subjects | **AUC r = 0.838 · iAUC r = 0.451** |
 | **Transfers the frozen model to an independent cohort** — BIG IDEAs, 16 subjects, 656 meals, a different CGM device | **AUC r = 0.569** (partial; iAUC/peak-rise drop to ≈ 0.22 → domain shift) |
 | **Goes beyond a point estimate** | Conformal prediction intervals · within/between-subject decomposition · subject-random-intercept mixed-effects model |
 

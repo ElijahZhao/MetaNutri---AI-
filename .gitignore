@@ -83,3 +83,7 @@ research/data/processed/
 # an empty directory and no .gitmodules to resolve it. Syncing is a plain file
 # copy, so the mirror never needs to be part of this history.
 .deploy/
+
+# Paper-planning notes and manuscript workspace — never part of the repo
+PPGR-论文待办清单.md
+paper/
