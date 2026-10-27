@@ -449,7 +449,9 @@ Nothing about a subject's own responses is used to size its interval.
 | All meals | 2-h AUC | 90% | 0.898 | 8,751 | 0.40 |
 | All meals | 2-h iAUC | 80% | 0.800 | 5,357 | 0.32 |
 | All meals | 2-h iAUC | 90% | 0.897 | 7,909 | 0.50 |
+| Breakfast | 2-h AUC | 80% | 0.801 | 6,986 | 0.00 |
 | Breakfast | 2-h AUC | 90% | 0.898 | 9,808 | 0.00 |
+| Breakfast | 2-h iAUC | 80% | 0.804 | 6,000 | 0.00 |
 | Breakfast | 2-h iAUC | 90% | 0.896 | 8,885 | 0.30 |
 
 ![Conformal prediction intervals](figures/fig7_conformal.png)
@@ -464,13 +466,13 @@ predicts. Second, the intervals are **wide** — the 90% interval for all-meal
 iAUC spans ≈7,900 mg/dL·min, close to four times the median iAUC of ≈2,000, so
 the intervals are trustworthy but coarse; they shrink with the target's
 predictability (AUC intervals are narrower relative to its spread). Third, and
-most important, **coverage is not uniform across subjects**: per-subject
-coverage at 90% ranges from 0.50 upward for all-meal iAUC and from 0.30 upward
-within breakfast, and one breakfast-AUC subject
-has *no* meals covered at 80%. Marginal validity can therefore hide individuals
-who sit systematically outside the band — a direct consequence of meals within a
-subject being correlated rather than exchangeable. Per-subject (Mondrian) or
-residual-normalised conformal methods are the natural remedy (§8).
+most important, **coverage is not uniform across subjects**: at 90% the worst
+subject reaches 0.50 for all-meal iAUC and 0.30 for breakfast iAUC, but 0.40 for
+all-meal AUC and 0.00 for breakfast AUC; at 80% the worst breakfast subject has
+no meals covered for either target. Marginal validity can therefore hide
+individuals who sit systematically outside the band — a direct consequence of
+meals within a subject being correlated rather than exchangeable. Per-subject
+(Mondrian) or residual-normalised conformal methods are the natural remedy (§8).
 
 ### 4.7 Repeated meals: mixed-effects check
 
@@ -794,9 +796,11 @@ We state these explicitly; they bound every claim above.
   procedure, which is validated but not ground truth.
 - **Intervals are only marginally valid.** We do report conformal intervals
   (§4.6), and their marginal coverage matches nominal (0.800 / 0.898). But the
-  coverage is not uniform across people — per-subject coverage falls to 0.30 for
-  iAUC (breakfast; 0.50 across all meals) and to 0.00 for one breakfast-AUC subject — and the intervals are wide.
-  They should be read as population-level guarantees, not per-person ones.
+  coverage is not uniform across people: at 90% the worst subject reaches 0.30
+  for breakfast iAUC and 0.50 for all-meal iAUC, while three of the four
+  breakfast cells (AUC at 80% and 90%, iAUC at 80%) have a worst subject at
+  zero. The intervals are also wide. They should be read as population-level
+  guarantees, not per-person ones.
 - **Observational and non-causal.** Associations between features and response
   are not interventions. Nothing here implies that changing a macronutrient
   will cause the predicted change.
