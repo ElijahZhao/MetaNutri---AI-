@@ -96,7 +96,6 @@ def icc_one_way_one(pairs: pd.DataFrame) -> float:
     """ICC(1,1) — two measurements per subject, absolute agreement."""
     a = pairs["iauc_1"].to_numpy()
     b = pairs["iauc_2"].to_numpy()
-    grand = np.concatenate([a, b])
     ms_between = len(a) * np.var(np.stack([a, b]).mean(axis=0), ddof=1)
     ms_within = (np.var(a, ddof=1) + np.var(b, ddof=1)) / 2
     denom = ms_between + ms_within
@@ -168,7 +167,6 @@ def run_e3_e4(cg: pd.DataFrame, bi: pd.DataFrame) -> list[dict]:
     rows = []
     for target in TARGETS:
         # E3: reverse transfer — frozen on BIG IDEAs, applied to CGMacros.
-        tr = bi.dropna(subset=CORE + [target])
         te, pred = transfer(bi, cg, CORE, target)
         y = te[target].to_numpy()
         m = _metrics(y, np.asarray(pred, dtype=float))
