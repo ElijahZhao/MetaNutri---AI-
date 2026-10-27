@@ -65,4 +65,6 @@ research/
 
 CGMacros is **CC BY-NC-SA 4.0** — non-commercial research/portfolio use only;
 attribute the source. BIG IDEAs is **ODC-By 1.0** (attribution). See
-[`data/README.md`](data/README.md).
+[`data/README.md`](data/README.md). Code in this module is MIT; data-derived
+artifacts (result CSVs, frozen models, figures, report) follow the upstream
+CC BY-NC-SA terms. Full layering: [`NOTICE.md`](NOTICE.md).

@@ -841,6 +841,10 @@ regenerates `experiments/results.csv`, `experiments/uncertainty.csv` and
 
 ## 10. Data attribution and license
 
+The full license layering for this module (code vs. data-derived artifacts vs.
+datasets) is specified in [`research/NOTICE.md`](../NOTICE.md); the summary
+below is part of that layering.
+
 This work uses the **CGMacros** dataset:
 
 - Source: PhysioNet — https://physionet.org/content/cgmacros/1.0.0/
