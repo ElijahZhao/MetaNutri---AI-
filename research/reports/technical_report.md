@@ -6,7 +6,7 @@
 > analysis — not a clinical tool, and not wired into the MetaNutri application.
 > Datasets: CGMacros (PhysioNet, DOI `10.13026/3z8q-x658`), licensed
 > **CC BY-NC-SA 4.0**, and BIG IDEAs (PhysioNet, DOI `10.13026/zthx-5212`),
-> licensed **ODC-By 1.0**; see §9 for attribution.
+> licensed **ODC-By 1.0**; see §10 for attribution.
 
 ---
 
@@ -41,7 +41,12 @@ their nominal marginal coverage (0.800 / 0.898) but are wide and, we show
 candidly, under-cover a minority of individuals. A mixed model with subject
 random intercepts locates about 69% of AUC variance *between* people versus 32%
 for iAUC, and shows that, within a person, carbohydrate raises and protein
-lowers the response. We report the limitations
+lowers the response. A dedicated reliability-ceiling analysis ties these
+threads together: the within-cohort model sits below the standardized-breakfast
+duplicate-meal ceiling (r = 0.655 vs 0.80), iAUC skill is invariant to removing
+baseline glucose (ruling out circularity), and iAUC transfer fails in *both*
+cohort directions while AUC transfer is carried almost entirely by baseline
+glucose (§5). We report the limitations
 plainly: small cohorts, pooled-observation metrics that mix between- and
 within-subject variance, and a large domain gap between the two studies. Code,
 figures and fixed-seed experiments are included for full reproducibility.
@@ -405,7 +410,7 @@ whether the model can pick out above-typical from below-typical responses.
 (XGBoost, LOPO). When the between-subject bar towers over the within-subject
 bar, much of the pooled correlation reflects knowing *who* the person is.
 
-The decomposition sharpens the AUC/iAUC contrast in §5. For AUC, between-subject
+The decomposition sharpens the AUC/iAUC contrast in §6. For AUC, between-subject
 skill (0.921, all meals) is far larger than within-subject skill (0.654): a
 substantial part of the impressive pooled AUC correlation is simply identifying
 individuals with a higher overall glucose level, not reading the meal. For iAUC,
@@ -461,7 +466,7 @@ within breakfast, and one breakfast-AUC subject
 has *no* meals covered at 80%. Marginal validity can therefore hide individuals
 who sit systematically outside the band — a direct consequence of meals within a
 subject being correlated rather than exchangeable. Per-subject (Mondrian) or
-residual-normalised conformal methods are the natural remedy (§7).
+residual-normalised conformal methods are the natural remedy (§8).
 
 ### 4.7 Repeated meals: mixed-effects check
 
@@ -520,11 +525,157 @@ are absorbed; fat and fibre do not. Second, the **between-subject coefficients
 are an order of magnitude less precise** (only 45 people) and, for protein, flip
 sign — the association across *people* points the opposite way to the one within
 a person. That divergence is a concrete reason to distrust population-level
-macronutrient predictors as personal ones, and it reinforces the caution in §5.
+macronutrient predictors as personal ones, and it reinforces the caution in §6.
 
 ---
 
-## 5. Discussion
+## 5. Measurement-reliability ceiling analysis
+
+The cross-cohort collapse in §4.4 and the published within-person repeatability
+figures (duplicate-meal r ≈ 0.45–0.46; §6) raise a question the preceding
+sections only gesture at: **how much of PPGR predictability is bounded by
+measurement itself, and is our model anywhere near that bound?** This section
+answers it with six targeted experiments, all produced by
+`src/ceiling_experiments.py` into `experiments/ceiling_results.csv`.
+
+A methodological note first. CGMacros repeatedly serves a *standardized*
+reference breakfast, which produces true duplicate-meal pairs — but this makes
+the within-cohort ceiling a *controlled-protocol* ceiling, systematically
+friendlier than the free-living duplicates behind the published 0.45–0.46
+figures. We therefore keep the two regimes separate throughout and never
+compare across them. These experiments were run with scikit-learn 1.9.0
+(the pinned suite in §9 lists 1.9.1); the §4.2 replication check matched to
+three decimals, so the delta is immaterial for the numbers below.
+
+### 5.1 Within-cohort duplicate-meal reliability (E2)
+
+| Subset | Tolerance | Pairs (n) | iAUC duplicate r | ICC |
+|---|---|---|---|---|
+| **Breakfast** | ±2 g | **174** | **0.799** | 0.987 |
+| All meals | ±2 g | 363 | 0.715 | 0.994 |
+| Dinner | ±2 g | 40 | 0.374 | 0.930 |
+| Snack | ±2 g | 77 | 0.376 | 0.963 |
+| Lunch | ±2/±5 g | **0** | — (no duplicate pairs exist) | — |
+| All meals | ±5 g | 635 | 0.645 | 0.996 |
+
+Three facts matter here. First, the breakfast model's r = 0.655 (§4.2) sits
+**below** the 0.80 internal ceiling — there is no "model beats measurement"
+paradox, and the published baseline (≈0.64) is consistent for the same reason.
+The 0.45–0.46 free-living figures bound a *noisier regime*, not this one.
+Second, the internal ceiling is strongly meal-type-dependent: standardized
+breakfasts are highly repeatable (0.80) while free-choice dinners and snacks
+are not (≈0.37) — the ceiling tracks protocol control, not biology. Third,
+**CGMacros contains no duplicate lunches** (n = 0), so any reliability claim in
+this cohort is necessarily breakfast-centric; we flag this as a protocol
+limitation rather than paper over it.
+
+### 5.2 Is iAUC skill riding on baseline glucose? (E5)
+
+Because AUC ≈ 120 × baseline + iAUC by construction, a model evaluated on AUC
+can score well while encoding little about the *excursion*. The ablation
+quantifies this (LOPO, XGBoost, 19→18→1 features):
+
+| Target | Subset | Full (19) | No baseline (18) | Baseline only (1) |
+|---|---|---|---|---|
+| iAUC | all meals, iauc>0 (n=1,557) | 0.451 | **0.457** | 0.204 |
+| iAUC | breakfast (n=423) | 0.655 | **0.657** | 0.542 |
+| AUC | all meals, iauc>0 | 0.838 | 0.638 | **0.807** |
+| AUC | breakfast | 0.890 | 0.738 | **0.861** |
+| Peak rise | breakfast | 0.632 | 0.647 | 0.547 |
+
+(Unfiltered, n=1,699, agrees: iAUC 0.446 / 0.432 / 0.123; AUC 0.807 / 0.636 /
+0.751.) Two conclusions. **iAUC skill is invariant to removing baseline
+glucose** — dropping it changes r by less than 0.01 — so the headline iAUC
+numbers are not circular. **AUC, in contrast, is largely a baseline-glucose
+shadow**: baseline alone recovers r = 0.81–0.86, and removing baseline costs
+0.15–0.20. This is the quantitative basis for treating iAUC, not AUC, as the
+honest target throughout this report.
+
+A sharper reading of the breakfast row: baseline glucose alone reaches 0.542
+on breakfast iAUC, so the *marginal* contribution of all 18 meal and blood
+features is ≈ 0.11 (0.655 − 0.542). Most of what looks like "meal response
+prediction" at breakfast is, on inspection, fasting-state information.
+
+### 5.3 Who responds vs how much: person-level aggregation (P3)
+
+Averaging predicted and observed values within each subject (n = 45 persons)
+asks a different question — *can the model rank people by their typical
+response?* — and the answer is more forgiving than the meal-level one:
+
+| Target | Meal-level r | Person-mean r |
+|---|---|---|
+| iAUC (all meals) | 0.451 | **0.501** |
+| AUC (all meals) | 0.838 | **0.921** |
+| Peak rise (all meals) | 0.542 | **0.697** |
+| iAUC (breakfast) | 0.655 | 0.693 |
+
+The most striking number is what baseline glucose alone does at the person
+level: **r = 0.963 for person-mean AUC** (0.71–0.76 for iAUC, exceeding the
+full-feature model's 0.50 — with only 45 points we read this as noise around a
+genuinely strong baseline signal, not as a feature-selection finding). "Who
+responds more" is almost fully determined by fasting state; the model's
+person-level edge beyond baseline is real but modest. This sharpens the
+within-/between decomposition of §4.5 and §4.7 from a variance statement into
+a predictive one.
+
+### 5.4 Bidirectional external transfer (E3)
+
+§4.4 transfers CGMacros → BIG IDEAs. The reverse direction completes the
+picture (frozen BIG IDEAs LOPO model applied to CGMacros, 5 shared features):
+
+| Target | CG → BI (forward) | BI → CG (reverse) |
+|---|---|---|
+| iAUC | 0.227 | **0.085** |
+| AUC | 0.569 | 0.748 |
+| Peak rise | 0.223 | 0.174 |
+
+**iAUC transfer fails in both directions** (0.227 / 0.085). This rules out the
+most convenient explanation of the §4.4 collapse — that 16 subjects are simply
+too few to evaluate on — because the reverse direction evaluates on 1,699
+meals from 45 subjects and fails harder. AUC transfers partially both ways,
+but §5.2 already showed AUC is baseline-driven: what "transfers" is the
+compatibility of baseline-glucose distributions, not meal-response skill.
+
+### 5.5 Does person-level aggregation rescue cross-cohort transfer? (E4)
+
+Since aggregation helped within-cohort (§5.3), we test whether ranking the 16
+BIG IDEAs subjects by person-mean predictions recovers signal:
+
+| Target | Meal-level r (n=656) | Person-mean r (n=16) | 95% CI (person) |
+|---|---|---|---|
+| iAUC | 0.227 | **−0.029** | [−0.43, 0.43] |
+| AUC | 0.569 | **0.715** | [0.35, 0.90] |
+| Peak rise | 0.223 | 0.054 | [−0.33, 0.44] |
+
+Aggregation lifts cross-cohort AUC (0.569 → 0.715) — again consistent with
+baseline dominance — but does **not** rescue cross-cohort iAUC, which is
+statistically indistinguishable from zero at n = 16. Within-cohort aggregation
+gains do not survive the domain gap.
+
+### 5.6 Synthesis
+
+The six experiments form a single chain:
+
+1. Inside CGMacros, the model (0.655) stays below the standardized-breakfast
+   duplicate ceiling (0.80) — no paradox, published baseline included (§5.1).
+2. iAUC skill is not baseline circularity; AUC is (§5.2).
+3. Person-level aggregation sharpens within-cohort rankings, and person-mean
+   AUC is nearly fully determined by baseline glucose (§5.3).
+4. iAUC transfer fails bidirectionally, so the cross-cohort collapse is a
+   property of the cohort/device/annotation gap, not of sample size (§5.4).
+5. The free-living reliability regime (~0.45–0.46) is the plausible ceiling on
+   the external side, and the transferred model (0.227) sits below it — while
+   within-cohort skill sits below *its* (higher) ceiling. Both regimes bound
+   their models consistently.
+
+The paper-level claim this supports is deliberately narrow: **published
+PPGR model performance must be read against the measurement reliability of its
+own evaluation regime, and cross-regime comparisons — including our own §4.4
+transfer — primarily measure the drop in that reliability, not model quality.**
+
+---
+
+## 6. Discussion
 
 Four findings are worth stating plainly.
 
@@ -558,7 +709,7 @@ report this than present a single-cohort number that flatters the method.
 
 ---
 
-## 6. Limitations
+## 7. Limitations
 
 We state these explicitly; they bound every claim above.
 
@@ -618,7 +769,7 @@ We state these explicitly; they bound every claim above.
 
 ---
 
-## 7. Future work
+## 8. Future work
 
 1. **More external cohorts and domain adaptation**, building on the BIG IDEAs
    result. Re-calibration or a small amount of target-cohort data may recover
@@ -638,11 +789,11 @@ We state these explicitly; they bound every claim above.
 
 An interactive demo exposing per-meal predictions and exact TreeSHAP
 attributions on this frozen pipeline is already deployed
-(<https://metanutri-ai-ppgr-predictor.streamlit.app/>); see §8 for the code.
+(<https://metanutri-ai-ppgr-predictor.streamlit.app/>); see §9 for the code.
 
 ---
 
-## 8. Reproducibility
+## 9. Reproducibility
 
 All results are produced by a small, dependency-pinned pipeline
 (`research/`), independent of the MetaNutri platform. The entire chain — from
@@ -669,6 +820,9 @@ src/make_figures.py      # figures 1–6
 src/uncertainty.py       # conformal intervals → table 6, figure 7, experiments/uncertainty.csv
 src/mixed_effects.py     # subject random intercept → tables 7–8, figure 8
                          #   → experiments/mixed_effects_{variance,coefficients}.csv (statsmodels)
+src/ceiling_experiments.py # reliability-ceiling analyses (§5): duplicate-meal reliability,
+                         #   baseline ablation, person-level aggregation, bidirectional
+                         #   transfer → experiments/ceiling_results.csv
 src/train_final.py       # freeze the model into app/model/ for the demo
 src/export_report_pdf.py # this report → reports/technical_report.pdf
 ```
@@ -680,11 +834,12 @@ Pinned versions: Python 3.12, `numpy==2.5.3`, `pandas==3.0.6`,
 `scikit-learn==1.9.1`, `xgboost==3.4.1`, `scipy==1.18.1`,
 `matplotlib==3.11.2`, `statsmodels==0.15.0`. Random seed 42. Re-running the suite
 regenerates `experiments/results.csv`, `experiments/uncertainty.csv` and
-`experiments/mixed_effects_*.csv`, and `make_figures.py` regenerates the figures.
+`experiments/mixed_effects_*.csv`, `experiments/ceiling_results.csv`, and
+`make_figures.py` regenerates the figures.
 
 ---
 
-## 9. Data attribution and license
+## 10. Data attribution and license
 
 This work uses the **CGMacros** dataset:
 
