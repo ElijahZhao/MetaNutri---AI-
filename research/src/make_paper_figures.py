@@ -31,7 +31,7 @@ Outputs land in ``research/reports/figures/``.
 from __future__ import annotations
 
 import os
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 
 import matplotlib
 
@@ -151,7 +151,7 @@ def fig1_regime_ladder() -> None:
     )
 
     # --- panel A: the ladder ---
-    for yi, (label, rho, lo, hi, colour) in zip(range(len(rows)), rows, strict=False):
+    for yi, (_label, rho, lo, hi, colour) in zip(range(len(rows)), rows, strict=False):
         if lo is None:
             ax0.plot([rho], [yi], "o", ms=6, color=colour)
             continue
@@ -196,7 +196,7 @@ def fig1_regime_ladder() -> None:
         ("Cross-device, cross-cohort ‡\n(CGMacros → BIG IDEAs)", r_forward,
          HENGIST_DEXCOM[0], RED),
     ]
-    for yi, (label, r, rho, colour) in zip([2, 1, 0], b_rows, strict=False):
+    for yi, (_label, r, rho, colour) in zip([2, 1, 0], b_rows, strict=False):
         ax1.barh([yi], [r], height=0.40, color=colour, alpha=0.9)
         ax1.plot([rho, rho], [yi - 0.27, yi + 0.27], color="#222", linewidth=1.8)
         ax1.plot([np.sqrt(rho), np.sqrt(rho)], [yi - 0.27, yi + 0.27], "--",
