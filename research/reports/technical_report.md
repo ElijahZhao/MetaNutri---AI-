@@ -43,10 +43,10 @@ random intercepts locates about 69% of AUC variance *between* people versus 32%
 for iAUC, and shows that, within a person, carbohydrate raises and protein
 lowers the response. A dedicated reliability-ceiling analysis ties these
 threads together: the within-cohort model sits below the standardized-breakfast
-duplicate-meal ceiling (r = 0.655 vs 0.80), iAUC skill is invariant to removing
-baseline glucose (ruling out circularity), and iAUC transfer fails in *both*
-cohort directions while AUC transfer is carried almost entirely by baseline
-glucose (§5). We report the limitations
+duplicate-meal reliability (r = 0.655 vs ρ = 0.799), iAUC skill is invariant to
+removing baseline glucose (ruling out circularity), and iAUC transfer fails in
+*both* cohort directions while AUC transfer is carried almost entirely by
+baseline glucose (§5). We report the limitations
 plainly: small cohorts, pooled-observation metrics that mix between- and
 within-subject variance, and a large domain gap between the two studies. Code,
 figures and fixed-seed experiments are included for full reproducibility.
@@ -174,6 +174,10 @@ free-living food log. Three differences from CGMacros matter for the analysis:
    days after correction (median Δ ≈ +14 mg/dL).
 
 After correction, the BIG IDEAs table contains **656 meals across 16 subjects**.
+Per-subject HbA1c ranges from 5.3 % to 6.4 % (median 5.65 %), so the cohort sits
+in a narrower glycemic range than CGMacros (4.6–8.5 %, including type-2
+diabetes); this difference matters when interpreting the AUC transfer
+asymmetry in §4.4.
 
 ---
 
@@ -538,36 +542,68 @@ measurement itself, and is our model anywhere near that bound?** This section
 answers it with six targeted experiments, all produced by
 `src/ceiling_experiments.py` into `experiments/ceiling_results.csv`.
 
-A methodological note first. CGMacros repeatedly serves a *standardized*
-reference breakfast, which produces true duplicate-meal pairs — but this makes
-the within-cohort ceiling a *controlled-protocol* ceiling, systematically
-friendlier than the free-living duplicates behind the published 0.45–0.46
-figures. We therefore keep the two regimes separate throughout and never
-compare across them. These experiments were run with scikit-learn 1.9.0
-(the pinned suite in §9 lists 1.9.1); the §4.2 replication check matched to
-three decimals, so the delta is immaterial for the numbers below.
+A methodological note first. CGMacros breakfasts repeatedly reproduce the same
+six macronutrient profiles and same-subject breakfasts match exactly, so they
+behave as a *repeated reference meal* — but this makes the within-cohort ceiling
+a *controlled-protocol* ceiling, systematically friendlier than the inpatient
+duplicate meals behind the published 0.45–0.46 figures (Hengist et al., 2024,
+presented duplicates in 30 adults without diabetes; not free-living). We
+therefore keep the two regimes separate throughout and never compare across
+them. All six experiments were re-run on 2026-10-27 with the pinned suite in §9;
+every row outside E2 reproduced to four decimal places, and the E2 values below
+come from that run.
 
 ### 5.1 Within-cohort duplicate-meal reliability (E2)
 
-| Subset | Tolerance | Pairs (n) | iAUC duplicate r | ICC |
-|---|---|---|---|---|
-| **Breakfast** | ±2 g | **174** | **0.799** | 0.987 |
-| All meals | ±2 g | 363 | 0.715 | 0.994 |
-| Dinner | ±2 g | 40 | 0.374 | 0.930 |
-| Snack | ±2 g | 77 | 0.376 | 0.963 |
-| Lunch | ±2/±5 g | **0** | — (no duplicate pairs exist) | — |
-| All meals | ±5 g | 635 | 0.645 | 0.996 |
+| Subset | Tolerance | Pairs (n) | Subjects | iAUC duplicate r [95% CI] | ICC(1,1) |
+|---|---|---|---|---|---|
+| **Breakfast** | ±2 g | **174** | 44 | **0.799** [0.702, 0.867] | 0.798 |
+| Breakfast (both iAUC > 0) | ±2 g | 169 | 44 | 0.810 [0.715, 0.876] | 0.810 |
+| All meals (same type) | ±2 g | 291 | 44 | 0.746 [0.657, 0.807] | 0.746 |
+| Dinner | ±2 g | 40 | 13 | 0.374 [0.088, 0.569] | 0.357 |
+| Snack | ±2 g | 77 | 18 | 0.376 [0.069, 0.656] | 0.376 |
+| Lunch | ±2/±5 g | **0** | 0 | — (no duplicate pairs exist) | — |
+| All meals (same type) | ±5 g | 455 | 44 | 0.685 [0.577, 0.757] | 0.686 |
+
+The 95% intervals resample *subjects* rather than pairs, because one subject
+can contribute several pairs and pair-level intervals would be too narrow.
+
+The main E2 estimate uses all 1,699 meals, including non-positive responses, so
+it is **not selected on the outcome**; the prediction models, following the
+official protocol, use the `iauc > 0` filter. To make the two quantities
+directly comparable, the second breakfast row restricts pairs to meals with
+iAUC > 0 on both sides (169 of the 174 pairs). The filtered estimate is slightly
+higher (0.810), so the 0.799 headline is the conservative one for the model
+comparison in §5.1.
+
+*Correction note (2026-10-27).* An earlier version of this table reported
+ICC ≈ 0.99. That implementation formed the between-pair mean square as
+`n × var(pair means)` instead of `2 × var(pair means, ddof=1)`, and the
+within-pair mean square from the two marginal variances instead of
+`mean((a−b)²)/2`; on a trivial input of perfectly agreeing duplicates it
+returned 0.5. The table now reports the correct one-way ICC(1,1) for k = 2,
+which lands close to r. The same run restricted the pooled "all meals" row to
+same-type pairs, as the code's docstring had always specified; the earlier
+cross-type value (0.715 for ±2 g, 363 pairs) is retained in
+`ceiling_results.csv` as `all meals (cross-type pairs)` for provenance.
 
 Three facts matter here. First, the breakfast model's r = 0.655 (§4.2) sits
-**below** the 0.80 internal ceiling — there is no "model beats measurement"
-paradox, and the published baseline (≈0.64) is consistent for the same reason.
-The 0.45–0.46 free-living figures bound a *noisier regime*, not this one.
-Second, the internal ceiling is strongly meal-type-dependent: standardized
-breakfasts are highly repeatable (0.80) while free-choice dinners and snacks
-are not (≈0.37) — the ceiling tracks protocol control, not biology. Third,
-**CGMacros contains no duplicate lunches** (n = 0), so any reliability claim in
-this cohort is necessarily breakfast-centric; we flag this as a protocol
-limitation rather than paper over it.
+**below** the duplicate-meal reliability of the same breakfasts (ρ = 0.799).
+Under the classical measurement model X = T + ε, a model that uses only stable
+information cannot correlate with a single observed meal above √ρ ≈ 0.894 (the
+parallel-measurement assumption); using ρ itself as the benchmark is therefore
+*conservative*. The model stays below both bounds — there is no "model beats
+measurement" paradox, and the published baseline (≈0.64) is consistent for the
+same reason. The 0.45–0.46 inpatient duplicate-meal figures describe a *noisier
+device/protocol regime*, not this one, and they are an optimistic benchmark for
+a free-living, self-reported target. Second, reliability is strongly
+meal-type-dependent: reference breakfasts are highly repeatable (0.80) while
+free-choice dinners and snacks are not (≈0.37–0.38). That pattern is consistent with protocol control rather
+than a fixed biological constant, and it means the breakfast ceiling cannot be
+transplanted to other meal types. Third, **CGMacros contains no duplicate
+lunches** (n = 0), so any reliability claim in this cohort is necessarily
+breakfast-centric; we flag this as a protocol limitation rather than paper
+over it.
 
 ### 5.2 Is iAUC skill riding on baseline glucose? (E5)
 
@@ -656,22 +692,28 @@ gains do not survive the domain gap.
 
 The six experiments form a single chain:
 
-1. Inside CGMacros, the model (0.655) stays below the standardized-breakfast
-   duplicate ceiling (0.80) — no paradox, published baseline included (§5.1).
+1. Inside CGMacros, the breakfast model (0.655) stays below the
+   standardized-breakfast duplicate-meal reliability (ρ = 0.799), and below the
+   corresponding √ρ ≈ 0.894 bound for a model that uses stable information only
+   — no paradox, published baseline included (§5.1).
 2. iAUC skill is not baseline circularity; AUC is (§5.2).
 3. Person-level aggregation sharpens within-cohort rankings, and person-mean
    AUC is nearly fully determined by baseline glucose (§5.3).
 4. iAUC transfer fails bidirectionally, so the cross-cohort collapse is a
    property of the cohort/device/annotation gap, not of sample size (§5.4).
-5. The free-living reliability regime (~0.45–0.46) is the plausible ceiling on
-   the external side, and the transferred model (0.227) sits below it — while
-   within-cohort skill sits below *its* (higher) ceiling. Both regimes bound
-   their models consistently.
+5. The closest available device-level reliability (~0.45–0.46, inpatient
+   duplicate meals; an optimistic benchmark for a free-living target) is the
+   reference on the external side, and the transferred model (0.227) sits below
+   it — while within-cohort skill sits below *its* (higher) ceiling. The target
+   regime's own ρ is unmeasured, which is itself part of the argument.
 
 The paper-level claim this supports is deliberately narrow: **published
 PPGR model performance must be read against the measurement reliability of its
 own evaluation regime, and cross-regime comparisons — including our own §4.4
-transfer — primarily measure the drop in that reliability, not model quality.**
+transfer — are confounded by differences in that reliability and cannot be read
+as comparisons of model quality. Reliability explains part of the gap; the
+residual reflects model, feature and cohort differences that reliability alone
+cannot capture.**
 
 ---
 
@@ -722,8 +764,10 @@ We state these explicitly; they bound every claim above.
   value is between-subject skill (§4.5). We report the decomposition alongside
   the pooled metric, but the pooled number alone should not be read as
   meal-level skill.
-- **The response is only weakly repeatable within a person.** The same meal, eaten again a week later, does not reliably reproduce its excursion: reported within-subject ICCs for postprandial response are only 0.17–0.28 (Hengist et al., 2024), with duplicate-meal Pearson correlations of r = 0.46 (Abbott) and r = 0.45 (Dexcom). Our own mixed model agrees, with ICC 0.32 for iAUC and peak rise (§4.7); for AUC the ICC is 0.69, i.e. most of that variance is between people rather than between meals of the same person. This is a ceiling on how much of the variance *any*
-  composition-driven model can explain, and it is a property of the cohort we
+- **The response is only weakly repeatable within a person.** The same meal, eaten again a week later, does not reliably reproduce its excursion: reported within-subject ICCs for postprandial response are only 0.17–0.28 (Hengist et al., 2024), with duplicate-meal Pearson correlations of r = 0.46 (Abbott) and r = 0.45 (Dexcom). Our own mixed model agrees, with ICC 0.32 for iAUC and peak rise (§4.7); for AUC the ICC is 0.69, i.e. most of that variance is between people rather than between meals of the same person. This bounds how strongly *any*
+  stable-information composition model can correlate with a single measured
+  meal: under a parallel-measurement model the bound is √ρ (≈0.67 for ρ = 0.46),
+  with ρ itself the conservative benchmark. It is a property of the cohort we
   use, not of our pipeline.
 - **CGM measurement is noisy, lagged and device-dependent.** Subcutaneous
   glucose lags blood glucose by roughly 9–10 min, which blurs fast postprandial
@@ -737,14 +781,14 @@ We state these explicitly; they bound every claim above.
   therefore describe association under this study's conditions, not an isolated
   causal effect of macronutrients.
 - **Meal annotation quality differs across cohorts.** CGMacros meals are
-  expert-annotated; BIG IDEAs is a free-living, self-reported food log subject to
+  study-annotated; BIG IDEAs is a free-living, self-reported food log subject to
   the usual portion-estimation error. Part of the cross-cohort drop in §4.4 is
   therefore a difference in measurement, not only in modelling.
 - **External validation is narrow and imperfect.** We test one external cohort
   (BIG IDEAs, 16 subjects, 656 meals) with only five shared features, because
   that cohort lacks the CGMacros blood panel. The two studies differ
   simultaneously in participants, CGM device (Libre Pro vs Dexcom G6) and meal
-  annotation (expert-annotated vs free-living self-report), so the drop in
+  annotation (study-annotated vs free-living self-report), so the drop in
   performance cannot be attributed to any single factor. The BIG IDEAs meals are
   also derived from a 1.1.2 food log whose dates required our own repair
   procedure, which is validated but not ground truth.
@@ -830,9 +874,11 @@ src/export_report_pdf.py # this report → reports/technical_report.pdf
 (`iauc.py` and `evaluate.py` are library modules imported by the steps above,
 not separate entry points.)
 
-Pinned versions: Python 3.12, `numpy==2.5.3`, `pandas==3.0.6`,
+Pinned versions: `numpy==2.5.3`, `pandas==3.0.6`,
 `scikit-learn==1.9.1`, `xgboost==3.4.1`, `scipy==1.18.1`,
-`matplotlib==3.11.2`, `statsmodels==0.15.0`. Random seed 42. Re-running the suite
+`matplotlib==3.11.2`, `statsmodels==0.15.0`. The original runs used Python 3.12;
+the 2026-10-27 re-run of the ceiling experiments used Python 3.14.8 and
+reproduced every non-E2 row to four decimals. Random seed 42. Re-running the suite
 regenerates `experiments/results.csv`, `experiments/uncertainty.csv` and
 `experiments/mixed_effects_*.csv`, `experiments/ceiling_results.csv`, and
 `make_figures.py` regenerates the figures.

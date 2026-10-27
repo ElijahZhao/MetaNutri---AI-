@@ -9,7 +9,13 @@ report single-meal duplicate-meal reliability of r = 0.46 (Abbott) / 0.45
 - **E2** — duplicate-meal reliability *inside CGMacros*, by meal type: pairs of
   same-type meals with near-identical macros eaten by the same subject. Gives
   the cohort's own test-retest ceiling (sqrt(rho) bounds any model that only
-  sees stable information).
+  sees stable information). The pooled "all meals" row also restricts each pair
+  to a single meal type; a cross-type variant is retained explicitly for
+  provenance, because an earlier version of this analysis pooled across types.
+  Uncertainty is a subject-clustered bootstrap, since one subject can
+  contribute many pairs. The main estimate uses all 1,699 meals, so it is not
+  selected on the outcome; a "breakfast (both iauc>0)" scope matches the
+  official prediction filter as a like-for-like check.
 - **E5** — LOPO with ``baseline_glucose`` removed. A model without same-day
   information is the one the ceiling bound applies to; comparing it against the
   full model separates *stable* from *same-day* signal.
@@ -77,49 +83,153 @@ def _row(experiment: str, subset: str, features: str, target: str,
 # --- E2: duplicate-meal reliability inside CGMacros --------------------------
 
 def duplicate_pairs(df: pd.DataFrame, tol: tuple[float, float, float, float],
-                    meal_type: str | None) -> pd.DataFrame:
-    """Same-subject, same-type meal pairs whose macros match within ``tol``."""
-    sub = df if meal_type is None else df[df["meal_type"] == meal_type]
+                    meal_type: str | None = None,
+                    same_type: bool = True,
+                    positive_only: bool = False) -> pd.DataFrame:
+    """Same-subject meal pairs whose macros match within ``tol``.
+
+    ``meal_type`` restricts to one meal type. When it is ``None`` and
+    ``same_type`` is True (the default), pairs are pooled across meal types but
+    both meals of a pair must still be the *same* type. ``same_type=False``
+    reproduces the earlier cross-type behaviour and is kept only so the
+    superseded number stays reproducible. ``positive_only`` keeps pairs in which
+    both meals have iAUC > 0, matching the official prediction filter.
+    """
+    if meal_type is not None:
+        grouped = df[df["meal_type"] == meal_type].groupby("sub")
+    elif same_type:
+        grouped = df.groupby(["sub", "meal_type"])
+    else:
+        grouped = df.groupby("sub")
+
     rows = []
-    for _, g in sub.dropna(subset=["iauc"] + MACROS).groupby("sub"):
+    for key, g in grouped:
+        sid = key[0] if isinstance(key, tuple) else key
+        g = g.dropna(subset=["iauc"] + MACROS)
+        if positive_only:
+            g = g[g["iauc"] > 0]
         arr = g[MACROS].to_numpy()
         iauc = g["iauc"].to_numpy()
         for i in range(len(g)):
             for j in range(i + 1, len(g)):
                 d = np.abs(arr[i] - arr[j])
                 if (d <= np.array(tol)).all():
-                    rows.append({"iauc_1": iauc[i], "iauc_2": iauc[j]})
-    return pd.DataFrame(rows)
+                    rows.append({"sub": sid, "iauc_1": iauc[i], "iauc_2": iauc[j]})
+    return pd.DataFrame(rows, columns=["sub", "iauc_1", "iauc_2"])
 
 
 def icc_one_way_one(pairs: pd.DataFrame) -> float:
-    """ICC(1,1) — two measurements per subject, absolute agreement."""
+    """ICC(1,1) with two measurements per pair, absolute agreement.
+
+    One-way ANOVA form with k = 2:
+
+    - ``MSB = 2 * var(pair means, ddof=1)``
+    - ``MSW = mean((a - b)^2) / 2``
+
+    (The previous implementation used ``n * var(pair means)`` and the mean of
+    the two marginal variances, which returns 0.5 for perfectly agreeing
+    duplicates; see the note in ``reports/technical_report.md`` §5.1.)
+    """
     a = pairs["iauc_1"].to_numpy()
     b = pairs["iauc_2"].to_numpy()
-    ms_between = len(a) * np.var(np.stack([a, b]).mean(axis=0), ddof=1)
-    ms_within = (np.var(a, ddof=1) + np.var(b, ddof=1)) / 2
+    m = (a + b) / 2
+    ms_between = 2 * np.var(m, ddof=1)
+    ms_within = np.mean((a - b) ** 2) / 2
     denom = ms_between + ms_within
     return float((ms_between - ms_within) / denom) if denom > 0 else float("nan")
 
 
+def _pair_pearson(pairs: pd.DataFrame) -> float:
+    if len(pairs) < 3:
+        return float("nan")
+    a = pairs["iauc_1"].to_numpy()
+    b = pairs["iauc_2"].to_numpy()
+    if np.std(a) == 0 or np.std(b) == 0:
+        return float("nan")
+    return float(stats.pearsonr(a, b).statistic)
+
+
+def cluster_bootstrap_ci(pairs: pd.DataFrame, n_boot: int = 5000,
+                         seed: int = SEED) -> tuple[float, float]:
+    """95% CI from resampling *subjects* with replacement.
+
+    Pairs are not independent: a subject with many duplicate meals contributes
+    several pairs. Resampling subjects keeps each subject's pairs together.
+    """
+    groups = {sid: g for sid, g in pairs.groupby("sub")}
+    subs = np.array(list(groups))
+    rng = np.random.default_rng(seed)
+    draws = []
+    for _ in range(n_boot):
+        pick = rng.choice(subs, size=len(subs), replace=True)
+        stacked = pd.concat([groups[s] for s in pick], ignore_index=True)
+        r = _pair_pearson(stacked)
+        if np.isfinite(r):
+            draws.append(r)
+    if not draws:
+        return float("nan"), float("nan")
+    lo, hi = np.percentile(draws, [2.5, 97.5])
+    return float(lo), float(hi)
+
+
+def one_pair_per_subject(pairs: pd.DataFrame, n_boot: int = 2000,
+                         seed: int = SEED + 1) -> tuple[float, float, float]:
+    """Subject-balanced sensitivity check: one random pair per subject per draw.
+
+    Returns ``(mean r, 2.5th percentile, 97.5th percentile)``.
+    """
+    groups = {sid: g for sid, g in pairs.groupby("sub")}
+    rng = np.random.default_rng(seed)
+    draws = []
+    for _ in range(n_boot):
+        picked = [g.iloc[int(rng.integers(len(g)))] for g in groups.values()]
+        r = _pair_pearson(pd.DataFrame(picked).reset_index(drop=True))
+        if np.isfinite(r):
+            draws.append(r)
+    if not draws:
+        return float("nan"), float("nan"), float("nan")
+    return (float(np.mean(draws)),
+            float(np.percentile(draws, 2.5)),
+            float(np.percentile(draws, 97.5)))
+
+
 def run_e2(cg: pd.DataFrame) -> list[dict]:
     rows = []
+    meal_types = sorted(cg["meal_type"].dropna().unique())
+    scopes = [(m, m, True, False) for m in meal_types]
+    scopes += [("all meals", None, True, False),
+               ("all meals (cross-type pairs)", None, False, False),
+               ("breakfast (both iauc>0)", "breakfast", True, True)]
+
     for tol, label in [((2, 2, 2, 1), "±2g macros"), ((5, 5, 5, 3), "±5g macros")]:
-        scopes = {None: "all meals"} | {m: m for m in cg["meal_type"].dropna().unique()}
-        for meal_type, name in scopes.items():
-            pairs = duplicate_pairs(cg, tol, meal_type)
+        for name, meal_type, same_type, positive_only in scopes:
+            pairs = duplicate_pairs(cg, tol, meal_type, same_type=same_type,
+                                    positive_only=positive_only)
+            n_subjects = int(pairs["sub"].nunique()) if len(pairs) else 0
+            extra: dict = {}
             if len(pairs) < 3:
-                rows.append(_row("E2 duplicate-meal reliability", name, "—", "iauc",
-                                 f"duplicate pairs ({label})", len(pairs), np.nan,
-                                 {"spearman_r": np.nan, "icc": np.nan}))
-                continue
-            r = stats.pearsonr(pairs["iauc_1"], pairs["iauc_2"]).statistic
-            rows.append(_row("E2 duplicate-meal reliability", name, "—", "iauc",
-                             f"duplicate pairs ({label})", len(pairs), r,
-                             {"spearman_r": round(float(
-                                 stats.spearmanr(pairs["iauc_1"], pairs["iauc_2"])
-                                 .statistic), 4),
-                             "icc": round(icc_one_way_one(pairs), 4)}))
+                extra.update({"spearman_r": np.nan, "icc": np.nan})
+                row = _row("E2 duplicate-meal reliability", name, "—", "iauc",
+                           f"duplicate pairs ({label})", len(pairs), np.nan, extra)
+                row["n_subjects"] = n_subjects
+            else:
+                r = _pair_pearson(pairs)
+                lo, hi = cluster_bootstrap_ci(pairs)
+                ob_mean, ob_lo, ob_hi = one_pair_per_subject(pairs)
+                extra.update({
+                    "spearman_r": round(float(
+                        stats.spearmanr(pairs["iauc_1"], pairs["iauc_2"]).statistic), 4),
+                    "icc": round(icc_one_way_one(pairs), 4),
+                    "ci_low": round(lo, 4) if np.isfinite(lo) else np.nan,
+                    "ci_high": round(hi, 4) if np.isfinite(hi) else np.nan,
+                })
+                row = _row("E2 duplicate-meal reliability", name, "—", "iauc",
+                           f"duplicate pairs ({label})", len(pairs), r, extra)
+                row["n_subjects"] = n_subjects
+                row["r_one_pair_mean"] = round(ob_mean, 4) if np.isfinite(ob_mean) else np.nan
+                row["r_one_pair_low"] = round(ob_lo, 4) if np.isfinite(ob_lo) else np.nan
+                row["r_one_pair_high"] = round(ob_hi, 4) if np.isfinite(ob_hi) else np.nan
+            rows.append(row)
     return rows
 
 
@@ -216,6 +326,9 @@ def main() -> None:
         rows += run_e3_e4(cg, bi)
 
     out = pd.DataFrame(rows)
+    # Keep the subject count integral; pandas would otherwise widen it to
+    # float because rows from other experiments leave it empty.
+    out["n_subjects"] = pd.array(out["n_subjects"], dtype="Int64")
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     out.to_csv(OUT, index=False)
 

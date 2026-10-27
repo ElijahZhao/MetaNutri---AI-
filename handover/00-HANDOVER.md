@@ -5,6 +5,13 @@
 - 交接目标：**接手人不得搞崩项目，不得写错论文**。本文档按此目标组织。
 - 阅读顺序：先读 §3 红线（十分钟），再读 §4 论文地基（半小时），其余按需查。
 
+> **修正说明（2026-10-27，接手后）**：本文档是交接时的快照，正文数值保持原样。
+> `04-result-CSVs/` 同为快照副本；权威文件是 `research/experiments/` 下的同名 CSV。
+> 其中 E2 的 ICC(1,1) 因公式错误已在主仓修正（早餐 ICC 0.987 → 0.798），
+> “all meals” 已按 docstring 限定同餐型（0.715 / 363 对 → 0.746 / 291 对）。
+> 当前数值以 `research/reports/technical_report.md` §5.1 与
+> `research/experiments/ceiling_results.csv` 为准。
+
 ---
 
 ## 1. 项目一句话
