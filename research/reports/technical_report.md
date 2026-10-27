@@ -801,11 +801,11 @@ We state these explicitly; they bound every claim above.
   are not interventions. Nothing here implies that changing a macronutrient
   will cause the predicted change.
 - **Reproducibility in this field is poor, which cuts both ways.** An audit of
-  deep-learning glucose-prediction papers found that only 23.9 % released code,
-  37.3 % used private data, and 55.2 % of the remainder relied on OhioT1DM
-  — a 12-person cohort. That makes an open, subject-wise-evaluated pipeline a
-  genuine differentiator, but it also means most published numbers are not
-  directly comparable with ours.
+  67 deep-learning glucose-prediction papers (Lu et al., 2026) found that only
+  23.9 % of the studies released code, 37.3 % used private data, and 55.2 % of
+  all 67 relied on OhioT1DM — a 12-person cohort. That makes an open,
+  subject-wise-evaluated pipeline a genuine differentiator, but it also means
+  most published numbers are not directly comparable with ours.
 - **Data provenance caveats.** The dataset's internal `LICENSE.txt` is an empty
   file; the CC BY-NC-SA 4.0 terms are declared only on the PhysioNet web page.
   We treat the web page as authoritative and comply with attribution and
