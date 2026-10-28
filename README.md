@@ -25,7 +25,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-**[🌐 Platform Live Demo](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR Research Demo (real AI)](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
+**[🌐 Platform Live Demo](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR Research Demo (real AI)](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [📦 Demo Repo](https://github.com/ElijahZhao/ppgr-predictor) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
 [![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
@@ -67,6 +67,8 @@
 **MetaNutri** is a precision nutrition metabolic digital twin platform that integrates **genomics**, **microbiome**, and **metabolomics** data to deliver personalized nutritional recommendations and health management solutions.
 
 This repository is primarily a **full-stack engineering project**: a production-style Next.js frontend, a FastAPI backend and a managed PostgreSQL database, wired end to end and deployed to Vercel / Render / Supabase. The live API serves **transparent, deterministic rule-based analytics**; the PyTorch model code under `research/prototypes/` is research scaffolding and is **not wired into the live API**. Real, data-trained models are developed in a separate research module.
+
+The research module ships its demo from a **second repository**, [`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor). The two are kept aligned by provenance — one-way, this repository → the demo — rather than by a submodule. See [🧩 Related Repositories](#-related-repositories).
 
 ### 📌 Project Status
 

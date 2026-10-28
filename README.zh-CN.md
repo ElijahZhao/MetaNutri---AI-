@@ -25,7 +25,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-**[🌐 平台在线演示](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR 研究演示（真 AI）](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [📖 文档](docs/) · [🐛 提交 Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ 功能建议](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
+**[🌐 平台在线演示](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR 研究演示（真 AI）](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [📦 演示仓库](https://github.com/ElijahZhao/ppgr-predictor) · [📖 文档](docs/) · [🐛 提交 Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ 功能建议](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-已部署-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
 [![Render](https://img.shields.io/badge/Render-已部署-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
@@ -67,6 +67,8 @@
 **MetaNutri** 是一个精准营养代谢数字孪生平台，通过整合**基因组学**、**微生物组学**和**代谢组学**数据，为用户提供个性化的营养建议和健康管理方案。
 
 本仓库**首先是一个全栈工程项目**：一个生产级别的 Next.js 前端、一个 FastAPI 后端与一个托管 PostgreSQL 数据库，端到端打通并部署在 Vercel / Render / Supabase 上。线上 API 提供的是**透明、确定性的规则化分析**；`research/prototypes/` 下的 PyTorch 模型代码属于研究脚手架，**并未接入线上 API**。真实的数据训练模型在独立的研究模块中开发。
+
+研究模块的演示由**第二个仓库** [`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor) 发布。两者靠溯源关系保持一致——单向，本仓库 → 演示仓——而不是靠 submodule。见 [🧩 两仓库关系](#-两仓库关系)。
 
 ### 📌 项目状态
 
