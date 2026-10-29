@@ -125,12 +125,12 @@ The AI endpoints on the platform are deliberately honest heuristics (see [Limita
 
 This project spans **three independent GitHub repositories**. They are deliberately **not** linked by git — no submodule, no subtree, no `.gitmodules`. The coupling is by **provenance**, not by tooling.
 
-| | **This repository** | **[`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)** |
-|---|---|---|
-| **What it is** | The whole project: the full-stack platform (`backend/`, `frontend/`) **and** the research module (`research/`) | The **deployment** of the research module's demo — a self-contained Streamlit app |
-| **Live** | <https://meta-nutri-ai.vercel.app> | <https://metanutri-ai-ppgr-predictor.streamlit.app> |
-| **Size** | ~17 MB | ~2.3 MB |
-| **Role** | Source of truth | Curated, read-only copy |
+| | **This repository** | **[`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)** | **[`nutri-rag`](https://github.com/ElijahZhao/nutri-rag)** |
+|---|---|---|---|
+| **What it is** | The whole project: the full-stack platform (`backend/`, `frontend/`) **and** the research module (`research/`) | The **deployment** of the research module's demo — a self-contained Streamlit app | An **independent** RAG Q&A demo — citation-grounded answers over official Chinese nutrition data, with its own retrieval pipeline and a built-in 50-item evaluation |
+| **Live** | <https://meta-nutri-ai.vercel.app> | <https://metanutri-ai-ppgr-predictor.streamlit.app> | <https://metanutri-ai-rag-question-answering.streamlit.app> |
+| **Size** | ~17 MB | ~2.3 MB | ~6 MB |
+| **Role** | Source of truth | Curated, read-only copy | Independent showcase — shares the brand, data sources & MIT license |
 
 **Flow is one way: this repository → `ppgr-predictor`.** Nothing flows back. The demo repo holds a *curated subset* — `app.py`, `inference.py`, `model/*.json`, `assets/`, `src/`, `reports/`, `experiments/` — and imports nothing from the platform.
 
