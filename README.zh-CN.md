@@ -25,7 +25,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-**[🌐 平台在线演示](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR 研究演示（真 AI）](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [📦 演示仓库](https://github.com/ElijahZhao/ppgr-predictor) · [📖 文档](docs/) · [🐛 提交 Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ 功能建议](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
+**[🌐 平台在线演示](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR 研究演示（真 AI）](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG 问答演示](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 演示仓库](https://github.com/ElijahZhao/ppgr-predictor) · [📦 Nutri-RAG 仓库](https://github.com/ElijahZhao/nutri-rag) · [📖 文档](docs/) · [🐛 提交 Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ 功能建议](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-已部署-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
 [![Render](https://img.shields.io/badge/Render-已部署-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
@@ -42,7 +42,7 @@
 - [项目简介](#-项目简介)
 - [📌 项目状态](#-项目状态)
 - [🔬 研究亮点](#-研究亮点)
-- [🧩 两仓库关系](#-两仓库关系)
+- [🧩 仓库关系](#-仓库关系)
 - [📸 截图展示](#-截图展示)
 - [✨ 核心功能](#-核心功能)
 - [🏗️ 系统架构](#️-系统架构)
@@ -68,7 +68,7 @@
 
 本仓库**首先是一个全栈工程项目**：一个生产级别的 Next.js 前端、一个 FastAPI 后端与一个托管 PostgreSQL 数据库，端到端打通并部署在 Vercel / Render / Supabase 上。线上 API 提供的是**透明、确定性的规则化分析**；`research/prototypes/` 下的 PyTorch 模型代码属于研究脚手架，**并未接入线上 API**。真实的数据训练模型在独立的研究模块中开发。
 
-研究模块的演示由**第二个仓库** [`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor) 发布。两者靠溯源关系保持一致——单向，本仓库 → 演示仓——而不是靠 submodule。见 [🧩 两仓库关系](#-两仓库关系)。
+研究模块的演示由**第二个仓库** [`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor) 发布。两者靠溯源关系保持一致——单向，本仓库 → 演示仓——而不是靠 submodule。生态还有**第三个成员** [`nutri-rag`](https://github.com/ElijahZhao/nutri-rag)：一个独立的 RAG 展示项目——基于《中国食物成分表》与《中国居民膳食指南（2022）》的自包含 Streamlit 问答 Demo，拥有自建检索管线与内置 50 条评测集。见 [🧩 仓库关系](#-仓库关系)。
 
 ### 📌 项目状态
 
@@ -121,9 +121,9 @@
 
 ---
 
-## 🧩 两仓库关系
+## 🧩 仓库关系
 
-本项目横跨**两个互相独立的 GitHub 仓库**。二者**刻意不做 git 层面的绑定**——没有 submodule、没有 subtree、没有 `.gitmodules`。它们之间的耦合靠**溯源关系**，而不是靠工具链。
+本项目横跨**三个互相独立的 GitHub 仓库**。它们**刻意不做 git 层面的绑定**——没有 submodule、没有 subtree、没有 `.gitmodules`。仓库之间的耦合靠**溯源关系**，而不是靠工具链。
 
 | | **本仓库** | **[`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)** |
 |---|---|---|
@@ -139,6 +139,8 @@
 **为什么不把它们用 submodule 绑起来。** Streamlit Community Cloud 构建的是你指定仓库的**仓库根目录**，并要求 `app.py` + `requirements.txt` 就在根目录。若直接指向本仓库，要么把整个平台拖进那次构建，要么依赖一个免费档不允许你指定的子目录入口。而用 submodule 会给那次构建增加一次额外 checkout 和一个新的失败点，同时还**不能**免除"需要筛选子集"这件事。消费方不同、运行时不同、体积预算不同——两个仓库才是正确设计。
 
 **它们在运行时需要互相调用吗？不需要。** 两者之间没有任何 API 调用、没有共享包、没有数据交换。Demo 是完全自包含的：它加载导出的 JSON 模型文件，在本地完成预测。
+
+**第三个成员——[`nutri-rag`](https://github.com/ElijahZhao/nutri-rag)。** 与 `ppgr-predictor` 不同，它**不是**本仓库的导出产物：它是独立的 RAG 展示项目，拥有自己的数据管线、检索栈与评测。它与本生态共享的只有 MetaNutri 品牌、同源的营养数据（《中国食物成分表》《中国居民膳食指南（2022）》）与 MIT 许可家族。在线演示：<https://metanutri-ai-rag-question-answering.streamlit.app>。
 
 > `ppgr-predictor` 的本地工作副本可放在 `.deploy/ppgr-predictor/`，作为**未被 git 跟踪**的镜像（见 `.gitignore`）。该镜像只是推送方便之用，**不属于**本仓库；克隆本仓库并不依赖它。
 
@@ -639,7 +641,7 @@ API 参考与路线图见上文，`docs/` 中的其余文档：
 <details>
 <summary><strong>为什么拆成两个仓库？</strong></summary>
 
-面向的消费者与运行时不同。本仓库是事实来源（平台 + 研究），`ppgr-predictor` 是研究 Demo 的精简只读 Streamlit 部署。详见[两仓库关系](#-两仓库关系)。
+面向的消费者与运行时不同。本仓库是事实来源（平台 + 研究），`ppgr-predictor` 是研究 Demo 的精简只读 Streamlit 部署。详见[仓库关系](#-仓库关系)。
 </details>
 
 ---

@@ -25,7 +25,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-**[🌐 Platform Live Demo](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR Research Demo (real AI)](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [📦 Demo Repo](https://github.com/ElijahZhao/ppgr-predictor) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
+**[🌐 Platform Live Demo](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR Research Demo (real AI)](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG Q&A Demo](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 Demo Repo](https://github.com/ElijahZhao/ppgr-predictor) · [📦 Nutri-RAG Repo](https://github.com/ElijahZhao/nutri-rag) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
 [![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
@@ -68,7 +68,7 @@
 
 This repository is primarily a **full-stack engineering project**: a production-style Next.js frontend, a FastAPI backend and a managed PostgreSQL database, wired end to end and deployed to Vercel / Render / Supabase. The live API serves **transparent, deterministic rule-based analytics**; the PyTorch model code under `research/prototypes/` is research scaffolding and is **not wired into the live API**. Real, data-trained models are developed in a separate research module.
 
-The research module ships its demo from a **second repository**, [`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor). The two are kept aligned by provenance — one-way, this repository → the demo — rather than by a submodule. See [🧩 Related Repositories](#-related-repositories).
+The research module ships its demo from a **second repository**, [`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor). The two are kept aligned by provenance — one-way, this repository → the demo — rather than by a submodule. A **third member**, [`nutri-rag`](https://github.com/ElijahZhao/nutri-rag), is an independent RAG showcase: a self-contained Streamlit Q&A demo over the Chinese Food Composition Tables and the 2022 Dietary Guidelines for Chinese Residents, with its own retrieval pipeline and a built-in 50-item evaluation. See [🧩 Related Repositories](#-related-repositories).
 
 ### 📌 Project Status
 
@@ -123,7 +123,7 @@ The AI endpoints on the platform are deliberately honest heuristics (see [Limita
 
 ## 🧩 Related Repositories
 
-This project spans **two independent GitHub repositories**. They are deliberately **not** linked by git — no submodule, no subtree, no `.gitmodules`. The coupling is by **provenance**, not by tooling.
+This project spans **three independent GitHub repositories**. They are deliberately **not** linked by git — no submodule, no subtree, no `.gitmodules`. The coupling is by **provenance**, not by tooling.
 
 | | **This repository** | **[`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)** |
 |---|---|---|
@@ -139,6 +139,8 @@ This project spans **two independent GitHub repositories**. They are deliberatel
 **Why not link them as a submodule.** Streamlit Community Cloud builds the **repository root** of whichever repo you point it at and expects `app.py` + `requirements.txt` there. Pointing it at this repository would mean either dragging the whole platform into that build, or relying on a subdirectory entrypoint the free tier does not let you choose. A submodule would add a second checkout step and a new failure mode to that build without removing the need for the curated subset anyway. Different consumers, different runtimes, different size budgets — two repositories is the correct design.
 
 **Do they interact at runtime? No.** There is no API call, no shared package and no data exchange between them. The demo is standalone: it loads exported JSON boosters and predicts locally.
+
+**The third member — [`nutri-rag`](https://github.com/ElijahZhao/nutri-rag).** Unlike `ppgr-predictor`, it is **not** exported from this repository: it is an independent RAG showcase with its own data pipeline, retrieval stack and evaluation. It shares only the MetaNutri ecosystem brand, the same underlying nutrition data sources (Chinese Food Composition Tables, 2022 Dietary Guidelines) and the MIT license family. Live demo: <https://metanutri-ai-rag-question-answering.streamlit.app>.
 
 > `ppgr-predictor`'s working copy can be kept locally at `.deploy/ppgr-predictor/` as an **untracked** mirror (see `.gitignore`). That mirror is a convenience for pushing; it is not part of this repository, and cloning this repository does not require it.
 
