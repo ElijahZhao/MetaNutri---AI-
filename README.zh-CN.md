@@ -125,12 +125,12 @@
 
 本项目横跨**三个互相独立的 GitHub 仓库**。它们**刻意不做 git 层面的绑定**——没有 submodule、没有 subtree、没有 `.gitmodules`。仓库之间的耦合靠**溯源关系**，而不是靠工具链。
 
-| | **本仓库** | **[`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)** |
-|---|---|---|
-| **它是什么** | 完整项目：全栈平台（`backend/`、`frontend/`）**以及**研究模块（`research/`） | 研究模块 Demo 的**部署产物**——一个自包含的 Streamlit 应用 |
-| **线上地址** | <https://meta-nutri-ai.vercel.app> | <https://metanutri-ai-ppgr-predictor.streamlit.app> |
-| **体积** | 约 17 MB | 约 690 KB |
-| **角色** | 唯一事实来源（source of truth） | 筛选后的只读副本 |
+| | **本仓库** | **[`ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)** | **[`nutri-rag`](https://github.com/ElijahZhao/nutri-rag)** |
+|---|---|---|---|
+| **它是什么** | 完整项目：全栈平台（`backend/`、`frontend/`）**以及**研究模块（`research/`） | 研究模块 Demo 的**部署产物**——一个自包含的 Streamlit 应用 | **独立**的 RAG 问答演示——基于中国官方营养数据的可溯源问答，自带检索管线与 50 条内置评测 |
+| **线上地址** | <https://meta-nutri-ai.vercel.app> | <https://metanutri-ai-ppgr-predictor.streamlit.app> | <https://metanutri-ai-rag-question-answering.streamlit.app> |
+| **体积** | 约 17 MB | 约 690 KB | 约 6 MB |
+| **角色** | 唯一事实来源（source of truth） | 筛选后的只读副本 | 独立展示——共享品牌、数据源与 MIT 许可 |
 
 **流向是单向的：本仓库 → `ppgr-predictor`。** 没有任何东西反向流动。部署仓库只包含一个*筛选后的子集*——`app.py`、`inference.py`、`model/*.json`、`assets/`、`src/`、`reports/`、`experiments/`——并且**不 import 平台侧的任何代码**。
 
