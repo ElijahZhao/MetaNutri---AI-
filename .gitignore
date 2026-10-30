@@ -78,7 +78,7 @@ research/data/interim/
 research/data/processed/
 
 # Local working mirror of the deployment repository
-# (github.com/ElijahZhao/ppgr-predictor). It is an INDEPENDENT git repository,
+# (github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor). It is an INDEPENDENT git repository,
 # not a submodule of this one: tracking it as a gitlink would leave cloners with
 # an empty directory and no .gitmodules to resolve it. Syncing is a plain file
 # copy, so the mirror never needs to be part of this history.

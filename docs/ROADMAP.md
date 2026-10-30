@@ -5,7 +5,7 @@
 > 独立部署，二者互不牵连。
 >
 > 状态：**P1–P3 已完成**。P3 Demo 已部署至 Streamlit Community Cloud
-> （`ElijahZhao/ppgr-predictor`），并提供只读的**外部验证面板**；BIG IDEAs 外部验证
+> （`ElijahZhao/MetaNutri-Ai-ppgr-predictor`），并提供只读的**外部验证面板**；BIG IDEAs 外部验证
 > 已完成；**P4 回接平台已决定不做**。
 >
 > 最后更新：2026-10-03
@@ -125,7 +125,7 @@ MetaNutri---AI-/
     └── app/           Streamlit Demo（独立部署）
 ```
 
-Demo 部署平台：**Streamlit Community Cloud**——免费且原生支持 Streamlit；代码经 GitHub（`ElijahZhao/ppgr-predictor`）托管后一键部署。（原计划 Hugging Face Spaces 因免费档不再提供 Streamlit SDK 而弃用，见 §5。）
+Demo 部署平台：**Streamlit Community Cloud**——免费且原生支持 Streamlit；代码经 GitHub（`ElijahZhao/MetaNutri-Ai-ppgr-predictor`）托管后一键部署。（原计划 Hugging Face Spaces 因免费档不再提供 Streamlit SDK 而弃用，见 §5。）
 
 ---
 

@@ -17,7 +17,7 @@ predicted peak rise and in time so its iAUC matches the predicted iAUC. The
 reconstructed curve is **illustrative** and is labelled as such in the UI.
 
 Artifacts are written to ``research/app/model/`` so that ``research/app/`` can be
-deployed verbatim (Streamlit Community Cloud, via the ``ppgr-predictor`` repo).
+deployed verbatim (Streamlit Community Cloud, via the ``MetaNutri-Ai-ppgr-predictor`` repo).
 """
 
 from __future__ import annotations

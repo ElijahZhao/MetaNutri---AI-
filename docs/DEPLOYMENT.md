@@ -166,7 +166,7 @@ GET /health
 - **前端（Vercel）**：每次部署都是不可变快照。**Project → Deployments** → 选中上一个正常部署 → **Promote to Production**（Instant Rollback），秒级生效，无需改代码。
 - **后端（Render）**：**Deployments** → 选中上一个正常 commit 的部署 → **Redeploy**（或 Rollback to this deploy），回到旧镜像；随后确认 `GET /health` 的 `database` 为 `ok`。
 - **数据库（Supabase）**：表结构由启动时的 `Base.metadata.create_all` 幂等创建，本项目**不做破坏性迁移**；若确需回退数据，走 Dashboard → **Database → Backups** 的时间点恢复（见 §10）。
-- **研究模块 / Demo（Streamlit）**：在 Streamlit Community Cloud 的 *Manage app* 中对 `ppgr-predictor` 选择历史版本重新部署，或在本地 `git revert` 回到上一个 tag（当前 `v1.0.0`）。
+- **研究模块 / Demo（Streamlit）**：在 Streamlit Community Cloud 的 *Manage app* 中对 `MetaNutri-Ai-ppgr-predictor` 选择历史版本重新部署，或在本地 `git revert` 回到上一个 tag（当前 `v1.0.0`）。
 
 **回滚顺序**：先回前端（最快止损）→ 再回后端 → 最后评估数据库。回滚完成后用 §8 的健康检查确认。
 

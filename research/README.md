@@ -19,7 +19,7 @@ is then tested for cross-cohort generalisation on **BIG IDEAs**.
 - [x] P3 — Streamlit demo: built and validated (in-process `AppTest`; the check
       is committed as [`app/test_app.py`](app/test_app.py) and runs with
       `python app/test_app.py`), pushed to
-      [`ElijahZhao/ppgr-predictor`](https://github.com/ElijahZhao/ppgr-predictor)
+      [`ElijahZhao/MetaNutri-Ai-ppgr-predictor`](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor)
   - deployed on **Streamlit Community Cloud** — Hugging Face's free tier no longer
     offers a Streamlit SDK (Gradio/Docker require PRO)
   - live: <https://metanutri-ai-ppgr-predictor.streamlit.app/>

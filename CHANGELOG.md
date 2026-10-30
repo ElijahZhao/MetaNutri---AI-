@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Repository renames across the ecosystem: the demo repository `ppgr-predictor`
+  is now `MetaNutri-Ai-ppgr-predictor`, and the sibling RAG module `nutri-rag`
+  is now `MetaNutri-Ai-RAG`. Old URLs redirect (HTTP 301). Documentation links
+  in this repository, in the demo repository and in the RAG repository were
+  updated; `handover/` and earlier entries here keep the names in use at the
+  time of writing.
+
 ### Added
 
 - Dependabot version updates for pip (backend, research, demo), npm and GitHub

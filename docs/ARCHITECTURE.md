@@ -16,7 +16,7 @@ MetaNutri---AI- has three parts, deliberately separated:
 2. **The research module** (`research/`) — the genuine machine learning:
    data pipeline, training, evaluation, the technical report, and a Streamlit
    demo that runs the real trained models.
-3. **The deploy repo** (`ppgr-predictor`) — a curated, self-contained subset of
+3. **The deploy repo** (`MetaNutri-Ai-ppgr-predictor`) — a curated, self-contained subset of
    (2), hosted on Streamlit Community Cloud. Regenerated from this repo; nothing
    flows back.
 
@@ -37,7 +37,7 @@ MetaNutri---AI- has three parts, deliberately separated:
 | `backend/` | FastAPI | REST over HTTPS, Render hosting |
 | `research/` (pipeline) | Python + XGBoost | CLI (`src/run_all.sh`); CSV/figure/PDF outputs |
 | `research/app/` (demo) | Streamlit | Web app; loads `model/*.json`, no network |
-| `ppgr-predictor` | Streamlit Community Cloud | Public web app |
+| `MetaNutri-Ai-ppgr-predictor` | Streamlit Community Cloud | Public web app |
 
 The only cross-component runtime contract is **frontend → backend REST**. The
 demo and the research module run independently and share no code with the
@@ -55,7 +55,7 @@ PhysioNet  ->  download_data.sh / download_bigideas.py
            ->  export_report_pdf.py    (reports/technical_report.pdf)
 ```
 
-Every number in the report and in `ppgr-predictor`'s README is derived from the
+Every number in the report and in `MetaNutri-Ai-ppgr-predictor`'s README is derived from the
 CSV files this pipeline writes.
 
 ## 5. Testing and CI

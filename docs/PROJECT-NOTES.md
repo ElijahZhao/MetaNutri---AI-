@@ -83,7 +83,7 @@ the scripts in that folder.
 The full argument is in the technical report,
 `research/reports/technical_report.md`, with a PDF next to it. The demo runs at
 <https://metanutri-ai-ppgr-predictor.streamlit.app/>, and the demo repository is
-<https://github.com/ElijahZhao/ppgr-predictor>.
+<https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor>.
 
 ---
 
@@ -149,4 +149,4 @@ iAUC r = 0.655，对应论文的 ≈0.89 与 ≈0.64——之后才把管线扩�
 
 完整论证在技术报告里：`research/reports/technical_report.md`，同目录有 PDF。
 线上 Demo 在 <https://metanutri-ai-ppgr-predictor.streamlit.app/>，Demo 仓库是
-<https://github.com/ElijahZhao/ppgr-predictor>。
+<https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor>。
