@@ -1,7 +1,7 @@
 # Research module dependencies (independent of backend/requirements.txt).
 # Pinned to the versions used for the reproducible runs in experiments/.
-numpy==2.5.3
-pandas==3.0.6
+numpy==2.5.4
+pandas==3.1.0
 scikit-learn==1.9.1
 xgboost==3.4.1
 scipy==1.18.1
@@ -12,5 +12,5 @@ statsmodels==0.15.0
 # (markdown + weasyprint). Without these, the documented one-command
 # reproduction fails partway through on a clean environment.
 requests==2.34.2
-markdown==3.11
+markdown==3.11.2
 weasyprint==70.0
