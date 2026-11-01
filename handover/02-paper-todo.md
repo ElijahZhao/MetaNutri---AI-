@@ -35,7 +35,7 @@
 ## §2 已定决策（等价重建，勿再议）
 
 1. **许可证 = 方案 b（分层）**：代码 MIT；CGMacros 派生数据产物 CC BY-NC-SA；
-   报告 CC BY-NC-SA（§10 现状即此）。落地物：research/ NOTICE 文件（**未做，待办 P1**）。
+   报告 CC BY-NC-SA（§10 现状即此）。落地物：research/NOTICE.md（**已完成**）。
 2. **Route A 定为主线，带止损条款**——止损已不需要：E2/E5 通过，无退回分支。
 3. **公开 README 措辞**：改 "every meal"（1,699→1,557 过滤）+ M1 "AI translates"
    两处事实级；标题级 6 条不动（**未做，待办 P2**）。

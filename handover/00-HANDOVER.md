@@ -86,7 +86,7 @@
 
 | 实验 | 判决 | 关键数字 | 证据（ceiling_results.csv 的 experiment 列） |
 |---|---|---|---|
-| E2 重复餐信度 | 悖论解除 | 早餐 iAUC 信度 **0.799**（n=174 对，ICC 0.99）；晚餐/加餐 ~0.37；**午餐 0 对（协议缺陷）** | E2 within-subject duplicate-meal reliability |
+| E2 重复餐信度 | 悖论解除 | 早餐 iAUC 信度 **0.799**（n=174 对，ICC 0.798）；晚餐/加餐 ~0.37；**午餐 0 对（协议缺陷）** | E2 within-subject duplicate-meal reliability |
 | E5 baseline 消融 | iAUC 无循环 | iAUC 0.451→**0.457**（去 baseline 不降）；AUC 0.838→0.638；AUC baseline-only 0.807–0.861 | E5/P2 pooled LOPO (xgboost)，subset=`all meals (iauc>0)` |
 | P3 聚合到人 | 组内有效 | iAUC 0.451→0.501；AUC 0.838→0.921；**baseline-only 人均 AUC r=0.963** | P3 subject-mean LOPO (xgboost) |
 | E3 反向迁移 | 双向皆败 | BI→CG iAUC **0.085**（正向 0.227）→ 排除 n=16 样本量解释 | E3 reverse transfer (BI->CG) |

@@ -1,9 +1,9 @@
 # Measurement Reliability, Not Model Capacity, Bounds Postprandial Glycemic Response Prediction
 
-> **修正说明（2026-10-27）**：本文档为交接快照。E2 的 ICC 0.987 是旧实现的
-> 错误值，正确的 ICC(1,1) 为 0.798；“all meals” 旧值 0.715（允许跨餐型）已
-> 限定同餐型，为 0.746。标题口径亦已调整。最新数值与表述见 `paper/draft.md`
-> §2.2 与 `research/reports/technical_report.md` §5.1。
+> **修正说明（2026-10-27，正文已回填）**：本文档为交接快照。E2 的 ICC 0.987 是
+> 旧实现的错误值，正确的 ICC(1,1) 为 0.798（正文已按此更正）；“all meals” 旧值
+> 0.715（允许跨餐型）已限定同餐型，为 0.746。标题口径亦已调整。最新数值与表述见
+> `preprint/medrxiv_manuscript.pdf` 与 `research/reports/technical_report.md` §5.1。
 
 > **Status: skeleton v2 (P4)** — real numbers from committed CSVs; [TODO] marks
 > decisions or prose-expansion pending (P5 venue, title, abstract length).
@@ -98,7 +98,7 @@ surfaces before submission, reframe C6 as confirmation + extension]
 - standardized duplicate (bagel & cream cheese, Midwestern, iPro2):
   R = 0.66 (n = 111; Mendes-Soares et al. 2019)
 - standardized duplicate breakfasts (CGMacros, Libre Pro): **r = 0.799**
-  (n = 174 pairs, ICC 0.987; our E2)
+  (n = 174 pairs, ICC 0.798; our E2)
 - free-living duplicates: Hengist et al. 2023 (Abbott r = 0.46 [0.38, 0.54];
   Dexcom r = 0.45 [0.39, 0.50]); Hengist et al. 2024 (inpatient metabolic
   ward: two measurements remain insufficient; aggregated measurements required).
