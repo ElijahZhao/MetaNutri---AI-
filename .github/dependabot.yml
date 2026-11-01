@@ -7,8 +7,9 @@
 # manual, deliberate, and followed by a full re-run plus CSV diff.
 #
 # Development tooling (ruff, pytest) may still update, as it cannot change
-# results. Frontend and backend majors are ignored because they require
-# staged migrations (Tailwind 4, TypeScript 7, numpy 2.x / pandas 3.x).
+# results. The deployed backend and frontend are fully frozen: upgrading them
+# requires a staged migration (Tailwind 4, TypeScript 7, ESLint 10,
+# numpy 2.x / pandas 3.x, bcrypt 5.x) plus production smoke tests.
 #
 # Security advisories are still raised individually and immediately; the
 # `ignore` rules below only affect scheduled version updates.
@@ -24,10 +25,9 @@ updates:
       python-backend:
         patterns: ["*"]
     ignore:
-      # Majors here are breaking: numpy 2.x / pandas 3.x need Python >= 3.12,
-      # bcrypt 5.x breaks passlib's backend probe. Migrate deliberately.
+      # Deployed service: pinned for reproducibility of the live demo.
+      # Manual upgrades only, verified against the full CI + smoke tests.
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
 
   # Research pipeline. Runtime stack is frozen; only dev tooling may move.
   - package-ecosystem: pip
@@ -76,8 +76,9 @@ updates:
       npm-frontend:
         patterns: ["*"]
     ignore:
+      # Deployed frontend: frozen until the staged Tailwind 4 / TypeScript 7 /
+      # ESLint 10 migration is done deliberately.
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
 
   # GitHub Actions used by the workflows in .github/workflows
   - package-ecosystem: github-actions
