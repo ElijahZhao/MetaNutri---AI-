@@ -1,54 +1,87 @@
 # Dependabot version updates.
-# Each ecosystem files a single grouped PR per week (one for all pip deps, one
-# for npm, one for Actions) to keep the review load low for a single maintainer.
-# Security advisories are still raised individually and immediately.
+#
+# Policy: the model runtime is frozen. The demo and research pipelines are
+# pinned to the exact versions used for the reproducible runs behind the
+# preprint, so version-update PRs are disabled for those packages. Bumping
+# them can silently change predictions and experiment numbers; upgrades are
+# manual, deliberate, and followed by a full re-run plus CSV diff.
+#
+# Development tooling (ruff, pytest) may still update, as it cannot change
+# results. Frontend and backend majors are ignored because they require
+# staged migrations (Tailwind 4, TypeScript 7, numpy 2.x / pandas 3.x).
+#
+# Security advisories are still raised individually and immediately; the
+# `ignore` rules below only affect scheduled version updates.
 version: 2
 updates:
   # Platform backend (FastAPI)
   - package-ecosystem: pip
     directory: /backend
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 2
     groups:
       python-backend:
         patterns: ["*"]
+    ignore:
+      # Majors here are breaking: numpy 2.x / pandas 3.x need Python >= 3.12,
+      # bcrypt 5.x breaks passlib's backend probe. Migrate deliberately.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
-  # Research pipeline
+  # Research pipeline. Runtime stack is frozen; only dev tooling may move.
   - package-ecosystem: pip
     directory: /research
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 2
     groups:
       python-research:
         patterns: ["*"]
+    ignore:
+      - dependency-name: "numpy"
+      - dependency-name: "pandas"
+      - dependency-name: "scikit-learn"
+      - dependency-name: "xgboost"
+      - dependency-name: "scipy"
+      - dependency-name: "matplotlib"
+      - dependency-name: "statsmodels"
+      - dependency-name: "requests"
+      - dependency-name: "markdown"
+      - dependency-name: "weasyprint"
 
-  # Streamlit demo (frozen model runtime)
+  # Streamlit demo (frozen model runtime). No version updates at all: every
+  # package here feeds inference, and CI cannot detect output drift.
   - package-ecosystem: pip
     directory: /research/app
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 1
     groups:
       python-demo:
         patterns: ["*"]
+    ignore:
+      - dependency-name: "*"
 
-  # Platform frontend (Next.js)
+  # Platform frontend (Next.js). Majors require staged migrations
+  # (Tailwind 4 PostCSS plugin, TypeScript 7 unsupported by typescript-eslint).
   - package-ecosystem: npm
     directory: /frontend
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 2
     groups:
       npm-frontend:
         patterns: ["*"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions used by the workflows in .github/workflows
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     groups:
       github-actions:
         patterns: ["*"]
