@@ -49,6 +49,8 @@ updates:
       - dependency-name: "requests"
       - dependency-name: "markdown"
       - dependency-name: "weasyprint"
+      # /research scans nested manifests, including research/app/requirements.txt
+      - dependency-name: "streamlit"
 
   # Streamlit demo (frozen model runtime). No version updates at all: every
   # package here feeds inference, and CI cannot detect output drift.
