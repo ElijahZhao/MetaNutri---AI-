@@ -10,6 +10,7 @@
 
 **Precision Nutrition Metabolic Digital Twin Platform**
 
+[![DOI](https://img.shields.io/badge/DOI-10.21203%2Frs.3.rs--11558064%2Fv1-0ea5e9?style=for-the-badge)](https://doi.org/10.21203/rs.3.rs-11558064/v1)
 [![GitHub Stars](https://img.shields.io/github/stars/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=10b981)](https://github.com/ElijahZhao/MetaNutri---AI-/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=3b82f6)](https://github.com/ElijahZhao/MetaNutri---AI-/network/members)
 [![License](https://img.shields.io/github/license/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=8b5cf6)](LICENSE)
@@ -18,7 +19,6 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981?style=for-the-badge)](CONTRIBUTING.md)
 [![Latest tag](https://img.shields.io/github/v/tag/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=10b981&label=v)](https://github.com/ElijahZhao/MetaNutri---AI-/tags)
 [![Last commit](https://img.shields.io/github/last-commit/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=64748b)](https://github.com/ElijahZhao/MetaNutri---AI-/commits/main)
-[![DOI](https://img.shields.io/badge/DOI-10.21203%2Frs.3.rs--11558064%2Fv1-0ea5e9?style=for-the-badge)](https://doi.org/10.21203/rs.3.rs-11558064/v1)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -26,7 +26,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-**[🌐 Platform Live Demo](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR Research Demo (real AI)](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG Q&A Demo](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 Demo Repo](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) · [📦 Nutri-RAG Repo](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
+**[📄 Preprint (Research Square)](https://doi.org/10.21203/rs.3.rs-11558064/v1) · [🌐 Platform Live Demo](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR Research Demo (real AI)](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG Q&A Demo](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 Demo Repo](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) · [📦 Nutri-RAG Repo](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
 [![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
@@ -38,8 +38,20 @@
 
 ---
 
+## 📄 Preprint
+
+> **Measurement Reliability Confounds Cross-Regime Comparisons of Postprandial Glucose Prediction: Evidence from Bidirectional Cross-Cohort Transfer**
+> Yulin Zhao · *Research Square* · v1 · 2 November 2026 · **CC BY 4.0**
+>
+> **DOI** [`10.21203/rs.3.rs-11558064/v1`](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **Read** [on Research Square](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **PDF** [in this repository](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf)
+
+The preprint reports the measurement-reliability analysis behind the [research highlights](#-research-highlights): six experiments on CGMacros and BIG IDEAs, the reliability ceiling, and the bidirectional cross-cohort transfer results.
+
+---
+
 ## 📑 Table of Contents
 
+- [📄 Preprint](#-preprint)
 - [About the Project](#-about-the-project)
 - [📌 Project Status](#-project-status)
 - [🔬 Research Highlights](#-research-highlights)

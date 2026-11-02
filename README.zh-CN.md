@@ -10,6 +10,7 @@
 
 **精准营养代谢数字孪生平台**
 
+[![DOI](https://img.shields.io/badge/DOI-10.21203%2Frs.3.rs--11558064%2Fv1-0ea5e9?style=for-the-badge)](https://doi.org/10.21203/rs.3.rs-11558064/v1)
 [![GitHub Stars](https://img.shields.io/github/stars/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=10b981)](https://github.com/ElijahZhao/MetaNutri---AI-/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/ElijahZhao/MetaNutri---AI-?style=for-the-badge&logo=github&color=3b82f6)](https://github.com/ElijahZhao/MetaNutri---AI-/network/members)
 [![License](https://img.shields.io/github/license/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=8b5cf6)](LICENSE)
@@ -18,7 +19,6 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981?style=for-the-badge)](CONTRIBUTING.md)
 [![Latest tag](https://img.shields.io/github/v/tag/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=10b981&label=v)](https://github.com/ElijahZhao/MetaNutri---AI-/tags)
 [![Last commit](https://img.shields.io/github/last-commit/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=64748b)](https://github.com/ElijahZhao/MetaNutri---AI-/commits/main)
-[![DOI](https://img.shields.io/badge/DOI-10.21203%2Frs.3.rs--11558064%2Fv1-0ea5e9?style=for-the-badge)](https://doi.org/10.21203/rs.3.rs-11558064/v1)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -26,7 +26,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-**[🌐 平台在线演示](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR 研究演示（真 AI）](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG 问答演示](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 演示仓库](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) · [📦 Nutri-RAG 仓库](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) · [📖 文档](docs/) · [🐛 提交 Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ 功能建议](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
+**[📄 预印本（Research Square）](https://doi.org/10.21203/rs.3.rs-11558064/v1) · [🌐 平台在线演示](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR 研究演示（真 AI）](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG 问答演示](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 演示仓库](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) · [📦 Nutri-RAG 仓库](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) · [📖 文档](docs/) · [🐛 提交 Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ 功能建议](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-已部署-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
 [![Render](https://img.shields.io/badge/Render-已部署-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
@@ -38,8 +38,20 @@
 
 ---
 
+## 📄 预印本
+
+> **餐后血糖预测的跨方案比较受测量信度制约：来自双向跨队列迁移的证据**
+> Yulin Zhao · *Research Square* · v1 · 2026 年 11 月 2 日 · **CC BY 4.0**
+>
+> **DOI** [`10.21203/rs.3.rs-11558064/v1`](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **阅读** [Research Square 全文](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **PDF** [仓库内版本](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf)
+
+预印本报告[研究亮点](#-研究亮点)背后的测量信度分析：CGMacros 与 BIG IDEAs 上的六个实验、信度天花板，以及双向跨队列迁移结果。
+
+---
+
 ## 📑 目录
 
+- [📄 预印本](#-预印本)
 - [项目简介](#-项目简介)
 - [📌 项目状态](#-项目状态)
 - [🔬 研究亮点](#-研究亮点)
