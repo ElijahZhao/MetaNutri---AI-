@@ -25,3 +25,22 @@ keywords:
   - machine learning
   - CGMacros
   - leave-one-subject-out
+identifiers:
+  - type: doi
+    value: "10.21203/rs.3.rs-11558064/v1"
+    description: "Preprint v1 (Research Square, 2 November 2026)"
+preferred-citation:
+  type: article
+  title: "Measurement Reliability Confounds Cross-Regime Comparisons of Postprandial Glucose Prediction: Evidence from Bidirectional Cross-Cohort Transfer"
+  authors:
+    - family-names: "Zhao"
+      given-names: "Yulin"
+      alias: "ElijahZhao"
+      orcid: "https://orcid.org/0009-0005-4623-8465"
+  doi: "10.21203/rs.3.rs-11558064/v1"
+  url: "https://doi.org/10.21203/rs.3.rs-11558064/v1"
+  year: 2026
+  month: 11
+  publisher:
+    name: "Research Square"
+  license: "CC-BY-4.0"

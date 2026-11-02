@@ -3,7 +3,7 @@
 > **修正说明（2026-10-27，正文已回填）**：本文档为交接快照。E2 的 ICC 0.987 是
 > 旧实现的错误值，正确的 ICC(1,1) 为 0.798（正文已按此更正）；“all meals” 旧值
 > 0.715（允许跨餐型）已限定同餐型，为 0.746。标题口径亦已调整。最新数值与表述见
-> `preprint/medrxiv_manuscript.pdf` 与 `research/reports/technical_report.md` §5.1。
+> `preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf` 与 `research/reports/technical_report.md` §5.1。
 
 > **Status: skeleton v2 (P4)** — real numbers from committed CSVs; [TODO] marks
 > decisions or prose-expansion pending (P5 venue, title, abstract length).

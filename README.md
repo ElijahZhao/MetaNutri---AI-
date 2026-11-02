@@ -18,6 +18,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981?style=for-the-badge)](CONTRIBUTING.md)
 [![Latest tag](https://img.shields.io/github/v/tag/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=10b981&label=v)](https://github.com/ElijahZhao/MetaNutri---AI-/tags)
 [![Last commit](https://img.shields.io/github/last-commit/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=64748b)](https://github.com/ElijahZhao/MetaNutri---AI-/commits/main)
+[![DOI](https://img.shields.io/badge/DOI-10.21203%2Frs.3.rs--11558064%2Fv1-0ea5e9?style=for-the-badge)](https://doi.org/10.21203/rs.3.rs-11558064/v1)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -104,6 +105,7 @@ The AI endpoints on the platform are deliberately honest heuristics (see [Limita
 
 - **Method:** strict leave-one-subject-out cross-validation; XGBoost benchmarked against a mean predictor and two macronutrient-only Ridge baselines.
 - **Artifacts:** [21-page technical report (PDF)](research/reports/technical_report.pdf) · [reproducible pipeline](research/src/) · [result CSVs](research/experiments/) · [figures](research/reports/figures/).
+- **Published preprint (CC BY 4.0):** [Measurement Reliability Confounds Cross-Regime Comparisons of Postprandial Glucose Prediction](https://doi.org/10.21203/rs.3.rs-11558064/v1) — Research Square, v1, 2 Nov 2026 · [PDF](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf).
 - **Live demo (runs the real trained model):** <https://metanutri-ai-ppgr-predictor.streamlit.app>
 - **One-command reproduction:** `cd research && bash src/run_all.sh`
 

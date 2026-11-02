@@ -27,7 +27,9 @@
    核心主张（Route A）：**PPGR 模型性能必须对照评估体系的测量信度来读**——
    同队列模型低于内部天花板，跨设备信度塌方导致模型塌方，双向迁移失败
    排除样本量解释，iAUC 指标无 baseline 循环而 AUC 是"基线血糖的影子"。
-   当前处于**写作态**：六实验全部完成，骨架已成，待展开正文 → medRxiv 预印本。
+   当前状态：**预印本已上线**——Research Square，DOI
+   `10.21203/rs.3.rs-11558064/v1`，CC BY 4.0，2026-11-02（v1）；
+   仓库内 PDF：`preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf`。
 
 另有**子仓** `ElijahZhao/ppgr-predictor`：仅承载 Streamlit 线上 demo 的部署壳，
 加载三个冻结 XGBoost 模型做推理演示。
@@ -174,6 +176,7 @@ pytest app
 | 8 | 子仓 | 不动（R2），它是部署壳 |
 | 9 | 论文语言 | 英文（技术报告已是英文，直接演化） |
 | 10 | 平台"AI"表述 | 平台接口是规则化的（README Limitations 已声明）；Streamlit demo 跑真模型（"real AI"表述准确）。两者别搞混 |
+| 11 | 预印本（已落地） | 实际发布于 **Research Square**（非 medRxiv）：DOI `10.21203/rs.3.rs-11558064/v1`，CC BY 4.0，2026-11-02 v1。medRxiv 路线关闭——同一稿件不可双平台挂载 |
 
 ## 7. 事故史（接手人必须知道的过去）
 

@@ -18,6 +18,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981?style=for-the-badge)](CONTRIBUTING.md)
 [![Latest tag](https://img.shields.io/github/v/tag/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=10b981&label=v)](https://github.com/ElijahZhao/MetaNutri---AI-/tags)
 [![Last commit](https://img.shields.io/github/last-commit/ElijahZhao/MetaNutri---AI-?style=for-the-badge&color=64748b)](https://github.com/ElijahZhao/MetaNutri---AI-/commits/main)
+[![DOI](https://img.shields.io/badge/DOI-10.21203%2Frs.3.rs--11558064%2Fv1-0ea5e9?style=for-the-badge)](https://doi.org/10.21203/rs.3.rs-11558064/v1)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -104,6 +105,7 @@
 
 - **方法：** 严格的留一受试者（LOPO）交叉验证；XGBoost 对照均值预测器与两个仅用宏量营养的 Ridge 基线。
 - **成果物：** [21 页技术报告（PDF）](research/reports/technical_report.pdf) · [可复现流水线](research/src/) · [结果 CSV](research/experiments/) · [图表](research/reports/figures/)。
+- **已发布预印本（CC BY 4.0）：** [Measurement Reliability Confounds Cross-Regime Comparisons of Postprandial Glucose Prediction](https://doi.org/10.21203/rs.3.rs-11558064/v1) — Research Square，v1，2026-11-02 · [PDF](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf)。
 - **在线 Demo（运行真实训练的模型）：** <https://metanutri-ai-ppgr-predictor.streamlit.app>
 - **一条命令复现：** `cd research && bash src/run_all.sh`
 
