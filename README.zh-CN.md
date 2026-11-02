@@ -41,6 +41,7 @@
 ## 📄 预印本
 
 > **餐后血糖预测的跨方案比较受测量信度制约：来自双向跨队列迁移的证据**
+>
 > Yulin Zhao · *Research Square* · v1 · 2026 年 11 月 2 日 · **CC BY 4.0**
 >
 > **DOI** [`10.21203/rs.3.rs-11558064/v1`](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **阅读** [Research Square 全文](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **PDF** [仓库内版本](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf)

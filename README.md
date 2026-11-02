@@ -41,6 +41,7 @@
 ## 📄 Preprint
 
 > **Measurement Reliability Confounds Cross-Regime Comparisons of Postprandial Glucose Prediction: Evidence from Bidirectional Cross-Cohort Transfer**
+>
 > Yulin Zhao · *Research Square* · v1 · 2 November 2026 · **CC BY 4.0**
 >
 > **DOI** [`10.21203/rs.3.rs-11558064/v1`](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **Read** [on Research Square](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **PDF** [in this repository](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf)
