@@ -26,7 +26,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-**[📄 预印本（Research Square）](https://doi.org/10.21203/rs.3.rs-11558064/v1) · [🌐 平台在线演示](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR 研究演示（真 AI）](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG 问答演示](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 演示仓库](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) · [📦 Nutri-RAG 仓库](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) · [📖 文档](docs/) · [🐛 提交 Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ 功能建议](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
+**[📄 预印本（Research Square 2 篇）](#-预印本) · [🌐 平台在线演示](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR 研究演示（真 AI）](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG 问答演示](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 演示仓库](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) · [📦 Nutri-RAG 仓库](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) · [📖 文档](docs/) · [🐛 提交 Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ 功能建议](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-已部署-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
 [![Render](https://img.shields.io/badge/Render-已部署-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
@@ -40,13 +40,27 @@
 
 ## 📄 预印本
 
-> **餐后血糖预测的跨方案比较受测量信度制约：来自双向跨队列迁移的证据**
+MetaNutri 生态目前有两篇预印本，均已在 Research Square 上线，许可 CC BY 4.0。
+
+**1 · PPGR 测量信度研究——在本仓库**
+
+> **Measurement Reliability Confounds Cross-Regime Comparisons of Postprandial Glucose Prediction: Evidence from Bidirectional Cross-Cohort Transfer**
 >
 > Yulin Zhao · *Research Square* · v1 · 2026 年 11 月 2 日 · **CC BY 4.0**
 >
 > **DOI** [`10.21203/rs.3.rs-11558064/v1`](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **阅读** [Research Square 全文](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **PDF** [仓库内版本](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf)
 
-预印本报告[研究亮点](#-研究亮点)背后的测量信度分析：CGMacros 与 BIG IDEAs 上的六个实验、信度天花板，以及双向跨队列迁移结果。
+报告[研究亮点](#-研究亮点)背后的测量信度分析：CGMacros 与 BIG IDEAs 上的六个实验、信度天花板，以及双向跨队列迁移结果。
+
+**2 · NutriQA RAG 基准——在 [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG)**
+
+> **NutriQA: A Traceable RAG Question-Answering Benchmark and Empirical Study on Official Chinese Nutrition Data**
+>
+> Yulin Zhao · *Research Square* · v1 · 2026 年 11 月 2 日 · **CC BY 4.0**
+>
+> **DOI** [`10.21203/rs.3.rs-11565315/v1`](https://doi.org/10.21203/rs.3.rs-11565315/v1) · **阅读** [Research Square 全文](https://doi.org/10.21203/rs.3.rs-11565315/v1) · **PDF** [发布版](https://github.com/ElijahZhao/MetaNutri-Ai-RAG/blob/main/docs/paper/NutriQA-paper-researchsquare-v1.pdf) · **仓库** [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG)
+
+基于官方中文营养数据（《中国食物成分表》+《居民膳食指南（2022）》）的 200 题可溯源问答基准：混合检索在 `top_k=8` 下 160/160 全召回；裸 LLM 对库外边界题 **100%** 编造数值，被 RAG 拒答压到约 0–2.5%；确定性判定规则与人工标注的一致性 0.949，优于通用 LLM 判官的 0.846。
 
 ---
 
@@ -118,7 +132,7 @@
 
 - **方法：** 严格的留一受试者（LOPO）交叉验证；XGBoost 对照均值预测器与两个仅用宏量营养的 Ridge 基线。
 - **成果物：** [21 页技术报告（PDF）](research/reports/technical_report.pdf) · [可复现流水线](research/src/) · [结果 CSV](research/experiments/) · [图表](research/reports/figures/)。
-- **已发布预印本（CC BY 4.0）：** [Measurement Reliability Confounds Cross-Regime Comparisons of Postprandial Glucose Prediction](https://doi.org/10.21203/rs.3.rs-11558064/v1) — Research Square，v1，2026-11-02 · [PDF](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf)。
+- **已发布预印本（CC BY 4.0）：** [PPGR 测量信度研究](https://doi.org/10.21203/rs.3.rs-11558064/v1)——本仓，v1，2026-11-02 · [PDF](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf) · [NutriQA RAG 基准](https://doi.org/10.21203/rs.3.rs-11565315/v1)——在 [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG)，v1，2026-11-02。
 - **在线 Demo（运行真实训练的模型）：** <https://metanutri-ai-ppgr-predictor.streamlit.app>
 - **一条命令复现：** `cd research && bash src/run_all.sh`
 
@@ -138,14 +152,14 @@
 
 ## 🧩 仓库关系
 
-本项目横跨**三个互相独立的 GitHub 仓库**。它们**刻意不做 git 层面的绑定**——没有 submodule、没有 subtree、没有 `.gitmodules`。前两个仓库的耦合靠**溯源关系**，而不是靠工具链；第三个是独立展示项目。
+本项目横跨**三个互相独立的 GitHub 仓库**。它们**刻意不做 git 层面的绑定**——没有 submodule、没有 subtree、没有 `.gitmodules`。前两个仓库的耦合靠**溯源关系**，而不是靠工具链；第三个是拥有自己论文的独立研究仓。
 
 | | **本仓库** | **[`MetaNutri-Ai-ppgr-predictor`](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor)** | **[`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG)** |
 |---|---|---|---|
-| **它是什么** | 完整项目：全栈平台（`backend/`、`frontend/`）**以及**研究模块（`research/`） | 研究模块 Demo 的**部署产物**——一个自包含的 Streamlit 应用 | **独立**的 RAG 问答演示——基于中国官方营养数据的可溯源问答，自带检索管线与 50 条内置评测 |
+| **它是什么** | 完整项目：全栈平台（`backend/`、`frontend/`）**以及**研究模块（`research/`） | 研究模块 Demo 的**部署产物**——一个自包含的 Streamlit 应用 | **独立研究仓**——自带检索管线、200 题 **NutriQA** 基准、独立评测体系，以及自己已发表的预印本 |
 | **线上地址** | <https://meta-nutri-ai.vercel.app> | <https://metanutri-ai-ppgr-predictor.streamlit.app> | <https://metanutri-ai-rag-question-answering.streamlit.app> |
 | **体积** | 约 17 MB | 约 690 KB | 约 6 MB |
-| **角色** | 唯一事实来源（source of truth） | 筛选后的只读副本 | 独立展示——共享品牌、数据源与 MIT 许可 |
+| **角色** | 唯一事实来源（source of truth） | 筛选后的只读副本 | 独立研究仓——拥有 NutriQA 论文与基准；共享品牌、数据源与 MIT 许可 |
 
 **流向是单向的：本仓库 → `MetaNutri-Ai-ppgr-predictor`。** 没有任何东西反向流动。部署仓库只包含一个*筛选后的子集*——`app.py`、`inference.py`、`model/*.json`、`assets/`、`src/`、`reports/`、`experiments/`——并且**不 import 平台侧的任何代码**。
 
@@ -155,7 +169,7 @@
 
 **它们在运行时需要互相调用吗？不需要。** 两者之间没有任何 API 调用、没有共享包、没有数据交换。Demo 是完全自包含的：它加载导出的 JSON 模型文件，在本地完成预测。
 
-**第三个成员——[`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG)。** 与 `MetaNutri-Ai-ppgr-predictor` 不同，它**不是**本仓库的导出产物：它是独立的 RAG 展示项目，拥有自己的数据管线、检索栈与评测。它与本生态共享的只有 MetaNutri 品牌、同源的营养数据（《中国食物成分表》《中国居民膳食指南（2022）》）与 MIT 许可家族。在线演示：<https://metanutri-ai-rag-question-answering.streamlit.app>。
+**第三个成员——[`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG)。** 与 `MetaNutri-Ai-ppgr-predictor` 不同，它**不是**本仓库的导出产物：它是独立的研究仓，拥有自己的数据管线、检索栈与评测套件；它同时是 **NutriQA** 论文的研究母仓——基于官方中文营养数据的 200 题可溯源 RAG 基准，已作为预印本发表（[DOI `10.21203/rs.3.rs-11565315/v1`](https://doi.org/10.21203/rs.3.rs-11565315/v1)）。它与本生态共享的只有 MetaNutri 品牌、同源的营养数据（《中国食物成分表》《中国居民膳食指南（2022）》）与 MIT 许可家族。在线演示：<https://metanutri-ai-rag-question-answering.streamlit.app>。
 
 > `MetaNutri-Ai-ppgr-predictor` 的本地工作副本可放在 `.deploy/MetaNutri-Ai-ppgr-predictor/`，作为**未被 git 跟踪**的镜像（见 `.gitignore`）。该镜像只是推送方便之用，**不属于**本仓库；克隆本仓库并不依赖它。
 

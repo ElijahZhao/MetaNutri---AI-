@@ -26,7 +26,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 
-**[📄 Preprint (Research Square)](https://doi.org/10.21203/rs.3.rs-11558064/v1) · [🌐 Platform Live Demo](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR Research Demo (real AI)](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG Q&A Demo](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 Demo Repo](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) · [📦 Nutri-RAG Repo](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
+**[📄 Preprints (2 papers on Research Square)](#-preprints) · [🌐 Platform Live Demo](https://meta-nutri-ai.vercel.app/) · [🧪 PPGR Research Demo (real AI)](https://metanutri-ai-ppgr-predictor.streamlit.app/) · [🥗 Nutri-RAG Q&A Demo](https://metanutri-ai-rag-question-answering.streamlit.app/) · [📦 Demo Repo](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) · [📦 Nutri-RAG Repo](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) · [📖 Documentation](docs/) · [🐛 Report Bug](https://github.com/ElijahZhao/MetaNutri---AI-/issues) · [✨ Request Feature](https://github.com/ElijahZhao/MetaNutri---AI-/issues)**
 
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://meta-nutri-ai.vercel.app/)
 [![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://metanutri-backend.onrender.com/)
@@ -38,7 +38,11 @@
 
 ---
 
-## 📄 Preprint
+## 📄 Preprints
+
+Two preprints from the MetaNutri ecosystem, both published on Research Square under CC BY 4.0.
+
+**1 · PPGR measurement reliability — in this repository**
 
 > **Measurement Reliability Confounds Cross-Regime Comparisons of Postprandial Glucose Prediction: Evidence from Bidirectional Cross-Cohort Transfer**
 >
@@ -46,13 +50,23 @@
 >
 > **DOI** [`10.21203/rs.3.rs-11558064/v1`](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **Read** [on Research Square](https://doi.org/10.21203/rs.3.rs-11558064/v1) · **PDF** [in this repository](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf)
 
-The preprint reports the measurement-reliability analysis behind the [research highlights](#-research-highlights): six experiments on CGMacros and BIG IDEAs, the reliability ceiling, and the bidirectional cross-cohort transfer results.
+Reports the measurement-reliability analysis behind the [research highlights](#-research-highlights): six experiments on CGMacros and BIG IDEAs, the reliability ceiling, and the bidirectional cross-cohort transfer results.
+
+**2 · NutriQA RAG benchmark — in [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG)**
+
+> **NutriQA: A Traceable RAG Question-Answering Benchmark and Empirical Study on Official Chinese Nutrition Data**
+>
+> Yulin Zhao · *Research Square* · v1 · 2 November 2026 · **CC BY 4.0**
+>
+> **DOI** [`10.21203/rs.3.rs-11565315/v1`](https://doi.org/10.21203/rs.3.rs-11565315/v1) · **Read** [on Research Square](https://doi.org/10.21203/rs.3.rs-11565315/v1) · **PDF** [published version](https://github.com/ElijahZhao/MetaNutri-Ai-RAG/blob/main/docs/paper/NutriQA-paper-researchsquare-v1.pdf) · **Repo** [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG)
+
+A 200-item traceable QA benchmark over official Chinese nutrition data (food composition tables + the 2022 dietary guidelines): hybrid retrieval reaching 160/160 hits at `top_k=8`, **100% numeric fabrication** by bare LLMs on out-of-KB boundary items (suppressed to ~0–2.5% by RAG refusal), and deterministic judgment rules that beat a generic LLM judge on human agreement (0.949 vs 0.846).
 
 ---
 
 ## 📑 Table of Contents
 
-- [📄 Preprint](#-preprint)
+- [📄 Preprints](#-preprints)
 - [About the Project](#-about-the-project)
 - [📌 Project Status](#-project-status)
 - [🔬 Research Highlights](#-research-highlights)
@@ -118,7 +132,7 @@ The AI endpoints on the platform are deliberately honest heuristics (see [Limita
 
 - **Method:** strict leave-one-subject-out cross-validation; XGBoost benchmarked against a mean predictor and two macronutrient-only Ridge baselines.
 - **Artifacts:** [21-page technical report (PDF)](research/reports/technical_report.pdf) · [reproducible pipeline](research/src/) · [result CSVs](research/experiments/) · [figures](research/reports/figures/).
-- **Published preprint (CC BY 4.0):** [Measurement Reliability Confounds Cross-Regime Comparisons of Postprandial Glucose Prediction](https://doi.org/10.21203/rs.3.rs-11558064/v1) — Research Square, v1, 2 Nov 2026 · [PDF](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf).
+- **Published preprints (CC BY 4.0):** [PPGR measurement reliability](https://doi.org/10.21203/rs.3.rs-11558064/v1) — this repo, v1, 2 Nov 2026 · [PDF](preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf) · [NutriQA RAG benchmark](https://doi.org/10.21203/rs.3.rs-11565315/v1) — in [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG), v1, 2 Nov 2026.
 - **Live demo (runs the real trained model):** <https://metanutri-ai-ppgr-predictor.streamlit.app>
 - **One-command reproduction:** `cd research && bash src/run_all.sh`
 
@@ -138,14 +152,14 @@ The AI endpoints on the platform are deliberately honest heuristics (see [Limita
 
 ## 🧩 Related Repositories
 
-This project spans **three independent GitHub repositories**. They are deliberately **not** linked by git — no submodule, no subtree, no `.gitmodules`. The first two are coupled by **provenance**, not by tooling; the third is an independent showcase.
+This project spans **three independent GitHub repositories**. They are deliberately **not** linked by git — no submodule, no subtree, no `.gitmodules`. The first two are coupled by **provenance**, not by tooling; the third is an independent research repository with its own paper.
 
 | | **This repository** | **[`MetaNutri-Ai-ppgr-predictor`](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor)** | **[`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG)** |
 |---|---|---|---|
-| **What it is** | The whole project: the full-stack platform (`backend/`, `frontend/`) **and** the research module (`research/`) | The **deployment** of the research module's demo — a self-contained Streamlit app | An **independent** RAG Q&A demo — citation-grounded answers over official Chinese nutrition data, with its own retrieval pipeline and a built-in 50-item evaluation |
+| **What it is** | The whole project: the full-stack platform (`backend/`, `frontend/`) **and** the research module (`research/`) | The **deployment** of the research module's demo — a self-contained Streamlit app | An **independent research repository** — its own retrieval pipeline, the 200-item **NutriQA** benchmark, its own evaluation harnesses and its own published preprint |
 | **Live** | <https://meta-nutri-ai.vercel.app> | <https://metanutri-ai-ppgr-predictor.streamlit.app> | <https://metanutri-ai-rag-question-answering.streamlit.app> |
 | **Size** | ~17 MB | ~2.3 MB | ~6 MB |
-| **Role** | Source of truth | Curated, read-only copy | Independent showcase — shares the brand, data sources & MIT license |
+| **Role** | Source of truth | Curated, read-only copy | Independent research repo — owns the NutriQA paper and benchmark; shares the brand, data sources & MIT license |
 
 **Flow is one way: this repository → `MetaNutri-Ai-ppgr-predictor`.** Nothing flows back. The demo repo holds a *curated subset* — `app.py`, `inference.py`, `model/*.json`, `assets/`, `src/`, `reports/`, `experiments/` — and imports nothing from the platform.
 
@@ -155,7 +169,7 @@ This project spans **three independent GitHub repositories**. They are deliberat
 
 **Do they interact at runtime? No.** There is no API call, no shared package and no data exchange between them. The demo is standalone: it loads exported JSON boosters and predicts locally.
 
-**The third member — [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG).** Unlike `MetaNutri-Ai-ppgr-predictor`, it is **not** exported from this repository: it is an independent RAG showcase with its own data pipeline, retrieval stack and evaluation. It shares only the MetaNutri ecosystem brand, the same underlying nutrition data sources (Chinese Food Composition Tables, 2022 Dietary Guidelines) and the MIT license family. Live demo: <https://metanutri-ai-rag-question-answering.streamlit.app>.
+**The third member — [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG).** Unlike `MetaNutri-Ai-ppgr-predictor`, it is **not** exported from this repository: it is an independent research repository with its own data pipeline, retrieval stack and evaluation suite. It is also the research home of the **NutriQA** paper — a 200-item traceable RAG benchmark on official Chinese nutrition data, published as a preprint ([DOI `10.21203/rs.3.rs-11565315/v1`](https://doi.org/10.21203/rs.3.rs-11565315/v1)). It shares only the MetaNutri ecosystem brand, the same underlying nutrition data sources (Chinese Food Composition Tables, 2022 Dietary Guidelines) and the MIT license family. Live demo: <https://metanutri-ai-rag-question-answering.streamlit.app>.
 
 > `MetaNutri-Ai-ppgr-predictor`'s working copy can be kept locally at `.deploy/MetaNutri-Ai-ppgr-predictor/` as an **untracked** mirror (see `.gitignore`). That mirror is a convenience for pushing; it is not part of this repository, and cloning this repository does not require it.
 
