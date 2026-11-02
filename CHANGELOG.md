@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The three repositories in the ecosystem are now described by role in every
+  README: this repository holds the platform plus the PPGR study,
+  `MetaNutri-Ai-RAG` is an independent research repository with its own
+  NutriQA benchmark and preprint, and `MetaNutri-Ai-ppgr-predictor` is the
+  deployment-only demo shell.
 - Repository renames across the ecosystem: the demo repository `ppgr-predictor`
   is now `MetaNutri-Ai-ppgr-predictor`, and the sibling RAG module `nutri-rag`
   is now `MetaNutri-Ai-RAG`. Old URLs redirect (HTTP 301). Documentation links
@@ -17,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Two published preprints (CC BY 4.0, Research Square, 2 Nov 2026): the PPGR
+  measurement-reliability study
+  ([DOI 10.21203/rs.3.rs-11558064/v1](https://doi.org/10.21203/rs.3.rs-11558064/v1),
+  PDF in `preprint/`) and the NutriQA retrieval benchmark
+  ([DOI 10.21203/rs.3.rs-11565315/v1](https://doi.org/10.21203/rs.3.rs-11565315/v1),
+  published from `MetaNutri-Ai-RAG`).
 - Dependabot version updates for pip (backend, research, demo), npm and GitHub
   Actions — one grouped PR per ecosystem per week.
 - A `ruff` lint gate for `research/`, plus inference unit tests and a 90%

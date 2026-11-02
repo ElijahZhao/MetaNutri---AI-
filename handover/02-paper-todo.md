@@ -8,6 +8,9 @@
 > **修正说明（2026-10-27，接手后）**：下文 §1 的 E2 “ICC .99” 是旧实现的错误值；
 > 正确 ICC(1,1) 为 0.798，且早餐 r = 0.799 不变。其余实验数值本轮复跑一致。
 
+> **更新（2026-11-02）**：新增 §3 的 P4.1（第二篇预印本 NutriQA 已落地于
+> Research Square，DOI `10.21203/rs.3.rs-11565315/v1`）。PPGR 论文的数字与结论未变。
+
 ---
 
 ## §0 核心结论（v2，六实验后定稿）
@@ -74,6 +77,11 @@
   仓库内版本：`preprint/2026-11-02_measurement-reliability-ppgr_preprint_v1.pdf`；
   本地写作源文件仍不入库（`.gitignore` 排除 `paper/`）。原定链条（§1 问题 →
   §2 信度框架 → §3 CGMacros 内部 → §4 跨队列 → §5 消融 → §6 含义）已在正文落实。
+- **P4.1 第二篇预印本（已落地，2026-11-02）**：**NutriQA**（RAG 问答基准）论文发布于
+  Research Square，DOI `10.21203/rs.3.rs-11565315/v1`，CC BY 4.0，v1。
+  PDF 在 RAG 仓 `docs/paper/NutriQA-paper-researchsquare-v1.pdf`，发布标签 `v1.0.1`
+  （`v1.0.0` = data/code/evidence，`v1.0.1` = 追加论文 PDF 与图）。
+  线上 v1 不修订、不发 v2。
 - **P5 期刊定位**：负结果短文候选（PLOS Digital Health / CHIL / JMIR / Sci Rep），
   等 P3 检索后定。
 - **P6 重下数据才需要做的事**：若需重跑/改实验，重下 627 MB（脚本+校验就绪）。
