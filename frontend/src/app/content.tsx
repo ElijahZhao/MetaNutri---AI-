@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import SiteHeader from '@/components/home/SiteHeader';
 import HeroSection from '@/components/home/HeroSection';
 import FeatureGrid from '@/components/home/FeatureGrid';
+import ResearchSection from '@/components/home/ResearchSection';
 import CTASection from '@/components/home/CTASection';
 
 const BioCanvas = dynamic(() => import('@/components/BioCanvas'), { ssr: false });
@@ -52,6 +53,7 @@ export default function Home() {
         <main id="main-content" tabIndex={-1}>
           <HeroSection />
           <FeatureGrid />
+          <ResearchSection />
           <CTASection />
         </main>
       </div>
