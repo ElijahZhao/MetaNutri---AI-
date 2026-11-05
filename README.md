@@ -38,6 +38,26 @@
 
 ---
 
+## ⏱️ 60-second tour
+
+One ecosystem, three public repositories, two published preprints.
+
+| | Repository | What it is | Open it |
+|---|---|---|---|
+| 🧬 | [`MetaNutri---AI-`](https://github.com/ElijahZhao/MetaNutri---AI-) | **This repo** — full-stack platform + the PPGR research module (data, pipeline, results) | [Live app](https://meta-nutri-ai.vercel.app/) |
+| 🥗 | [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) | Independent research repo — Chinese-nutrition RAG pipeline + the 200-item **NutriQA** benchmark | [Live demo](https://metanutri-ai-rag-question-answering.streamlit.app/) |
+| 🩸 | [`MetaNutri-Ai-ppgr-predictor`](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) | Deployment shell — ships the frozen PPGR models as a live inference demo | [Live demo](https://metanutri-ai-ppgr-predictor.streamlit.app/) |
+
+**Two preprints (Research Square, CC BY 4.0):**
+[PPGR measurement reliability](https://doi.org/10.21203/rs.3.rs-11558064/v1) ·
+[NutriQA RAG benchmark](https://doi.org/10.21203/rs.3.rs-11565315/v1)
+
+**Three numbers worth remembering:** 45 subjects / 1,557 meals under leave-one-subject-out validation ·
+breakfast AUC *r* = 0.890, while the same frozen model transferred to another cohort collapses to iAUC *r* = 0.23 ·
+NutriQA: 200 items × 3 models, where bare LLMs hallucinate **100%** of boundary-case answers and the retrieval pipeline refuses correctly **100%** of the time.
+
+> Each repository stands on its own — they share the brand, the MIT code licence and the same underlying nutrition data sources, and nothing else. Every number above is regenerated from committed result CSVs, pinned at tag `v1.0.0`.
+
 ## 📄 Preprints
 
 Two preprints from the MetaNutri ecosystem, both published on Research Square under CC BY 4.0.
@@ -66,6 +86,7 @@ A 200-item traceable QA benchmark over official Chinese nutrition data (food com
 
 ## 📑 Table of Contents
 
+- [⏱️ 60-second tour](#-60-second-tour)
 - [📄 Preprints](#-preprints)
 - [About the Project](#-about-the-project)
 - [📌 Project Status](#-project-status)

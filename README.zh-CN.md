@@ -38,6 +38,26 @@
 
 ---
 
+## ⏱️ 60 秒导览
+
+一个生态、三个公开仓库、两篇已发表预印本。
+
+| | 仓库 | 它是什么 | 打开看 |
+|---|---|---|---|
+| 🧬 | [`MetaNutri---AI-`](https://github.com/ElijahZhao/MetaNutri---AI-) | **本仓库**——全栈平台 + PPGR 研究模块（数据、流水线、结果） | [在线应用](https://meta-nutri-ai.vercel.app/) |
+| 🥗 | [`MetaNutri-Ai-RAG`](https://github.com/ElijahZhao/MetaNutri-Ai-RAG) | 独立研究仓——中文营养 RAG 检索管线 + 200 题 **NutriQA** 基准 | [在线演示](https://metanutri-ai-rag-question-answering.streamlit.app/) |
+| 🩸 | [`MetaNutri-Ai-ppgr-predictor`](https://github.com/ElijahZhao/MetaNutri-Ai-ppgr-predictor) | 部署壳——把冻结的 PPGR 模型发布成线上推理演示 | [在线演示](https://metanutri-ai-ppgr-predictor.streamlit.app/) |
+
+**两篇预印本（Research Square，CC BY 4.0）：**
+[PPGR 测量信度研究](https://doi.org/10.21203/rs.3.rs-11558064/v1) ·
+[NutriQA RAG 基准](https://doi.org/10.21203/rs.3.rs-11565315/v1)
+
+**三个值得记住的数字：** 45 名受试者 / 1,557 餐，留一受试者交叉验证；
+早餐 AUC *r* = 0.890，而同一份冻结模型迁移到另一队列后 iAUC *r* 塌到 0.23；
+NutriQA：200 题 × 3 个模型，裸 LLM 在边界题上 **100%** 编造，接入检索后 **100%** 正确拒答。
+
+> 三个仓库各自独立成立——共享的只有品牌、MIT 代码许可与相同的底层营养数据源。上述每个数字都由已提交的结果 CSV 重新生成，锁定在标签 `v1.0.0`。
+
 ## 📄 预印本
 
 MetaNutri 生态目前有两篇预印本，均已在 Research Square 上线，许可 CC BY 4.0。
@@ -66,6 +86,7 @@ MetaNutri 生态目前有两篇预印本，均已在 Research Square 上线，�
 
 ## 📑 目录
 
+- [⏱️ 60 秒导览](#-60-秒导览)
 - [📄 预印本](#-预印本)
 - [项目简介](#-项目简介)
 - [📌 项目状态](#-项目状态)
