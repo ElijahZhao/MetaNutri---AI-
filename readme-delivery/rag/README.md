@@ -34,11 +34,9 @@
 |---|---|
 | <img src="assets/screenshots/screenshot-chat-zh.png" width="100%" alt="Chat - Chinese" /> | <img src="assets/screenshots/screenshot-chat-en.png" width="100%" alt="Chat - English" /> |
 
-The two evaluation screenshots below are **historical (v0.2)** and show the earlier **50-case / 342-chunk** build. The current benchmark is **200 items over 344 chunks**; the images are retained as a record of the interface.
-
-| Evaluation dashboard · historical v0.2 (50 cases) | Evaluation research page · historical v0.2 |
+| Evaluation page · Chinese UI — 160-item metrics and per-item coverage | Evaluation page · English UI |
 |---|---|
-| <img src="assets/screenshots/screenshot-eval-zh.png" width="100%" alt="Evaluation dashboard (v0.2, 50 cases)" /> | <img src="assets/screenshots/screenshot-eval-research-en.png" width="100%" alt="Evaluation research dashboard (v0.2)" /> |
+| <img src="assets/screenshots/screenshot-eval-zh.png" width="100%" alt="Evaluation page (Chinese UI)" /> | <img src="assets/screenshots/screenshot-eval-research-en.png" width="100%" alt="Evaluation page (English UI)" /> |
 
 Live demo: <https://metanutri-ai-rag-question-answering.streamlit.app/>
 
@@ -133,12 +131,6 @@ Official public sources only: the China Food Composition Tables (China CDC) and 
 <summary><strong>What does it cost to run?</strong></summary>
 
 Near zero: all heavy computation is on the API side, and the free Streamlit tier is sufficient.
-</details>
-
-<details>
-<summary><strong>Why do the evaluation screenshots show 50 cases?</strong></summary>
-
-They are historical v0.2 captures. The current benchmark is 200 items over 344 chunks; all current numbers below come from `data/eval_report*.json` and `data/refusal_report*.json`.
 </details>
 
 <details>

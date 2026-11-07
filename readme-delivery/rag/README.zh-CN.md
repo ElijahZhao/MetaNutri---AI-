@@ -34,11 +34,9 @@
 |---|---|
 | <img src="assets/screenshots/screenshot-chat-zh.png" width="100%" alt="中文对话" /> | <img src="assets/screenshots/screenshot-chat-en.png" width="100%" alt="英文对话" /> |
 
-以下两张评测截图为 **v0.2 历史界面**，展示的是早前的 **50 题 / 342 切片**版本。当前基准为 **200 题、344 切片**；截图仅作为界面记录保留。
-
-| 评测仪表盘 · 历史 v0.2（50 题） | 评测研究页 · 历史 v0.2 |
+| 评测页 · 中文界面——160 题指标与逐题覆盖 | 评测页 · 英文界面 |
 |---|---|
-| <img src="assets/screenshots/screenshot-eval-zh.png" width="100%" alt="评测仪表盘（v0.2，50 题）" /> | <img src="assets/screenshots/screenshot-eval-research-en.png" width="100%" alt="评测研究页（v0.2）" /> |
+| <img src="assets/screenshots/screenshot-eval-zh.png" width="100%" alt="评测页（中文界面）" /> | <img src="assets/screenshots/screenshot-eval-research-en.png" width="100%" alt="评测页（英文界面）" /> |
 
 在线演示：<https://metanutri-ai-rag-question-answering.streamlit.app/>
 
@@ -133,12 +131,6 @@ streamlit run app.py
 <summary><strong>运行成本高吗？</strong></summary>
 
 接近零：重计算都在 API 侧，免费的 Streamlit 层足够。
-</details>
-
-<details>
-<summary><strong>为什么评测截图是 50 题？</strong></summary>
-
-那是 v0.2 的历史截图。当前基准是 200 题、344 切片；本文所有当前数字均来自 `data/eval_report*.json` 与 `data/refusal_report*.json`。
 </details>
 
 <details>
